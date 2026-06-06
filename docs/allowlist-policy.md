@@ -38,3 +38,5 @@ All provided fields must match. Omitted fields match any value.
 Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts so accepted risks stay visible.
 
 Review allowlists periodically. Prefer fixing findings over suppressing them permanently.
+
+For a practical owner and review-date process, see [Accepted Risk Review Cadence](accepted-risk-cadence.md).

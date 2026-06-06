@@ -104,3 +104,20 @@ def test_review_response_flow_is_linked_from_entrypoints() -> None:
     assert "docs/review-response-flow.md" in readme
     assert "review-response-flow.md" in request_docs
     assert "review-response-flow.md" in playbook
+
+
+def test_accepted_risk_cadence_is_linked_from_entrypoints() -> None:
+    cadence = (ROOT / "docs" / "accepted-risk-cadence.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    allowlist = (ROOT / "docs" / "allowlist-policy.md").read_text(encoding="utf-8")
+    matrix = (ROOT / "docs" / "risk-matrix.md").read_text(encoding="utf-8")
+    response = (ROOT / "docs" / "review-response-flow.md").read_text(encoding="utf-8")
+
+    assert "Accepted Risk Review Cadence" in cadence
+    assert "owner" in cadence
+    assert "review date" in cadence
+    assert "removal condition" in cadence
+    assert "docs/accepted-risk-cadence.md" in readme
+    assert "accepted-risk-cadence.md" in allowlist
+    assert "accepted-risk-cadence.md" in matrix
+    assert "accepted-risk-cadence.md" in response

@@ -101,4 +101,4 @@ agentic-actions-guard scan . --format review --review-target owner/repo --fail-o
 This is a best-effort workflow safety review, not proof of exploitability or a full security audit.
 ````
 
-For the review model, see [Request a Workflow Safety Review](request-workflow-review.md), [Maintainer Review Playbook](maintainer-review-playbook.md), and [Risk Matrix](risk-matrix.md).
+For the review model, see [Request a Workflow Safety Review](request-workflow-review.md), [Maintainer Review Playbook](maintainer-review-playbook.md), [Risk Matrix](risk-matrix.md), and [Accepted Risk Review Cadence](accepted-risk-cadence.md).

@@ -27,3 +27,5 @@ Use this default priority:
 4. Treat `info` findings as inventory that points maintainers to action-specific guidance.
 
 For rollout commands, see [Adoption Recipes](adoption-recipes.md). For stable rule wording, see [Rule Reference](rule-reference.md).
+
+For time-bound accepted risks, see [Accepted Risk Review Cadence](accepted-risk-cadence.md).

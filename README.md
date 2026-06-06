@@ -47,6 +47,7 @@ See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short
 See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for how public review reports are shared after maintainer consent.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) for separating read-only AI analysis from maintainer-approved writes.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste local, annotations, SARIF, and allowlist rollout examples.
+See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) for keeping allowlisted findings owned and time-bound.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
 
 `agentic-actions-guard` gives maintainers a fast local check that is easy to run in CI:
@@ -140,6 +141,7 @@ See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for c
 See [Risk Matrix](docs/risk-matrix.md) when deciding which findings should block release.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) when designing AI triage, PR review, release-note, or auto-fix workflows.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste rollout examples.
+See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) before suppressing findings with an allowlist.
 See [Curated AI Action Checks](docs/curated-ai-actions.md) for currently recognized AI maintainer actions.
 See [AI Action Pinning Guide](docs/action-pinning.md) for the recommended update process when pinning AI action refs.
 See [Fixture Corpus](docs/fixture-corpus.md) for the public-safe examples used by the test suite.
