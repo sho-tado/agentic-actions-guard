@@ -59,6 +59,7 @@ See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable ac
 - warns when AI jobs use checkout without `persist-credentials: false`
 - warns when AI maintainer actions use mutable refs instead of full commit SHA pins
 - warns when AI step outputs are interpolated into shell commands
+- warns when privileged `workflow_run` follow-ups consume AI workflow handoff context
 - reports secret exposure in agent jobs
 - treats workflow top-level `env` secrets as available to AI jobs
 - emits Markdown, JSON, SARIF, review reports, or GitHub annotations for issue comments, release gates, and code scanning

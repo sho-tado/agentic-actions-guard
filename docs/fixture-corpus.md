@@ -11,6 +11,7 @@ The `examples/` directory contains public-safe workflow fixtures used by the tes
 | `risky-ai-output-shell.yml` | AI step output interpolated into a shell command that writes back to an issue. |
 | `risky-pr-review.yml` | PR review workflow pattern for untrusted pull request text and AI review automation. |
 | `risky-release-notes.yml` | Release-note automation pattern where commit or event text can reach AI automation. |
+| `risky-workflow-run-handoff.yml` | `workflow_run` handoff pattern where an upstream AI plan is consumed by a privileged follow-up job. |
 
 Risky fixtures should produce at least one high or critical finding.
 
@@ -23,6 +24,7 @@ Risky fixtures should produce at least one high or critical finding.
 | `safer-ai-output-report.yml` | AI-style analysis output written as a report artifact instead of interpolated into shell execution. |
 | `safer-release-notes.yml` | Maintainer-dispatched release note draft that keeps credentials read-only and writes an artifact for review. |
 | `safer-two-stage-triage.yml` | Two-stage pattern that separates AI analysis from maintainer-controlled write operations. |
+| `safer-workflow-run-handoff.yml` | `workflow_run` handoff pattern that keeps permissions read-only and turns upstream output into a review artifact. |
 
 Safer fixtures should not produce high or critical findings.
 

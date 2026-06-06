@@ -1,0 +1,28 @@
+name: risky workflow run agent handoff
+
+on:
+  workflow_run:
+    workflows: ["ai-pr-analysis"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  apply-agent-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: ai-plan
+          path: ai-plan
+      - uses: openai/agent-action@v1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          prompt: |
+            Apply the plan from the upstream workflow artifact.
+      - run: |
+          git apply ai-plan/patch.diff
+          git push

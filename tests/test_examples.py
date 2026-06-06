@@ -57,3 +57,15 @@ def test_ai_autofix_fixture_pair_exercises_write_boundary() -> None:
     assert "AGENT_WITH_WRITE_TOKEN" in risky_rules
     assert not (safer_severities & {"high", "critical"})
     assert "AGENT_WITH_WRITE_TOKEN" not in safer_rules
+
+
+def test_workflow_run_handoff_fixture_pair_exercises_handoff_boundary() -> None:
+    risky_report = scan_repository(EXAMPLES / "risky-workflow-run-handoff.yml")
+    safer_report = scan_repository(EXAMPLES / "safer-workflow-run-handoff.yml")
+
+    risky_rules = {finding.rule for finding in risky_report.findings}
+    safer_severities = {finding.severity for finding in safer_report.findings}
+
+    assert "WORKFLOW_RUN_AGENT_HANDOFF" in risky_rules
+    assert "AGENT_WITH_WRITE_TOKEN" in risky_rules
+    assert not (safer_severities & {"high", "critical"})

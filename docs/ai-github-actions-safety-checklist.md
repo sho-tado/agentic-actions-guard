@@ -29,6 +29,8 @@ The write job should consume structured, constrained output and should run after
 
 See [Two-Stage AI Workflow Pattern](two-stage-ai-workflows.md) for a maintainer-facing example.
 
+If the second stage runs on `workflow_run`, treat downloaded artifacts and upstream outputs as untrusted handoff data until a maintainer validates them.
+
 ## 3. Declare Permissions Explicitly
 
 Do not rely on implicit `GITHUB_TOKEN` permissions.

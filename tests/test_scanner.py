@@ -736,3 +736,32 @@ jobs:
     assert "## Additional Findings Summary" in review
     assert "`UNTRUSTED_INPUT_TO_AGENT`:" in review
     assert "additional finding(s)" in review
+
+
+def test_workflow_run_agent_handoff_with_write_token_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "handoff.yml").write_text(
+        """name: ai workflow run handoff
+on:
+  workflow_run:
+    workflows: ["ai-pr-analysis"]
+    types: [completed]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: apply upstream artifact
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    handoff = next(finding for finding in report.findings if finding.rule == "WORKFLOW_RUN_AGENT_HANDOFF")
+    assert handoff.severity == "high"
+    assert handoff.evidence == "workflow_run:"

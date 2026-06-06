@@ -1,0 +1,30 @@
+name: safer workflow run agent handoff
+
+on:
+  workflow_run:
+    workflows: ["ai-pr-analysis"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  review-agent-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: ai-plan
+          path: ai-plan
+      - name: Convert handoff to review artifact
+        run: |
+          mkdir -p out
+          {
+            echo "# Upstream AI plan review"
+            echo
+            echo "Review this artifact before any privileged write workflow consumes it."
+          } > out/handoff-review.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: handoff-review
+          path: out/handoff-review.md

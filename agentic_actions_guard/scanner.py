@@ -62,6 +62,10 @@ RULE_METADATA = {
         "name": "AI output to shell",
         "help": "Do not pass AI step outputs directly into shell commands.",
     },
+    "WORKFLOW_RUN_AGENT_HANDOFF": {
+        "name": "Workflow run agent handoff",
+        "help": "Review workflow_run handoffs before privileged AI follow-up jobs consume artifacts or upstream outputs.",
+    },
 }
 
 WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
@@ -91,6 +95,7 @@ WRITE_PERMISSION = re.compile(
 WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*write-all\s*$", re.IGNORECASE | re.MULTILINE)
 PERMISSIONS_BLOCK = re.compile(r"^\s*permissions:\s*(\n|$|read-all\s*$|write-all\s*$)", re.IGNORECASE | re.MULTILINE)
 PULL_REQUEST_TARGET = re.compile(r"pull_request_target\s*:", re.IGNORECASE)
+WORKFLOW_RUN = re.compile(r"workflow_run\s*:", re.IGNORECASE)
 CHECKOUT_HEAD_REF = re.compile(
     r"actions/checkout@[\w.\-]+[\s\S]{0,500}(github\.event\.pull_request\.head\.(sha|ref)|ref:\s*\$\{\{)",
     re.IGNORECASE,
@@ -576,6 +581,7 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     write_permission = _ai_write_permission(text, ai_job_blocks)
     has_permissions_block = _has_ai_permissions_block(text, ai_job_blocks)
     has_pull_request_target = bool(PULL_REQUEST_TARGET.search(text))
+    has_workflow_run = bool(WORKFLOW_RUN.search(text))
     has_checkout_head_ref = bool(CHECKOUT_HEAD_REF.search(text))
     shell_match = _first_scoped_match(RUNS_SHELL, text, ai_job_blocks)
     has_shell = shell_match is not None
@@ -712,6 +718,22 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
                 "AI-agent workflow runs on pull_request_target.",
                 _line_at(text, match.start()),
                 "Avoid running agent code on pull_request_target; never check out untrusted fork code with privileged tokens.",
+            )
+        )
+
+    if has_ai and has_workflow_run and (write_permission is not None or has_secret):
+        match = WORKFLOW_RUN.search(text)
+        assert match is not None
+        findings.append(
+            _finding(
+                "high",
+                "WORKFLOW_RUN_AGENT_HANDOFF",
+                path,
+                text,
+                match.start(),
+                "AI-agent workflow runs on workflow_run with privileged follow-up context.",
+                _line_at(text, match.start()),
+                "Treat workflow_run artifacts and upstream outputs as a trust boundary; validate handoff data and keep privileged writes in a maintainer-approved job.",
             )
         )
 
