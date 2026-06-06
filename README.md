@@ -13,14 +13,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v0.7.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v0.8.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v0.7.0
+- uses: sho-tado/agentic-actions-guard@v0.8.0
   with:
     path: .
     format: sarif
@@ -43,7 +43,7 @@ See [AI GitHub Actions Threat Model](docs/ai-actions-threat-model.md) for the ri
 
 - flags AI/agent-related actions and scripts
 - detects untrusted GitHub event context used in prompts or shell commands
-- warns on broad or implicit `GITHUB_TOKEN` permissions
+- warns on broad or implicit `GITHUB_TOKEN` permissions, scoped to AI jobs when possible
 - highlights risky `pull_request_target` checkout patterns
 - reports secret exposure in agent jobs
 - emits Markdown, JSON, SARIF, review reports, or GitHub annotations for issue comments, release gates, and code scanning
@@ -112,7 +112,7 @@ Exit codes:
 
 ## Current Scope
 
-The scanner is intentionally conservative and text-based in this first version. It does not execute workflows, does not call external APIs, and does not need repository credentials.
+The scanner is intentionally conservative and dependency-light. It uses lightweight workflow structure parsing for job-scoped permissions and shell detection, but it does not execute workflows, call external APIs, or need repository credentials.
 
 ## Maintainer Checklist
 
@@ -124,7 +124,6 @@ See [Request a Workflow Safety Review](docs/request-workflow-review.md) if you m
 
 Planned next steps:
 
-- YAML-aware parser while preserving dependency-light install
 - curated checks for popular AI actions
 - public-safe review reports for maintainer outreach
 

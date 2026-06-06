@@ -11,10 +11,10 @@
 - v0.6.0: allowlist policy file for accepted workflow risks
 - v0.6.1: README quick start and adoption path cleanup
 - v0.7.0: GitHub Actions annotation output for lightweight pull request feedback
+- v0.8.0: job-scoped workflow parsing for more precise AI permissions and shell findings
 
 ## Next
 
-- v0.8.0: YAML-aware parsing for more precise job-level permissions
 - v0.9.0: curated checks for popular AI triage, review, and auto-fix actions
 
 ## Research Backlog

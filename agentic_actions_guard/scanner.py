@@ -66,14 +66,22 @@ WRITE_PERMISSION = re.compile(
     r"^\s*(contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses):\s*write\s*$",
     re.IGNORECASE | re.MULTILINE,
 )
-PERMISSIONS_BLOCK = re.compile(r"^\s*permissions:\s*(\n|$)", re.IGNORECASE | re.MULTILINE)
+WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*write-all\s*$", re.IGNORECASE | re.MULTILINE)
+PERMISSIONS_BLOCK = re.compile(r"^\s*permissions:\s*(\n|$|read-all\s*$|write-all\s*$)", re.IGNORECASE | re.MULTILINE)
 PULL_REQUEST_TARGET = re.compile(r"pull_request_target\s*:", re.IGNORECASE)
 CHECKOUT_HEAD_REF = re.compile(
     r"actions/checkout@[\w.\-]+[\s\S]{0,500}(github\.event\.pull_request\.head\.(sha|ref)|ref:\s*\$\{\{)",
     re.IGNORECASE,
 )
-RUNS_SHELL = re.compile(r"^\s*run:\s*(\||>|[^\n]+)", re.IGNORECASE | re.MULTILINE)
+RUNS_SHELL = re.compile(r"^\s*(?:-\s*)?run:\s*(\||>|[^\n]+)", re.IGNORECASE | re.MULTILINE)
 USES_ACTION = re.compile(r"^\s*uses:\s*([^\s#]+)", re.IGNORECASE | re.MULTILINE)
+
+
+@dataclass(frozen=True)
+class TextBlock:
+    name: str
+    text: str
+    start_offset: int
 
 
 @dataclass(frozen=True)
@@ -466,16 +474,19 @@ def _iter_workflows(root: Path) -> list[Path]:
 
 def _scan_workflow(path: str, text: str) -> list[Finding]:
     findings: list[Finding] = []
+    job_blocks = _job_blocks(text)
+    ai_job_blocks = [block for block in job_blocks if AI_HINTS.search(block.text)]
     ai_matches = list(AI_HINTS.finditer(text))
-    untrusted_matches = list(UNTRUSTED_CONTEXT.finditer(text))
+    untrusted_match = _first_scoped_match(UNTRUSTED_CONTEXT, text, ai_job_blocks)
     has_ai = bool(ai_matches)
-    has_untrusted = bool(untrusted_matches)
-    has_secret = bool(SECRET_CONTEXT.search(text))
-    has_write_permission = bool(WRITE_PERMISSION.search(text))
-    has_permissions_block = bool(PERMISSIONS_BLOCK.search(text))
+    has_untrusted = untrusted_match is not None
+    has_secret = _first_scoped_match(SECRET_CONTEXT, text, ai_job_blocks) is not None
+    write_permission = _ai_write_permission(text, ai_job_blocks)
+    has_permissions_block = _has_ai_permissions_block(text, ai_job_blocks)
     has_pull_request_target = bool(PULL_REQUEST_TARGET.search(text))
     has_checkout_head_ref = bool(CHECKOUT_HEAD_REF.search(text))
-    has_shell = bool(RUNS_SHELL.search(text))
+    shell_match = _first_scoped_match(RUNS_SHELL, text, ai_job_blocks)
+    has_shell = shell_match is not None
 
     for match in USES_ACTION.finditer(text):
         action = match.group(1)
@@ -494,46 +505,45 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
             )
 
     if has_ai and has_untrusted and has_secret:
-        match = untrusted_matches[0]
+        match_text, match_offset = untrusted_match
         findings.append(
             _finding(
                 "critical",
                 "UNTRUSTED_INPUT_WITH_SECRETS",
                 path,
                 text,
-                match.start(),
+                match_offset,
                 "AI-agent workflow appears to combine untrusted GitHub event text with secrets or privileged tokens.",
-                _line_at(text, match.start()),
+                match_text,
                 "Separate untrusted text analysis from privileged actions; avoid secrets in jobs that consume issue, PR, or comment content.",
             )
         )
     elif has_ai and has_untrusted:
-        match = untrusted_matches[0]
+        match_text, match_offset = untrusted_match
         findings.append(
             _finding(
                 "high",
                 "UNTRUSTED_INPUT_TO_AGENT",
                 path,
                 text,
-                match.start(),
+                match_offset,
                 "AI-agent workflow consumes untrusted issue, PR, comment, or commit text.",
-                _line_at(text, match.start()),
+                match_text,
                 "Treat event text as hostile input; quarantine it from tool-capable prompts and require maintainer approval for write actions.",
             )
         )
 
-    if has_ai and has_write_permission:
-        match = WRITE_PERMISSION.search(text)
-        assert match is not None
+    if has_ai and write_permission is not None:
+        match_text, match_offset = write_permission
         findings.append(
             _finding(
                 "high",
                 "AGENT_WITH_WRITE_TOKEN",
                 path,
                 text,
-                match.start(),
+                match_offset,
                 "AI-agent workflow has write permissions.",
-                _line_at(text, match.start()),
+                match_text,
                 "Use least-privilege permissions and split read-only analysis from write operations.",
             )
         )
@@ -571,22 +581,133 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
         )
 
     if has_ai and has_shell:
-        match = RUNS_SHELL.search(text)
-        assert match is not None
+        match_text, match_offset = shell_match
         findings.append(
             _finding(
                 "medium",
                 "AGENT_JOB_RUNS_SHELL",
                 path,
                 text,
-                match.start(),
+                match_offset,
                 "AI-related workflow contains shell execution.",
-                _line_at(text, match.start()),
+                match_text,
                 "Constrain shell steps, avoid interpolating model output into commands, and require human approval for mutations.",
             )
         )
 
     return findings
+
+
+def _job_blocks(text: str) -> list[TextBlock]:
+    lines = text.splitlines(keepends=True)
+    offsets: list[int] = []
+    offset = 0
+    for line in lines:
+        offsets.append(offset)
+        offset += len(line)
+
+    jobs_index: int | None = None
+    jobs_indent = 0
+    for index, line in enumerate(lines):
+        match = re.match(r"^(\s*)jobs:\s*(#.*)?$", line)
+        if match:
+            jobs_index = index
+            jobs_indent = len(match.group(1))
+            break
+    if jobs_index is None:
+        return []
+
+    child_indent: int | None = None
+    job_starts: list[tuple[str, int]] = []
+    jobs_end_index = len(lines)
+    for index in range(jobs_index + 1, len(lines)):
+        line = lines[index]
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        if indent <= jobs_indent:
+            jobs_end_index = index
+            break
+        if child_indent is None:
+            child_indent = indent
+        if indent != child_indent:
+            continue
+        match = re.match(r"^\s*([A-Za-z0-9_.-]+):\s*(#.*)?$", line)
+        if match:
+            job_starts.append((match.group(1), index))
+
+    blocks: list[TextBlock] = []
+    for position, (name, start_index) in enumerate(job_starts):
+        end_index = job_starts[position + 1][1] if position + 1 < len(job_starts) else jobs_end_index
+        blocks.append(TextBlock(name=name, text="".join(lines[start_index:end_index]), start_offset=offsets[start_index]))
+    return blocks
+
+
+def _first_scoped_match(pattern: re.Pattern[str], text: str, scoped_blocks: list[TextBlock]) -> tuple[str, int] | None:
+    if scoped_blocks:
+        for block in scoped_blocks:
+            match = pattern.search(block.text)
+            if match is not None:
+                return _line_at(block.text, match.start()), block.start_offset + match.start()
+        return None
+    match = pattern.search(text)
+    if match is None:
+        return None
+    return _line_at(text, match.start()), match.start()
+
+
+def _has_top_level_permissions(text: str) -> bool:
+    return bool(re.search(r"^permissions:\s*(\n|$|read-all\s*$|write-all\s*$)", text, re.IGNORECASE | re.MULTILINE))
+
+
+def _top_level_write_permission(text: str) -> tuple[str, int] | None:
+    block = _top_level_block(text, "permissions")
+    if block is None:
+        return None
+    match = WRITE_ALL_PERMISSION.search(block.text) or WRITE_PERMISSION.search(block.text)
+    if match is None:
+        return None
+    return _line_at(block.text, match.start()), block.start_offset + match.start()
+
+
+def _top_level_block(text: str, key: str) -> TextBlock | None:
+    lines = text.splitlines(keepends=True)
+    offset = 0
+    for index, line in enumerate(lines):
+        if re.match(rf"^{re.escape(key)}:\s*(read-all|write-all)?\s*(#.*)?$", line, re.IGNORECASE):
+            start_offset = offset
+            end_index = len(lines)
+            for next_index in range(index + 1, len(lines)):
+                next_line = lines[next_index]
+                if next_line.strip() and not next_line.startswith((" ", "\t")):
+                    end_index = next_index
+                    break
+            return TextBlock(name=key, text="".join(lines[index:end_index]), start_offset=start_offset)
+        offset += len(line)
+    return None
+
+
+def _ai_write_permission(text: str, ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
+    top_level = _top_level_write_permission(text)
+    if top_level is not None:
+        return top_level
+    for block in ai_job_blocks:
+        match = WRITE_ALL_PERMISSION.search(block.text) or WRITE_PERMISSION.search(block.text)
+        if match is not None:
+            return _line_at(block.text, match.start()), block.start_offset + match.start()
+    if not ai_job_blocks:
+        match = WRITE_ALL_PERMISSION.search(text) or WRITE_PERMISSION.search(text)
+        if match is not None:
+            return _line_at(text, match.start()), match.start()
+    return None
+
+
+def _has_ai_permissions_block(text: str, ai_job_blocks: list[TextBlock]) -> bool:
+    if _has_top_level_permissions(text):
+        return True
+    if ai_job_blocks:
+        return any(PERMISSIONS_BLOCK.search(block.text) for block in ai_job_blocks)
+    return bool(PERMISSIONS_BLOCK.search(text))
 
 
 def _finding(

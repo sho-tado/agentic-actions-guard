@@ -212,3 +212,132 @@ jobs:
 
     assert "::error file=.github/workflows/triage.yml,line=11,title=HIGH UNTRUSTED_INPUT_TO_AGENT::" in annotations
     assert "Recommendation:" in annotations
+
+
+def test_non_ai_write_job_does_not_flag_agent_write_token(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: split ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  analyze:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+  label:
+    permissions:
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "maintainer-approved write job"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    rules = {finding.rule for finding in report.findings}
+    assert "AGENT_WITH_WRITE_TOKEN" not in rules
+    assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
+    assert "UNTRUSTED_INPUT_TO_AGENT" in rules
+
+
+def test_ai_job_level_write_permission_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    permissions:
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    write_finding = next(finding for finding in report.findings if finding.rule == "AGENT_WITH_WRITE_TOKEN")
+    rules = {finding.rule for finding in report.findings}
+    assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
+    assert write_finding.line == 8
+    assert write_finding.evidence == "issues: write"
+
+
+def test_top_level_write_all_permission_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+permissions: write-all
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    write_finding = next(finding for finding in report.findings if finding.rule == "AGENT_WITH_WRITE_TOKEN")
+    rules = {finding.rule for finding in report.findings}
+    assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
+    assert write_finding.line == 5
+    assert write_finding.evidence == "permissions: write-all"
+
+
+def test_non_ai_shell_before_ai_job_does_not_move_shell_finding_line(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: split ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "setup only"
+  triage:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+      - run: echo "analyze output"
+env:
+  SAFE_TOP_LEVEL: "true"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    shell_finding = next(finding for finding in report.findings if finding.rule == "AGENT_JOB_RUNS_SHELL")
+    assert shell_finding.line == 18
+    assert shell_finding.evidence == '- run: echo "analyze output"'
