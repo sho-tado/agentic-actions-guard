@@ -19,9 +19,14 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("path", type=Path, help="Repository root or .github/workflows directory.")
     scan.add_argument(
         "--format",
-        choices=("markdown", "json", "sarif"),
+        choices=("markdown", "json", "sarif", "review"),
         default="markdown",
         help="Output format.",
+    )
+    scan.add_argument(
+        "--review-target",
+        default=None,
+        help="Human-readable repository or workflow name used in review reports.",
     )
     scan.add_argument(
         "--fail-on",
@@ -49,6 +54,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
     elif args.format == "sarif":
         print(json.dumps(report.to_sarif(), indent=2, ensure_ascii=False))
+    elif args.format == "review":
+        print(report.to_review_markdown(target=args.review_target))
     else:
         print(report.to_markdown())
 

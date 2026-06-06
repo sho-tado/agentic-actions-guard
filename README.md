@@ -62,6 +62,12 @@ Use it in GitHub Actions:
 
 See [GitHub Code Scanning Setup](docs/github-code-scanning.md) for a full workflow.
 
+Generate a maintainer-facing review report:
+
+```powershell
+python -m agentic_actions_guard scan path\to\repo --format review --review-target owner/repo
+```
+
 Exit codes:
 
 - `0`: no finding at or above the fail threshold
@@ -81,7 +87,7 @@ Planned next steps:
 - YAML-aware parser while preserving dependency-light install
 - allowlist policy file for accepted workflows
 - curated checks for popular AI actions
-- fixture corpus from real-world public workflows
+- public-safe review reports for maintainer outreach
 
 See [ROADMAP.md](ROADMAP.md) for planned releases.
 

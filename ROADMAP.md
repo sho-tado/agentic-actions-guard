@@ -6,13 +6,13 @@
 - v0.2.0: SARIF output for code scanning and security tooling
 - v0.3.0: public-safe fixture corpus and maintainer safety checklist
 - v0.4.0: composite GitHub Action and code scanning setup docs
+- v0.5.0: maintainer-facing review report output
 
 ## Next
 
-- v0.5.0: YAML-aware parsing for more precise job-level permissions
-- v0.6.0: allowlist policy file for accepted workflow risks
-- v0.7.0: curated checks for popular AI triage, review, and auto-fix actions
-- v0.8.0: report templates for maintainer outreach and issue comments
+- v0.6.0: YAML-aware parsing for more precise job-level permissions
+- v0.7.0: allowlist policy file for accepted workflow risks
+- v0.8.0: curated checks for popular AI triage, review, and auto-fix actions
 
 ## Research Backlog
 

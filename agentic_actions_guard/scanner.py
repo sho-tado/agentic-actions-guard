@@ -50,7 +50,9 @@ RULE_METADATA = {
 WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
 
 AI_HINTS = re.compile(
-    r"(ai|agent|codex|openai|claude|anthropic|gemini|copilot|aider|llm|gpt|reviewdog|autofix|triage)",
+    r"(?<![A-Za-z0-9])"
+    r"(ai|agent|codex|openai|claude|anthropic|gemini|copilot|aider|llm|gpt|reviewdog|autofix|triage)"
+    r"(?![A-Za-z0-9])",
     re.IGNORECASE,
 )
 UNTRUSTED_CONTEXT = re.compile(
@@ -165,6 +167,73 @@ class ScanReport:
             )
         return "\n".join(lines).rstrip()
 
+    def to_review_markdown(self, target: str | None = None) -> str:
+        summary = summarize_findings(self.findings)
+        display_target = target or self.root
+        lines = [
+            "# Agentic Actions Guard Review",
+            "",
+            "## Scope",
+            "",
+            f"- Target: `{display_target}`",
+            f"- Workflows scanned: `{self.workflow_count}`",
+            f"- Findings: `{len(self.findings)}`",
+            "",
+            "## Severity Summary",
+            "",
+        ]
+        for severity in ("critical", "high", "medium", "low", "info"):
+            lines.append(f"- {severity}: `{summary.get(severity, 0)}`")
+
+        lines.extend(["", "## Maintainer Takeaway", ""])
+        if summary["critical"] or summary["high"]:
+            lines.append(
+                "This workflow set has high-impact AI-agent automation risks. Prioritize separating untrusted GitHub event text from jobs that have secrets, write permissions, privileged events, or shell execution."
+            )
+        elif summary["medium"]:
+            lines.append(
+                "No high-impact AI-agent workflow risks were detected, but there are medium-severity hardening opportunities worth reviewing before enabling stricter CI gates."
+            )
+        else:
+            lines.append(
+                "No risky AI-agent workflow patterns were detected by the current scanner rules. Keep AI jobs read-only by default and re-run this review when workflow automation changes."
+            )
+
+        top_findings = sorted(self.findings, key=lambda f: (-SEVERITY_ORDER[f.severity], f.path, f.line))[:5]
+        if top_findings:
+            lines.extend(["", "## Top Findings", ""])
+            for finding in top_findings:
+                lines.extend(
+                    [
+                        f"### {finding.severity.upper()} {finding.rule}",
+                        "",
+                        f"- Location: `{finding.path}:{finding.line}`",
+                        f"- Evidence: `{finding.evidence}`",
+                        f"- Risk: {finding.message}",
+                        f"- Suggested fix: {finding.recommendation}",
+                        "",
+                    ]
+                )
+
+        lines.extend(
+            [
+                "## Recommended Next Steps",
+                "",
+                "1. Keep AI analysis jobs at `contents: read` whenever possible.",
+                "2. Move write actions into a separate maintainer-approved job or workflow.",
+                "3. Do not expose secrets to jobs that process issue, PR, comment, review, or commit text.",
+                "4. Avoid `pull_request_target` for agent workflows unless the privileged path is tightly constrained.",
+                "5. Start CI gating at `--fail-on critical`, then move to `high` after expected findings are fixed.",
+                "",
+                "## Reproduce",
+                "",
+                "```powershell",
+                "python -m agentic_actions_guard scan . --format review --fail-on critical",
+                "```",
+            ]
+        )
+        return "\n".join(lines).rstrip()
+
 
 def summarize_findings(findings: list[Finding]) -> dict[str, int]:
     summary = {severity: 0 for severity in SEVERITY_ORDER}
@@ -227,7 +296,7 @@ def scan_repository(path: Path) -> ScanReport:
     findings: list[Finding] = []
     for workflow in workflows:
         text = workflow.read_text(encoding="utf-8", errors="replace")
-        rel_path = str(workflow.relative_to(root if root.is_dir() else root.parent))
+        rel_path = str(workflow.relative_to(root if root.is_dir() else root.parent)).replace("\\", "/")
         findings.extend(_scan_workflow(rel_path, text))
     return ScanReport(root=str(root), workflow_count=len(workflows), findings=findings)
 

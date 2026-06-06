@@ -47,3 +47,9 @@ For public repositories, scan workflow changes on pull requests and scan the def
 python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git
 agentic-actions-guard scan . --format sarif --fail-on critical > agentic-actions-guard.sarif
 ```
+
+For a maintainer-facing Markdown report instead of SARIF:
+
+```powershell
+agentic-actions-guard scan . --format review --review-target owner/repo
+```
