@@ -41,7 +41,7 @@ A report includes scope, severity counts, top findings, suggested fixes, and rep
 Self-service install:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.4.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.5.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 

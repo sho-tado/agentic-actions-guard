@@ -18,6 +18,8 @@ Treat these values as attacker-controlled in public repositories:
 - `github.event.head_commit.message`
 - `github.event.inputs.*`
 - `github.event.client_payload.*`
+- `github.head_ref`
+- `github.event.pull_request.head.label`
 - fork branch names and refs
 - files checked out from forked pull requests
 

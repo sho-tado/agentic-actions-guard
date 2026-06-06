@@ -65,10 +65,13 @@ AI_HINTS = re.compile(
     re.IGNORECASE,
 )
 UNTRUSTED_CONTEXT = re.compile(
-    r"github\.event\.(?:"
-    r"(?:issue|comment|pull_request|review|review_comment|head_commit)"
-    r"\.(?:title|body|body_text|message|ref|head\.ref)"
+    r"(?:"
+    r"github\.head_ref"
+    r"|github\.event\.(?:"
+    r"(?:issue|comment|review|review_comment|head_commit)\.(?:title|body|body_text|message|ref)"
+    r"|pull_request\.(?:title|body|body_text|ref|head\.(?:ref|label))"
     r"|(?:inputs|client_payload)\.[A-Za-z0-9_.-]+"
+    r")"
     r")",
     re.IGNORECASE,
 )
