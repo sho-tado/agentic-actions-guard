@@ -9,6 +9,7 @@
 - v0.5.0: maintainer-facing review report output
 - v0.5.1: workflow review request template and review request docs
 - v0.6.0: allowlist policy file for accepted workflow risks
+- v0.6.1: README quick start and adoption path cleanup
 
 ## Next
 

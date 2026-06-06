@@ -38,6 +38,13 @@ agentic-actions-guard scan . --format review --review-target owner/repo
 
 A report includes scope, severity counts, top findings, suggested fixes, and reproduction steps.
 
+Self-service install:
+
+```powershell
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v0.6.1
+agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
+```
+
 ## Limits
 
 This is a best-effort workflow safety review, not a full security audit. The scanner is intentionally conservative and text-based. It does not execute workflows, call external services, inspect secrets, or require repository credentials.

@@ -1,8 +1,37 @@
 # Agentic Actions Guard
 
+[![CI](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/sho-tado/agentic-actions-guard)](https://github.com/sho-tado/agentic-actions-guard/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Audit GitHub Actions workflows for risky AI-agent automation patterns before they expose maintainers to prompt injection, overbroad tokens, or secret leaks.
 
-This is an early OSS seed for the Codex for Open Source campaign. The project targets maintainers who are starting to add AI triage, PR review, release-note, or auto-fix workflows to public repositories.
+The project targets maintainers who are starting to add AI triage, PR review, release-note, or auto-fix workflows to public repositories.
+
+## Quick Start
+
+Run a local review:
+
+```powershell
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v0.6.1
+agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
+```
+
+Use it in GitHub Actions:
+
+```yaml
+- uses: sho-tado/agentic-actions-guard@v0.6.1
+  with:
+    path: .
+    format: sarif
+    fail-on: critical
+    output: agentic-actions-guard.sarif
+```
+
+Request a public workflow safety review:
+
+- [Join the public review call](https://github.com/sho-tado/agentic-actions-guard/issues/4)
+- [Open a workflow review request](https://github.com/sho-tado/agentic-actions-guard/issues/new?template=workflow_review_request.yml)
 
 ## Why this exists
 
@@ -17,7 +46,7 @@ AI-assisted GitHub workflows are useful, but issue bodies, pull request descript
 - reports secret exposure in agent jobs
 - emits Markdown, JSON, or SARIF for issue comments, release gates, and code scanning
 
-## Install
+## CLI Usage
 
 No third-party runtime dependency is required.
 
@@ -49,17 +78,6 @@ Emit SARIF for GitHub code scanning or downstream security tooling:
 python -m agentic_actions_guard scan path\to\repo --format sarif --fail-on high > agentic-actions-guard.sarif
 ```
 
-Use it in GitHub Actions:
-
-```yaml
-- uses: sho-tado/agentic-actions-guard@v0.5.1
-  with:
-    path: .
-    format: sarif
-    fail-on: critical
-    output: agentic-actions-guard.sarif
-```
-
 See [GitHub Code Scanning Setup](docs/github-code-scanning.md) for a full workflow.
 
 Generate a maintainer-facing review report:
@@ -76,12 +94,6 @@ python -m agentic_actions_guard scan path\to\repo --allowlist agentic-actions-gu
 
 See [Allowlist Policy](docs/allowlist-policy.md).
 
-Request a public workflow safety review:
-
-- [Join the public review call](https://github.com/sho-tado/agentic-actions-guard/issues/4)
-- [Open a workflow review request](https://github.com/sho-tado/agentic-actions-guard/issues/new?template=workflow_review_request.yml)
-- Read [Request a Workflow Safety Review](docs/request-workflow-review.md)
-
 Exit codes:
 
 - `0`: no finding at or above the fail threshold
@@ -95,6 +107,10 @@ The scanner is intentionally conservative and text-based in this first version. 
 ## Maintainer Checklist
 
 See [AI GitHub Actions Safety Checklist](docs/ai-github-actions-safety-checklist.md) before adding AI triage, PR review, release-note, or auto-fix workflows to a public repository.
+
+## Public Reviews
+
+See [Request a Workflow Safety Review](docs/request-workflow-review.md) if you maintain a public repository and want a best-effort workflow safety review.
 
 Planned next steps:
 
