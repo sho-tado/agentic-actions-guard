@@ -36,11 +36,12 @@
 
 ## Next
 
-- broader real-world fixture coverage and more curated action profiles
+- additional curated AI action profile candidates: [#19](https://github.com/sho-tado/agentic-actions-guard/issues/19)
+- OpenSSF Scorecard comparison docs: [#20](https://github.com/sho-tado/agentic-actions-guard/issues/20)
+- broader real-world fixture coverage after maintainer opt-in feedback
 
 ## Research Backlog
 
-- Compare findings against OpenSSF Scorecard coverage.
 - Build a public corpus of AI workflow patterns without copying private data.
 - Expand safe two-stage workflows for issue triage, PR review, release notes, and AI patch handoff.
 - Explore GitHub Advanced Security and CodeQL SARIF integration ergonomics.
