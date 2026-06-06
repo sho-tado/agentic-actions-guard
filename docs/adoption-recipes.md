@@ -9,7 +9,7 @@ For drop-in workflow files, see [Workflow Templates](workflow-templates.md).
 Use this before opening a workflow hardening issue or pull request.
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.9
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
@@ -39,12 +39,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.9.9
+      - uses: sho-tado/agentic-actions-guard@v1.10.0
         with:
           path: .
           format: annotations
           fail-on: critical
           output: agentic-actions-guard.annotations
+          step-summary: "true"
 ```
 
 Good for:
@@ -78,12 +79,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.9.9
+      - uses: sho-tado/agentic-actions-guard@v1.10.0
         with:
           path: .
           format: sarif
           fail-on: critical
           output: agentic-actions-guard.sarif
+          step-summary: "true"
       - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:

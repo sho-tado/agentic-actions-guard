@@ -317,6 +317,41 @@ class ScanReport:
             )
         return "\n".join(lines)
 
+    def to_step_summary(self) -> str:
+        summary = summarize_findings(self.findings)
+        lines = [
+            "## Agentic Actions Guard Summary",
+            "",
+            f"- Workflows scanned: `{self.workflow_count}`",
+            f"- Active findings: `{len(self.findings)}`",
+            f"- Suppressed findings: `{len(self.suppressed_findings)}`",
+            "",
+            "| Severity | Count |",
+            "|---|---:|",
+        ]
+        for severity in ("critical", "high", "medium", "low", "info"):
+            lines.append(f"| {severity} | `{summary.get(severity, 0)}` |")
+
+        lines.extend(["", "### Recommended Gate", "", _recommended_gate(summary)])
+
+        top_findings = sorted(self.findings, key=lambda f: (-SEVERITY_ORDER[f.severity], f.path, f.line))[:3]
+        if top_findings:
+            lines.extend(["", "### Top Findings", ""])
+            for finding in top_findings:
+                lines.append(f"- `{finding.severity}` `{finding.rule}` at `{finding.path}:{finding.line}`")
+
+        if self.suppressed_findings:
+            lines.extend(
+                [
+                    "",
+                    "### Allowlist Note",
+                    "",
+                    f"`{len(self.suppressed_findings)}` finding(s) were suppressed by allowlist policy. Review accepted risks on their documented cadence.",
+                ]
+            )
+
+        return "\n".join(lines).rstrip()
+
     def to_markdown(self) -> str:
         summary = summarize_findings(self.findings)
         lines = [
@@ -447,6 +482,20 @@ def _count_by_rule(findings: list[Finding]) -> list[tuple[str, int]]:
     for finding in findings:
         counts[finding.rule] = counts.get(finding.rule, 0) + 1
     return sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+
+
+def _recommended_gate(summary: dict[str, int]) -> str:
+    if summary["critical"]:
+        return (
+            "Keep CI at `--fail-on critical` and separate untrusted event text from secrets or privileged tokens before tightening the gate."
+        )
+    if summary["high"]:
+        return (
+            "Run in report-only or annotations mode, review high findings, then move CI to `--fail-on high` after expected risks are fixed or explicitly accepted."
+        )
+    if summary["medium"]:
+        return "Use annotations or SARIF with `--fail-on high`; track medium findings as hardening tasks."
+    return "No active high-risk AI workflow boundary was detected. Re-run the scan whenever AI workflow automation changes."
 
 
 def load_allowlist(path: Path | None) -> list[AllowlistEntry]:

@@ -36,10 +36,12 @@
 - v1.9.7: OpenSSF Scorecard comparison docs
 - v1.9.8: additional curated AI maintainer action profiles
 - v1.9.9: scheduled batch triage fixture pair
+- v1.10.0: GitHub Actions step summary output for adoption decisions
 
 ## Next
 
 - broader real-world fixture coverage after maintainer opt-in feedback
+- richer summary output after maintainers report which sections help triage fastest
 
 ## Research Backlog
 

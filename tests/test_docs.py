@@ -72,7 +72,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.9" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.10.0" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -208,6 +208,8 @@ def test_workflow_templates_are_linked_from_entrypoints() -> None:
     assert "agentic-actions-guard-sarif.yml" in templates
     assert "format: annotations" in annotations
     assert "format: sarif" in sarif
+    assert "step-summary" in annotations
+    assert "step-summary" in sarif
     assert "security-events: write" in sarif
     assert "docs/workflow-templates.md" in readme
     assert "workflow-templates.md" in recipes

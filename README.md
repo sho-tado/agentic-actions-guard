@@ -14,19 +14,20 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.9
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.9.9
+- uses: sho-tado/agentic-actions-guard@v1.10.0
   with:
     path: .
     format: sarif
     fail-on: critical
     output: agentic-actions-guard.sarif
+    step-summary: "true"
 ```
 
 This repository dogfoods the action in [`.github/workflows/agentic-actions-guard.yml`](.github/workflows/agentic-actions-guard.yml), including SARIF upload on `main`.
@@ -69,7 +70,7 @@ See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable ac
 - warns when AI-related jobs with write permissions commit, push, merge, publish releases, or write comments
 - reports secret exposure in agent jobs
 - treats workflow top-level `env` secrets as available to AI jobs
-- emits Markdown, JSON, SARIF, review reports, or GitHub annotations for issue comments, release gates, and code scanning
+- emits Markdown, JSON, SARIF, review reports, GitHub annotations, or short step summaries for issue comments, release gates, and code scanning
 - summarizes additional review findings by rule after the top maintainer-facing findings
 
 ## CLI Usage
@@ -118,6 +119,12 @@ Emit GitHub Actions annotations directly in a workflow log:
 
 ```powershell
 python -m agentic_actions_guard scan path\to\repo --format annotations --fail-on critical
+```
+
+Emit a short Markdown summary for GitHub Actions step summaries or adoption notes:
+
+```powershell
+python -m agentic_actions_guard scan path\to\repo --format summary --fail-on critical
 ```
 
 Suppress reviewed findings with a JSON allowlist policy:

@@ -355,6 +355,34 @@ jobs:
     assert "Recommendation:" in annotations
 
 
+def test_step_summary_output_is_actions_summary_friendly(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    summary = scan_repository(tmp_path).to_step_summary()
+
+    assert "## Agentic Actions Guard Summary" in summary
+    assert "| Severity | Count |" in summary
+    assert "| high | `1` |" in summary
+    assert "### Recommended Gate" in summary
+    assert "UNTRUSTED_INPUT_TO_AGENT" in summary
+
+
 def test_non_ai_write_job_does_not_flag_agent_write_token(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

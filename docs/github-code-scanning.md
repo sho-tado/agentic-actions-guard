@@ -25,12 +25,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.9.9
+      - uses: sho-tado/agentic-actions-guard@v1.10.0
         with:
           path: .
           format: sarif
           fail-on: critical
           output: agentic-actions-guard.sarif
+          step-summary: "true"
       - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
@@ -74,12 +75,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.9.9
+      - uses: sho-tado/agentic-actions-guard@v1.10.0
         with:
           path: .
           format: annotations
           fail-on: critical
           output: agentic-actions-guard.annotations
+          step-summary: "true"
 ```
 
 To suppress reviewed findings while still failing on new findings:
