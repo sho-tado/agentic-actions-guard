@@ -65,8 +65,11 @@ AI_HINTS = re.compile(
     re.IGNORECASE,
 )
 UNTRUSTED_CONTEXT = re.compile(
-    r"github\.event\.(issue|comment|pull_request|review|review_comment|head_commit)"
-    r"\.(title|body|body_text|message|ref|head\.ref)",
+    r"github\.event\.(?:"
+    r"(?:issue|comment|pull_request|review|review_comment|head_commit)"
+    r"\.(?:title|body|body_text|message|ref|head\.ref)"
+    r"|(?:inputs|client_payload)\.[A-Za-z0-9_.-]+"
+    r")",
     re.IGNORECASE,
 )
 SECRET_CONTEXT = re.compile(r"(\$\{\{\s*secrets\.|OPENAI_API_KEY|ANTHROPIC_API_KEY|GITHUB_TOKEN)", re.IGNORECASE)

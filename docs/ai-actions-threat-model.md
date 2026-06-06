@@ -16,6 +16,8 @@ Treat these values as attacker-controlled in public repositories:
 - `github.event.review.body`
 - `github.event.review_comment.body`
 - `github.event.head_commit.message`
+- `github.event.inputs.*`
+- `github.event.client_payload.*`
 - fork branch names and refs
 - files checked out from forked pull requests
 

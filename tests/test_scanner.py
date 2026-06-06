@@ -151,6 +151,63 @@ jobs:
     assert location["region"]["startLine"] == 13
 
 
+def test_workflow_dispatch_input_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "manual-review.yml").write_text(
+        """name: manual ai review
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        required: true
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.inputs.prompt }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.inputs.prompt }}"
+
+
+def test_repository_dispatch_payload_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "dispatch-review.yml").write_text(
+        """name: dispatch ai review
+on:
+  repository_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.client_payload.prompt }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.client_payload.prompt }}"
+
+
 def test_review_output_is_maintainer_facing(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)
