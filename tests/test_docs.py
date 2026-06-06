@@ -21,3 +21,14 @@ def test_example_review_report_matches_current_fixture_counts() -> None:
     assert "- high: `1`" in example_report
     assert "- medium: `2`" in example_report
     assert "- info: `1`" in example_report
+
+
+def test_action_pinning_guide_documents_unpinned_rule() -> None:
+    guide = (ROOT / "docs" / "action-pinning.md").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ai-github-actions-safety-checklist.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "`UNPINNED_AI_ACTION_REF`" in guide
+    assert "full-length commit SHA" in guide
+    assert "action-pinning.md" in checklist
+    assert "docs/action-pinning.md" in readme

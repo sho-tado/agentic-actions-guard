@@ -62,7 +62,15 @@ Never pass model output directly into shell commands.
 
 Avoid shell steps in AI jobs when possible. If shell is required, keep commands fixed and validate all parameters against allowlists.
 
-## 7. Log Evidence, Not Secrets
+## 7. Pin AI Action References
+
+Avoid mutable refs such as `@main` or `@v1` for AI maintainer actions.
+
+Prefer full-length commit SHA pins and update them intentionally after reviewing the upstream diff. This matters more for actions that consume untrusted GitHub event text, call model providers, execute tools, or run with repository tokens.
+
+See [AI Action Pinning Guide](action-pinning.md).
+
+## 8. Log Evidence, Not Secrets
 
 Reports should include:
 
@@ -75,7 +83,7 @@ Reports should include:
 
 Reports should not include full secret values, private prompts, credentials, or private repository content.
 
-## 8. Add a Failing Gate Gradually
+## 9. Add a Failing Gate Gradually
 
 Start with report-only mode. Then fail CI on critical findings. After the team has resolved expected findings, fail on high severity.
 

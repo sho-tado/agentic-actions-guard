@@ -33,7 +33,7 @@ After expected critical findings are fixed or documented, move to:
 agentic-actions-guard scan . --fail-on high
 ```
 
-Use an allowlist only for reviewed, temporary accepted risks. See [Allowlist Policy](allowlist-policy.md).
+Use an allowlist only for reviewed, temporary accepted risks. See [Allowlist Policy](allowlist-policy.md) and [AI Action Pinning Guide](action-pinning.md).
 
 ## Output Surfaces
 
