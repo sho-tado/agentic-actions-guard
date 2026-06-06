@@ -1,0 +1,50 @@
+name: Workflow safety review
+description: Request a public AI GitHub Actions workflow safety review.
+title: "[review]: "
+labels: ["workflow-review", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request a lightweight review of public GitHub Actions workflows that use AI agents, issue triage, PR review, release-note generation, or auto-fix automation.
+
+        Do not paste secrets, private workflow files, private prompts, credentials, tokens, or private repository content.
+  - type: input
+    id: repository
+    attributes:
+      label: Public repository URL
+      description: Link to the public repository or specific public workflow file.
+      placeholder: https://github.com/owner/repo
+    validations:
+      required: true
+  - type: dropdown
+    id: automation_type
+    attributes:
+      label: AI automation type
+      options:
+        - Issue triage
+        - PR review
+        - Release notes
+        - Auto-fix or code changes
+        - General maintainer assistant
+        - Other public workflow automation
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope_confirmation
+    attributes:
+      label: Scope confirmation
+      options:
+        - label: The repository or workflow is public.
+          required: true
+        - label: I am not sharing secrets, private prompts, tokens, or private repository content.
+          required: true
+        - label: I understand the review is best-effort and is not a full security audit.
+          required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Optional context about the workflow, expected automation, or review concerns.
+    validations:
+      required: false

@@ -7,6 +7,7 @@
 - v0.3.0: public-safe fixture corpus and maintainer safety checklist
 - v0.4.0: composite GitHub Action and code scanning setup docs
 - v0.5.0: maintainer-facing review report output
+- v0.5.1: workflow review request template and review request docs
 
 ## Next
 

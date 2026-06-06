@@ -52,7 +52,7 @@ python -m agentic_actions_guard scan path\to\repo --format sarif --fail-on high 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v0.4.0
+- uses: sho-tado/agentic-actions-guard@v0.5.1
   with:
     path: .
     format: sarif
@@ -67,6 +67,11 @@ Generate a maintainer-facing review report:
 ```powershell
 python -m agentic_actions_guard scan path\to\repo --format review --review-target owner/repo
 ```
+
+Request a public workflow safety review:
+
+- [Open a workflow review request](https://github.com/sho-tado/agentic-actions-guard/issues/new?template=workflow_review_request.yml)
+- Read [Request a Workflow Safety Review](docs/request-workflow-review.md)
 
 Exit codes:
 
