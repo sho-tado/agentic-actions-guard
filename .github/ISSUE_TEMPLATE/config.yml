@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Public workflow safety review call
+    url: https://github.com/sho-tado/agentic-actions-guard/issues/4
+    about: Ask for a lightweight review of a public AI GitHub Actions workflow.
+  - name: Rule reference
+    url: https://github.com/sho-tado/agentic-actions-guard/blob/main/docs/rule-reference.md
+    about: Read stable rule IDs, severities, and remediation guidance before filing a rule request.

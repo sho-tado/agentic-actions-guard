@@ -8,8 +8,20 @@ Thanks for helping make AI-assisted OSS maintenance safer.
 - Add tests that pin expected scanner behavior for a fixture.
 - Improve rule descriptions and recommendations.
 - Improve maintainer-facing docs.
+- Add curated action profiles when a public AI maintainer action has clear workflow examples and security guidance.
 
 Do not include secrets, private workflow files, or private repository content in issues, fixtures, or tests.
+
+## Public-Safe Fixtures
+
+Fixtures should be synthetic and minimal. Use realistic workflow shapes, but avoid copying private prompts, real tokens, exploit payloads, or private repository data.
+
+Good fixture contributions include:
+
+- one risky workflow that should produce a high or critical finding
+- one safer workflow that should not produce high or critical findings
+- a test that captures the expected rule IDs
+- a short docs update when the fixture introduces a new workflow family
 
 ## Development
 
