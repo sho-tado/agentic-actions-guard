@@ -22,7 +22,7 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: sho-tado/agentic-actions-guard@v0.4.0
         with:
           path: .
