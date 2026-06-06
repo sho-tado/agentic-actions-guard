@@ -34,6 +34,23 @@ def test_action_pinning_guide_documents_unpinned_rule() -> None:
     assert "docs/action-pinning.md" in readme
 
 
+def test_curated_action_docs_list_known_profile_examples() -> None:
+    curated = (ROOT / "docs" / "curated-ai-actions.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    reference = (ROOT / "docs" / "rule-reference.md").read_text(encoding="utf-8")
+
+    assert "anthropics/claude-code-action@v1" in curated
+    assert "google-github-actions/run-gemini-cli@v1" in curated
+    assert "QwenLM/qwen-code-action@v0.1.1" in curated
+    assert "iflow-ai/iflow-cli-action@v1" in curated
+    assert "github/ai-assessment-comment-labeler@v1" in curated
+    assert "alexyan0431/issue-ai-agent@v1" in curated
+    assert "clouatre-labs/aptu@v1" in curated
+    assert "`CURATED_AI_ACTION_DETECTED`" in curated
+    assert "docs/curated-ai-actions.md" in readme
+    assert "`CURATED_AI_ACTION_DETECTED`" in reference
+
+
 def test_maintainer_review_playbook_is_linked_from_entrypoints() -> None:
     playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -55,7 +72,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.7" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.9.8" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs

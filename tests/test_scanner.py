@@ -655,6 +655,84 @@ jobs:
     assert result["properties"]["evidence"] == "QwenLM/qwen-code-action@v0.1.1"
 
 
+def test_additional_curated_action_profiles_detect_known_actions(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "additional-curated.yml").write_text(
+        """name: additional curated ai actions
+on:
+  issues:
+    types: [opened]
+permissions:
+  issues: write
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: github/ai-assessment-comment-labeler@v1
+        with:
+          issue_body: ${{ github.event.issue.body }}
+  issue-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: alexyan0431/issue-ai-agent@v1
+  aptu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: clouatre-labs/aptu@v1
+        with:
+          github-token: ${{ github.token }}
+          reference: ${{ github.event.issue.number }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    curated = [finding for finding in report.findings if finding.rule == "CURATED_AI_ACTION_DETECTED"]
+    evidence = {finding.evidence for finding in curated}
+    messages = "\n".join(finding.message for finding in curated)
+    recommendations = "\n".join(finding.recommendation for finding in curated)
+
+    assert "github/ai-assessment-comment-labeler@v1" in evidence
+    assert "alexyan0431/issue-ai-agent@v1" in evidence
+    assert "clouatre-labs/aptu@v1" in evidence
+    assert "AI Assessment Comment Labeler" in messages
+    assert "Issue AI Agent" in messages
+    assert "Aptu" in messages
+    assert "prompt files" in recommendations
+    assert "duplicate detection" in recommendations
+    assert "dry-run" in recommendations
+
+
+def test_additional_curated_action_profiles_are_in_sarif(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "aptu.yml").write_text(
+        """name: aptu triage
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  aptu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: clouatre-labs/aptu@v1
+        with:
+          reference: ${{ github.event.issue.number }}
+""",
+        encoding="utf-8",
+    )
+
+    sarif = scan_repository(tmp_path).to_sarif()
+
+    result = next(result for result in sarif["runs"][0]["results"] if result["ruleId"] == "CURATED_AI_ACTION_DETECTED")
+    assert result["level"] == "note"
+    assert result["properties"]["evidence"] == "clouatre-labs/aptu@v1"
+
+
 def test_ai_job_checkout_without_persist_credentials_false_is_flagged(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

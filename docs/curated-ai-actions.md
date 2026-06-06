@@ -12,6 +12,9 @@ The scanner does not claim that these actions are unsafe. The rule means the wor
 | Google Gemini CLI Action | `google-github-actions/run-gemini-cli@v1` | Review prompts, command arguments, and token scope together. Isolate untrusted issue or PR text from secrets and write permissions. |
 | Qwen Code Action | `QwenLM/qwen-code-action@v0.1.1` | Keep review and triage jobs read-only unless a separate trusted workflow performs the write step. |
 | iFlow CLI Action | `iflow-ai/iflow-cli-action@v1` | Treat commands as tool-capable agent execution. Keep public-event inputs away from secrets, write tokens, and broad shell mutation steps. |
+| GitHub AI Assessment Comment Labeler | `github/ai-assessment-comment-labeler@v1` | Review prompt files, issue body input, comment output, and label writes together before enabling automated comments or labels. |
+| Issue AI Agent | `alexyan0431/issue-ai-agent@v1` | Treat issue triage, duplicate detection, labels, and reply comments as repository mutation that needs least-privilege tokens and rollout review. |
+| Aptu | `clouatre-labs/aptu@v1` | Review issue triage, PR review, labeling, security scan, and queue modes separately; use dry-run or no-comment options before enabling writes. |
 | OpenAI or Codex agent action patterns | `openai/agent-action@v1` | Split agent analysis from repository mutation and explicitly document accepted token and secret exposure. |
 
 ## Rule Behavior

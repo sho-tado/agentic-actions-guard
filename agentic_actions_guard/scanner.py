@@ -76,7 +76,7 @@ WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
 
 AI_HINTS = re.compile(
     r"(?<![A-Za-z0-9])"
-    r"(ai|agent|codex|openai|claude|anthropic|gemini|qwen|iflow|copilot|aider|llm|gpt|reviewdog|autofix|triage)"
+    r"(ai|agent|codex|openai|claude|anthropic|gemini|qwen|iflow|aptu|copilot|aider|llm|gpt|reviewdog|autofix|triage)"
     r"(?![A-Za-z0-9])",
     re.IGNORECASE,
 )
@@ -166,6 +166,30 @@ CURATED_AI_ACTION_PROFILES = [
         recommendation=(
             "Treat iFlow CLI commands as tool-capable agent execution; keep public-event inputs away from secrets, "
             "write tokens, and broad shell mutation steps."
+        ),
+    ),
+    CuratedActionProfile(
+        name="GitHub AI Assessment Comment Labeler",
+        pattern=re.compile(r"^(?:github/)?ai-assessment-comment-labeler(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Review prompt files, issue body input, comment output, and label writes together; keep assessment jobs "
+            "least-privileged and suppress comments or labels until maintainers approve the rollout."
+        ),
+    ),
+    CuratedActionProfile(
+        name="Issue AI Agent",
+        pattern=re.compile(r"^alexyan0431/issue-ai-agent(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Treat issue triage, duplicate detection, labels, and reply comments as repository mutation; keep tokens "
+            "least-privileged and separate untrusted issue bodies from write-capable steps."
+        ),
+    ),
+    CuratedActionProfile(
+        name="Aptu",
+        pattern=re.compile(r"^clouatre-labs/aptu(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Review Aptu issue triage, PR review, PR labeling, security scan, and queue modes separately; use dry-run "
+            "or no-comment options before enabling labels, comments, or write-capable tokens."
         ),
     ),
     CuratedActionProfile(
