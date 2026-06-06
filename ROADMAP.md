@@ -23,14 +23,24 @@
 - v1.5.0: branch ref and pull request head label input detection
 - v1.6.0: mutable AI action reference detection
 - v1.7.0: AI step output to shell detection
+- v1.7.1: maintainer review playbook and AI output shell fixture coverage
+- v1.7.2: AI auto-fix fixtures, safer release-note fixture, and two-stage workflow docs
+- v1.8.0: workflow_run agent handoff detection and fixtures
+- v1.9.0: AI-generated repository mutation detection for auto-fix style workflows
+- v1.9.1: AI patch handoff recipe for maintainer-approved generated fixes
+- v1.9.2: copy-paste annotation and SARIF workflow templates for adoption
+- v1.9.3: roadmap refresh with open contributor tasks for fixtures, allowlists, and adoption examples
 
 ## Next
 
 - broader real-world fixture coverage and more curated action profiles
+- comment-triggered AI workflow fixture pair: [#18](https://github.com/sho-tado/agentic-actions-guard/issues/18)
+- reviewed allowlist examples: [#17](https://github.com/sho-tado/agentic-actions-guard/issues/17)
+- maintainer adoption decision report example: [#16](https://github.com/sho-tado/agentic-actions-guard/issues/16)
 
 ## Research Backlog
 
 - Compare findings against OpenSSF Scorecard coverage.
 - Build a public corpus of AI workflow patterns without copying private data.
-- Document safe two-stage workflows for issue triage, PR review, and release notes.
+- Expand safe two-stage workflows for issue triage, PR review, release notes, and AI patch handoff.
 - Explore GitHub Advanced Security and CodeQL SARIF integration ergonomics.
