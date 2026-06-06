@@ -29,7 +29,7 @@ jobs:
           format: sarif
           fail-on: critical
           output: agentic-actions-guard.sarif
-      - uses: github/codeql-action/upload-sarif@v3
+      - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: agentic-actions-guard.sarif
