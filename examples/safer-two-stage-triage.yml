@@ -1,0 +1,27 @@
+name: safer two stage triage
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read-only issue analysis
+        run: |
+          echo "Analyze issue text in a read-only job."
+          echo "Write actions should happen only after maintainer approval."
+
+  apply-labels:
+    needs: analyze
+    if: github.event.label.name == 'maintainer-approved-ai-labels'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare constrained label plan
+        run: echo "Prepare allowlisted labels for a separate maintainer-approved write workflow."

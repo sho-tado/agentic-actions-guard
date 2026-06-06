@@ -1,0 +1,22 @@
+name: risky ai release notes
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: openai/release-agent@v1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          prompt: |
+            Generate release notes from this maintainer command:
+            ${{ github.event.comment.body }}
+      - run: npm version patch

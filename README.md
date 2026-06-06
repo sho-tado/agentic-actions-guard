@@ -59,10 +59,13 @@ Exit codes:
 
 The scanner is intentionally conservative and text-based in this first version. It does not execute workflows, does not call external APIs, and does not need repository credentials.
 
+## Maintainer Checklist
+
+See [AI GitHub Actions Safety Checklist](docs/ai-github-actions-safety-checklist.md) before adding AI triage, PR review, release-note, or auto-fix workflows to a public repository.
+
 Planned next steps:
 
 - YAML-aware parser while preserving dependency-light install
-- SARIF output for GitHub code scanning
 - allowlist policy file for accepted workflows
 - curated checks for popular AI actions
 - fixture corpus from real-world public workflows
