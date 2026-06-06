@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v0.6.1
+      - uses: sho-tado/agentic-actions-guard@v0.7.0
         with:
           path: .
           format: sarif
@@ -52,6 +52,32 @@ For a maintainer-facing Markdown report instead of SARIF:
 
 ```powershell
 agentic-actions-guard scan . --format review --review-target owner/repo
+```
+
+For lightweight pull request feedback without SARIF upload, emit GitHub Actions annotations:
+
+```yaml
+name: agentic-actions-guard-annotations
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: sho-tado/agentic-actions-guard@v0.7.0
+        with:
+          path: .
+          format: annotations
+          fail-on: critical
+          output: agentic-actions-guard.annotations
 ```
 
 To suppress reviewed findings while still failing on new findings:

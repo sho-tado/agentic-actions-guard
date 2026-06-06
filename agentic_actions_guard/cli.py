@@ -19,7 +19,7 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("path", type=Path, help="Repository root or .github/workflows directory.")
     scan.add_argument(
         "--format",
-        choices=("markdown", "json", "sarif", "review"),
+        choices=("markdown", "json", "sarif", "review", "annotations"),
         default="markdown",
         help="Output format.",
     )
@@ -62,6 +62,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report.to_sarif(), indent=2, ensure_ascii=False))
     elif args.format == "review":
         print(report.to_review_markdown(target=args.review_target))
+    elif args.format == "annotations":
+        print(report.to_github_annotations())
     else:
         print(report.to_markdown())
 

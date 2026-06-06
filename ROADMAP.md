@@ -10,11 +10,12 @@
 - v0.5.1: workflow review request template and review request docs
 - v0.6.0: allowlist policy file for accepted workflow risks
 - v0.6.1: README quick start and adoption path cleanup
+- v0.7.0: GitHub Actions annotation output for lightweight pull request feedback
 
 ## Next
 
-- v0.7.0: YAML-aware parsing for more precise job-level permissions
-- v0.8.0: curated checks for popular AI triage, review, and auto-fix actions
+- v0.8.0: YAML-aware parsing for more precise job-level permissions
+- v0.9.0: curated checks for popular AI triage, review, and auto-fix actions
 
 ## Research Backlog
 

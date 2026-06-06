@@ -13,14 +13,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v0.6.1
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v0.7.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v0.6.1
+- uses: sho-tado/agentic-actions-guard@v0.7.0
   with:
     path: .
     format: sarif
@@ -44,7 +44,7 @@ AI-assisted GitHub workflows are useful, but issue bodies, pull request descript
 - warns on broad or implicit `GITHUB_TOKEN` permissions
 - highlights risky `pull_request_target` checkout patterns
 - reports secret exposure in agent jobs
-- emits Markdown, JSON, or SARIF for issue comments, release gates, and code scanning
+- emits Markdown, JSON, SARIF, review reports, or GitHub annotations for issue comments, release gates, and code scanning
 
 ## CLI Usage
 
@@ -84,6 +84,12 @@ Generate a maintainer-facing review report:
 
 ```powershell
 python -m agentic_actions_guard scan path\to\repo --format review --review-target owner/repo
+```
+
+Emit GitHub Actions annotations directly in a workflow log:
+
+```powershell
+python -m agentic_actions_guard scan path\to\repo --format annotations --fail-on critical
 ```
 
 Suppress reviewed findings with a JSON allowlist policy:

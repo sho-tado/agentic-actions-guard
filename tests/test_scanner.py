@@ -187,3 +187,28 @@ jobs:
     assert {finding.rule for finding in report.findings} == {"MISSING_EXPLICIT_PERMISSIONS"}
     assert [finding.rule for finding in report.suppressed_findings] == ["UNTRUSTED_INPUT_TO_AGENT"]
     assert "Suppressed findings: `1`" in report.to_markdown()
+
+
+def test_github_annotations_output_emits_workflow_commands(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    annotations = scan_repository(tmp_path).to_github_annotations()
+
+    assert "::error file=.github/workflows/triage.yml,line=11,title=HIGH UNTRUSTED_INPUT_TO_AGENT::" in annotations
+    assert "Recommendation:" in annotations

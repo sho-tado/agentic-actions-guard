@@ -168,6 +168,28 @@ class ScanReport:
             ],
         }
 
+    def to_github_annotations(self) -> str:
+        lines = []
+        for finding in sorted(self.findings, key=lambda f: (-SEVERITY_ORDER[f.severity], f.path, f.line)):
+            level = _annotation_level(finding.severity)
+            title = _escape_command_property(f"{finding.severity.upper()} {finding.rule}")
+            path = _escape_command_property(finding.path)
+            message = _escape_command_message(f"{finding.message} Recommendation: {finding.recommendation}")
+            lines.append(f"::{level} file={path},line={finding.line},title={title}::{message}")
+        if not lines and self.suppressed_findings:
+            lines.append(
+                "::notice title=Agentic Actions Guard::"
+                + _escape_command_message(
+                    f"No active findings. {len(self.suppressed_findings)} finding(s) were suppressed by allowlist policy."
+                )
+            )
+        elif not lines:
+            lines.append(
+                "::notice title=Agentic Actions Guard::"
+                + _escape_command_message("No risky AI-agent workflow patterns were detected.")
+            )
+        return "\n".join(lines)
+
     def to_markdown(self) -> str:
         summary = summarize_findings(self.findings)
         lines = [
@@ -387,6 +409,28 @@ def _sarif_level(severity: str) -> str:
     if severity == "medium":
         return "warning"
     return "note"
+
+
+def _annotation_level(severity: str) -> str:
+    if severity in {"critical", "high"}:
+        return "error"
+    if severity == "medium":
+        return "warning"
+    return "notice"
+
+
+def _escape_command_property(value: str) -> str:
+    return (
+        value.replace("%", "%25")
+        .replace("\r", "%0D")
+        .replace("\n", "%0A")
+        .replace(":", "%3A")
+        .replace(",", "%2C")
+    )
+
+
+def _escape_command_message(value: str) -> str:
+    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
 
 
 def scan_repository(path: Path, allowlist_path: Path | None = None) -> ScanReport:
