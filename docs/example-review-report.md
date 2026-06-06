@@ -20,26 +20,31 @@ The risky fixture combines:
 - repository write permission: `issues: write`
 - an agent-like workflow step
 - an API key exposed to the same job
+- shell execution in the same AI-related job
 
 ## Example Output
 
-```text
+````text
 # Agentic Actions Guard Review
 
 ## Scope
 
 - Target: `examples/risky-ai-triage`
 - Workflows scanned: `1`
-- Findings: `2`
+- Findings: `4`
 - Suppressed findings: `0`
 
 ## Severity Summary
 
 - critical: `1`
 - high: `1`
-- medium: `0`
+- medium: `1`
 - low: `0`
-- info: `0`
+- info: `1`
+
+## Maintainer Takeaway
+
+This workflow set has high-impact AI-agent automation risks. Prioritize separating untrusted GitHub event text from jobs that have secrets, write permissions, privileged events, or shell execution.
 
 ## Top Findings
 
@@ -56,7 +61,35 @@ The risky fixture combines:
 - Evidence: `issues: write`
 - Risk: AI-agent workflow has write permissions.
 - Suggested fix: Use least-privilege permissions and split read-only analysis from write operations.
+
+### MEDIUM AGENT_JOB_RUNS_SHELL
+
+- Location: `risky-ai-triage.yml:22`
+- Evidence: `- run: echo "agent result would be used here"`
+- Risk: AI-related workflow contains shell execution.
+- Suggested fix: Constrain shell steps, avoid interpolating model output into commands, and require human approval for mutations.
+
+### INFO CURATED_AI_ACTION_DETECTED
+
+- Location: `risky-ai-triage.yml:15`
+- Evidence: `openai/agent-action@v1`
+- Risk: Workflow uses a known AI maintainer action: OpenAI or Codex agent action.
+- Suggested fix: Split OpenAI/Codex agent analysis from repository mutation and explicitly document accepted token and secret exposure.
+
+## Recommended Next Steps
+
+1. Keep AI analysis jobs at `contents: read` whenever possible.
+2. Move write actions into a separate maintainer-approved job or workflow.
+3. Do not expose secrets to jobs that process issue, PR, comment, review, or commit text.
+4. Avoid `pull_request_target` for agent workflows unless the privileged path is tightly constrained.
+5. Start CI gating at `--fail-on critical`, then move to `high` after expected findings are fixed.
+
+## Reproduce
+
+```powershell
+python -m agentic_actions_guard scan . --format review --fail-on critical
 ```
+````
 
 ## Recommended Shape
 

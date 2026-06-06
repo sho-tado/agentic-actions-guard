@@ -13,14 +13,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v0.9.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.0.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v0.9.0
+- uses: sho-tado/agentic-actions-guard@v1.0.0
   with:
     path: .
     format: sarif
@@ -38,6 +38,7 @@ Request a public workflow safety review:
 AI-assisted GitHub workflows are useful, but issue bodies, pull request descriptions, comments, and commit messages are attacker-controlled input. When those values are sent to an agent with write permissions, shell access, or repository secrets, the workflow becomes a new supply-chain risk.
 
 See [AI GitHub Actions Threat Model](docs/ai-actions-threat-model.md) for the risk model behind the scanner rules.
+See [Rule Reference](docs/rule-reference.md) for stable rule IDs, severities, and remediation guidance.
 
 `agentic-actions-guard` gives maintainers a fast local check that is easy to run in CI:
 
@@ -120,6 +121,7 @@ The scanner is intentionally conservative and dependency-light. It uses lightwei
 See [AI GitHub Actions Safety Checklist](docs/ai-github-actions-safety-checklist.md) before adding AI triage, PR review, release-note, or auto-fix workflows to a public repository.
 
 See [Curated AI Action Checks](docs/curated-ai-actions.md) for currently recognized AI maintainer actions.
+See [Fixture Corpus](docs/fixture-corpus.md) for the public-safe examples used by the test suite.
 
 ## Public Reviews
 
@@ -127,8 +129,8 @@ See [Request a Workflow Safety Review](docs/request-workflow-review.md) if you m
 
 Planned next steps:
 
-- broader fixture coverage for real-world AI workflow patterns
-- public-safe review reports for maintainer outreach
+- broader real-world fixture coverage
+- maintainer opt-in review report examples
 
 See [ROADMAP.md](ROADMAP.md) for planned releases.
 
