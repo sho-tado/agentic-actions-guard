@@ -33,11 +33,11 @@
 - v1.9.4: maintainer adoption decision report example for rollout mode selection
 - v1.9.5: reviewed allowlist examples for high and medium accepted risks
 - v1.9.6: comment-triggered AI workflow fixture pair
+- v1.9.7: OpenSSF Scorecard comparison docs
 
 ## Next
 
 - additional curated AI action profile candidates: [#19](https://github.com/sho-tado/agentic-actions-guard/issues/19)
-- OpenSSF Scorecard comparison docs: [#20](https://github.com/sho-tado/agentic-actions-guard/issues/20)
 - broader real-world fixture coverage after maintainer opt-in feedback
 
 ## Research Backlog

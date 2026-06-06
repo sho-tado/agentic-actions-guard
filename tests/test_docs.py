@@ -55,7 +55,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.6" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.9.7" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -212,3 +212,17 @@ def test_adoption_decision_report_is_linked_from_entrypoints() -> None:
     assert "adoption-recipes.md" in decision
     assert "risk-matrix.md" in decision
     assert "docs/adoption-decision-report.md" in readme
+
+
+def test_openssf_scorecard_comparison_is_linked_from_entrypoints() -> None:
+    comparison = (ROOT / "docs" / "openssf-scorecard-comparison.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "OpenSSF Scorecard Comparison" in comparison
+    assert "complement OpenSSF Scorecard" in comparison
+    assert "Comparison Table" in comparison
+    assert "Risk Matrix" in comparison
+    assert "github-code-scanning.md" in comparison
+    assert "adoption-recipes.md" in comparison
+    assert "scorecard/blob/main/docs/checks.md" in comparison
+    assert "docs/openssf-scorecard-comparison.md" in readme
