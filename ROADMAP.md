@@ -22,6 +22,7 @@
 - v1.4.0: workflow dispatch and repository dispatch input detection
 - v1.5.0: branch ref and pull request head label input detection
 - v1.6.0: mutable AI action reference detection
+- v1.7.0: AI step output to shell detection
 
 ## Next
 

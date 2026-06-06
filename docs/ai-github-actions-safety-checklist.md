@@ -62,6 +62,8 @@ Never pass model output directly into shell commands.
 
 Avoid shell steps in AI jobs when possible. If shell is required, keep commands fixed and validate all parameters against allowlists.
 
+Do not interpolate AI step outputs such as `${{ steps.ai_review.outputs.summary }}` into `run:` commands. Store model output as a report artifact or comment body after validation instead.
+
 ## 7. Pin AI Action References
 
 Avoid mutable refs such as `@main` or `@v1` for AI maintainer actions.

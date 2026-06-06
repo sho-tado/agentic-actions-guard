@@ -58,6 +58,10 @@ RULE_METADATA = {
         "name": "Unpinned AI action reference",
         "help": "Pin AI maintainer actions to an immutable full-length commit SHA when possible.",
     },
+    "AI_OUTPUT_TO_SHELL": {
+        "name": "AI output to shell",
+        "help": "Do not pass AI step outputs directly into shell commands.",
+    },
 }
 
 WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
@@ -96,6 +100,8 @@ CHECKOUT_PERSIST_CREDENTIALS_FALSE = re.compile(r"persist-credentials:\s*false\s
 RUNS_SHELL = re.compile(r"^\s*(?:-\s*)?run:\s*(\||>|[^\n]+)", re.IGNORECASE | re.MULTILINE)
 USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.MULTILINE)
 FULL_COMMIT_SHA_REF = re.compile(r"@[0-9a-f]{40}$", re.IGNORECASE)
+STEP_START = re.compile(r"^\s*-\s+", re.MULTILINE)
+STEP_ID = re.compile(r"^\s*(?:-\s*)?id:\s*([A-Za-z0-9_-]+)\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
 
 
 @dataclass(frozen=True)
@@ -574,6 +580,7 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     shell_match = _first_scoped_match(RUNS_SHELL, text, ai_job_blocks)
     has_shell = shell_match is not None
     checkout_credentials_match = _checkout_credentials_match(ai_job_blocks)
+    ai_output_shell_match = _ai_output_to_shell_match(ai_job_blocks)
 
     for match in USES_ACTION.finditer(text):
         action = match.group(1)
@@ -723,6 +730,21 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
             )
         )
 
+    if has_ai and ai_output_shell_match is not None:
+        match_text, match_offset = ai_output_shell_match
+        findings.append(
+            _finding(
+                "high",
+                "AI_OUTPUT_TO_SHELL",
+                path,
+                text,
+                match_offset,
+                "AI step output appears to be interpolated into shell execution.",
+                match_text,
+                "Write AI output to a file or structured artifact, validate it against an allowlist, and require maintainer approval before shell execution.",
+            )
+        )
+
     if has_ai and checkout_credentials_match is not None:
         match_text, match_offset = checkout_credentials_match
         findings.append(
@@ -833,6 +855,34 @@ def _checkout_credentials_match(ai_job_blocks: list[TextBlock]) -> tuple[str, in
                 continue
             return _line_at(block.text, match.start()), block.start_offset + match.start()
     return None
+
+
+def _ai_output_to_shell_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
+    for block in ai_job_blocks:
+        ai_step_ids = _ai_step_ids(block.text)
+        if not ai_step_ids:
+            continue
+        output_patterns = [
+            re.compile(rf"steps\.{re.escape(step_id)}\.outputs\.[A-Za-z0-9_.-]+", re.IGNORECASE)
+            for step_id in ai_step_ids
+        ]
+        for match in RUNS_SHELL.finditer(block.text):
+            step_text = _step_text_at(block.text, match.start())
+            if any(pattern.search(step_text) for pattern in output_patterns):
+                return _line_at(block.text, match.start()), block.start_offset + match.start()
+    return None
+
+
+def _ai_step_ids(text: str) -> set[str]:
+    step_ids: set[str] = set()
+    for match in STEP_START.finditer(text):
+        step_text = _step_text_at(text, match.start())
+        if not AI_HINTS.search(step_text):
+            continue
+        id_match = STEP_ID.search(step_text)
+        if id_match is not None:
+            step_ids.add(id_match.group(1))
+    return step_ids
 
 
 def _step_text_at(text: str, offset: int) -> str:

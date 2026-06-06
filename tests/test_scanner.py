@@ -484,6 +484,65 @@ env:
     assert shell_finding.evidence == '- run: echo "analyze output"'
 
 
+def test_ai_step_output_to_shell_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai output shell
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - id: ai_review
+        uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+      - run: gh issue comment "$NUMBER" --body "${{ steps.ai_review.outputs.summary }}"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "AI_OUTPUT_TO_SHELL")
+    assert finding.severity == "high"
+    assert finding.line == 15
+    assert finding.evidence == '- run: gh issue comment "$NUMBER" --body "${{ steps.ai_review.outputs.summary }}"'
+
+
+def test_non_ai_step_output_to_shell_is_not_flagged_as_ai_output(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai output shell
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - id: metadata
+        run: echo "summary=static" >> "$GITHUB_OUTPUT"
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+        with:
+          prompt: summarize only
+      - run: echo "${{ steps.metadata.outputs.summary }}"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "AI_OUTPUT_TO_SHELL" not in {finding.rule for finding in report.findings}
+
+
 def test_curated_ai_action_detects_known_maintainer_action(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

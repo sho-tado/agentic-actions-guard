@@ -17,6 +17,7 @@ The review looks for risky combinations of:
 - `pull_request_target` usage
 - shell execution near agent automation
 - mutable AI action refs that are not pinned to full commit SHAs
+- AI step outputs interpolated into shell commands
 
 ## What Not To Share
 
@@ -42,7 +43,7 @@ A report includes scope, severity counts, top findings, suggested fixes, and rep
 Self-service install:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.6.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.7.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
