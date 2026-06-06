@@ -55,7 +55,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.1" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.9.2" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -158,3 +158,26 @@ def test_ai_patch_handoff_recipe_is_linked_from_entrypoints() -> None:
     assert "ai-patch-handoff.md" in recipes
     assert "ai-patch-handoff.md" in pattern
     assert "ai-patch-handoff.md" in playbook
+
+
+def test_workflow_templates_are_linked_from_entrypoints() -> None:
+    templates = (ROOT / "docs" / "workflow-templates.md").read_text(encoding="utf-8")
+    annotations = (ROOT / "docs" / "workflow-templates" / "agentic-actions-guard-annotations.yml").read_text(
+        encoding="utf-8"
+    )
+    sarif = (ROOT / "docs" / "workflow-templates" / "agentic-actions-guard-sarif.yml").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    recipes = (ROOT / "docs" / "adoption-recipes.md").read_text(encoding="utf-8")
+    code_scanning = (ROOT / "docs" / "github-code-scanning.md").read_text(encoding="utf-8")
+    request_docs = (ROOT / "docs" / "request-workflow-review.md").read_text(encoding="utf-8")
+
+    assert "Workflow Templates" in templates
+    assert "agentic-actions-guard-annotations.yml" in templates
+    assert "agentic-actions-guard-sarif.yml" in templates
+    assert "format: annotations" in annotations
+    assert "format: sarif" in sarif
+    assert "security-events: write" in sarif
+    assert "docs/workflow-templates.md" in readme
+    assert "workflow-templates.md" in recipes
+    assert "workflow-templates.md" in code_scanning
+    assert "workflow-templates.md" in request_docs

@@ -8,6 +8,7 @@ Open a [Workflow safety review issue](https://github.com/sho-tado/agentic-action
 
 If you want to self-review first, follow the [Maintainer Review Playbook](maintainer-review-playbook.md).
 If you want to add CI directly, use the [Adoption Recipes](adoption-recipes.md).
+If you want copy-paste workflow files, use [Workflow Templates](workflow-templates.md).
 If you opt in to receiving a report, see the [Maintainer Opt-In Review Response Flow](review-response-flow.md).
 
 ## Scope
@@ -49,7 +50,7 @@ The response flow is documented in [Maintainer Opt-In Review Response Flow](revi
 Self-service install:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.1
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.2
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 

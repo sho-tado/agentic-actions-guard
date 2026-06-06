@@ -1,0 +1,30 @@
+name: agentic-actions-guard
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: sho-tado/agentic-actions-guard@v1.9.2
+        with:
+          path: .
+          format: sarif
+          fail-on: critical
+          output: agentic-actions-guard.sarif
+      - uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: agentic-actions-guard.sarif
