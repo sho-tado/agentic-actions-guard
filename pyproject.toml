@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-actions-guard"
-version = "1.0.1"
+version = "1.0.2"
 description = "Audit GitHub Actions workflows for risky AI-agent automation patterns."
 readme = "README.md"
 requires-python = ">=3.10"

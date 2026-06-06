@@ -15,6 +15,7 @@
 - v0.9.0: curated checks for popular AI triage, review, and auto-fix actions
 - v1.0.0: stable rule IDs, fixture corpus docs, and release candidate docs
 - v1.0.1: self-dogfooding workflow with SARIF upload on main
+- v1.0.2: contributor issue intake and public contribution tasks
 
 ## Next
 
