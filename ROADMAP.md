@@ -18,10 +18,11 @@
 - v1.0.2: contributor issue intake and public contribution tasks
 - v1.1.0: checkout credential persistence detection for AI jobs
 - v1.2.0: additional review findings summary for maintainer reports
+- v1.3.0: top-level environment secret detection for AI jobs
 
 ## Next
 
-- v1.3.0: broader real-world fixture coverage and more curated action profiles
+- v1.4.0: broader real-world fixture coverage and more curated action profiles
 
 ## Research Backlog
 

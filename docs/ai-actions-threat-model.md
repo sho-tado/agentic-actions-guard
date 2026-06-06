@@ -29,6 +29,8 @@ Risk: prompt injection can influence a job that has model provider keys, cloud c
 
 Safer shape: keep the AI analysis job read-only and keep secrets out of jobs that process issue, pull request, comment, review, or commit text.
 
+Workflow top-level `env` is also in scope: a secret placed there is available to every job unless the workflow is restructured.
+
 ### AI workflow plus write token
 
 Risk: a manipulated prompt can lead to labels, comments, branches, commits, workflow dispatches, or status changes that look maintainer-authored.

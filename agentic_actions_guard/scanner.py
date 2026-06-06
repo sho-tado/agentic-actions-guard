@@ -554,7 +554,8 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     untrusted_match = _first_scoped_match(UNTRUSTED_CONTEXT, text, ai_job_blocks)
     has_ai = bool(ai_matches)
     has_untrusted = untrusted_match is not None
-    has_secret = _first_scoped_match(SECRET_CONTEXT, text, ai_job_blocks) is not None
+    secret_match = _ai_secret_match(text, ai_job_blocks)
+    has_secret = secret_match is not None
     write_permission = _ai_write_permission(text, ai_job_blocks)
     has_permissions_block = _has_ai_permissions_block(text, ai_job_blocks)
     has_pull_request_target = bool(PULL_REQUEST_TARGET.search(text))
@@ -767,6 +768,20 @@ def _first_scoped_match(pattern: re.Pattern[str], text: str, scoped_blocks: list
     if match is None:
         return None
     return _line_at(text, match.start()), match.start()
+
+
+def _ai_secret_match(text: str, ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
+    scoped_match = _first_scoped_match(SECRET_CONTEXT, text, ai_job_blocks)
+    if scoped_match is not None:
+        return scoped_match
+
+    top_level_env = _top_level_block(text, "env")
+    if top_level_env is None:
+        return None
+    match = SECRET_CONTEXT.search(top_level_env.text)
+    if match is None:
+        return None
+    return _line_at(top_level_env.text, match.start()), top_level_env.start_offset + match.start()
 
 
 def _checkout_credentials_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
