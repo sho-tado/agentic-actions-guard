@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 import re
 
@@ -98,17 +99,49 @@ class Finding:
 
 
 @dataclass(frozen=True)
+class AllowlistEntry:
+    rule: str | None = None
+    path: str | None = None
+    evidence: str | None = None
+    reason: str | None = None
+
+    def matches(self, finding: Finding) -> bool:
+        return (
+            _matches_optional(self.rule, finding.rule)
+            and _matches_optional(self.path, finding.path)
+            and _matches_optional(self.evidence, finding.evidence)
+        )
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            key: value
+            for key, value in {
+                "rule": self.rule,
+                "path": self.path,
+                "evidence": self.evidence,
+                "reason": self.reason,
+            }.items()
+            if value is not None
+        }
+
+
+@dataclass(frozen=True)
 class ScanReport:
     root: str
     workflow_count: int
     findings: list[Finding]
+    suppressed_findings: list[Finding]
+    allowlist_entries: list[AllowlistEntry]
 
     def to_dict(self) -> dict[str, object]:
         return {
             "root": self.root,
             "workflow_count": self.workflow_count,
             "findings": [finding.to_dict() for finding in self.findings],
+            "suppressed_findings": [finding.to_dict() for finding in self.suppressed_findings],
+            "allowlist_entries": [entry.to_dict() for entry in self.allowlist_entries],
             "summary": summarize_findings(self.findings),
+            "suppressed_summary": summarize_findings(self.suppressed_findings),
         }
 
     def to_sarif(self) -> dict[str, object]:
@@ -129,6 +162,7 @@ class ScanReport:
                         "root": self.root,
                         "workflowCount": self.workflow_count,
                         "summary": summarize_findings(self.findings),
+                        "suppressedSummary": summarize_findings(self.suppressed_findings),
                     },
                 }
             ],
@@ -142,6 +176,7 @@ class ScanReport:
             f"- Root: `{self.root}`",
             f"- Workflows scanned: `{self.workflow_count}`",
             f"- Findings: `{len(self.findings)}`",
+            f"- Suppressed findings: `{len(self.suppressed_findings)}`",
             "",
             "## Summary",
             "",
@@ -150,6 +185,8 @@ class ScanReport:
             lines.append(f"- {severity}: `{summary.get(severity, 0)}`")
         if not self.findings:
             lines.extend(["", "No risky AI-agent workflow patterns were detected."])
+            if self.suppressed_findings:
+                lines.extend(["", f"`{len(self.suppressed_findings)}` finding(s) were suppressed by policy."])
             return "\n".join(lines)
 
         lines.extend(["", "## Findings", ""])
@@ -178,6 +215,7 @@ class ScanReport:
             f"- Target: `{display_target}`",
             f"- Workflows scanned: `{self.workflow_count}`",
             f"- Findings: `{len(self.findings)}`",
+            f"- Suppressed findings: `{len(self.suppressed_findings)}`",
             "",
             "## Severity Summary",
             "",
@@ -197,6 +235,13 @@ class ScanReport:
         else:
             lines.append(
                 "No risky AI-agent workflow patterns were detected by the current scanner rules. Keep AI jobs read-only by default and re-run this review when workflow automation changes."
+            )
+        if self.suppressed_findings:
+            lines.extend(
+                [
+                    "",
+                    f"Policy note: `{len(self.suppressed_findings)}` finding(s) were suppressed by allowlist policy. Review accepted risks periodically.",
+                ]
             )
 
         top_findings = sorted(self.findings, key=lambda f: (-SEVERITY_ORDER[f.severity], f.path, f.line))[:5]
@@ -240,6 +285,60 @@ def summarize_findings(findings: list[Finding]) -> dict[str, int]:
     for finding in findings:
         summary[finding.severity] += 1
     return summary
+
+
+def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
+    if path is None:
+        return []
+    policy = json.loads(path.read_text(encoding="utf-8"))
+    entries = policy.get("allowlist", [])
+    if not isinstance(entries, list):
+        raise ValueError("allowlist policy must contain an 'allowlist' array")
+
+    allowlist: list[AllowlistEntry] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            raise ValueError(f"allowlist entry {index} must be an object")
+        allowlist.append(
+            AllowlistEntry(
+                rule=_optional_string(entry, "rule"),
+                path=_optional_string(entry, "path"),
+                evidence=_optional_string(entry, "evidence"),
+                reason=_optional_string(entry, "reason"),
+            )
+        )
+    return allowlist
+
+
+def _optional_string(entry: dict[str, object], key: str) -> str | None:
+    value = entry.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ValueError(f"allowlist field '{key}' must be a string")
+    return value
+
+
+def _matches_optional(pattern: str | None, value: str) -> bool:
+    if pattern is None:
+        return True
+    return pattern == value or pattern in value
+
+
+def _apply_allowlist(
+    findings: list[Finding],
+    allowlist_entries: list[AllowlistEntry],
+) -> tuple[list[Finding], list[Finding]]:
+    if not allowlist_entries:
+        return findings, []
+    active: list[Finding] = []
+    suppressed: list[Finding] = []
+    for finding in findings:
+        if any(entry.matches(finding) for entry in allowlist_entries):
+            suppressed.append(finding)
+        else:
+            active.append(finding)
+    return active, suppressed
 
 
 def _sarif_rules(findings: list[Finding]) -> list[dict[str, object]]:
@@ -290,15 +389,23 @@ def _sarif_level(severity: str) -> str:
     return "note"
 
 
-def scan_repository(path: Path) -> ScanReport:
+def scan_repository(path: Path, allowlist_path: Path | None = None) -> ScanReport:
     root = path.resolve()
+    allowlist_entries = load_allowlist(allowlist_path)
     workflows = list(_iter_workflows(root))
     findings: list[Finding] = []
     for workflow in workflows:
         text = workflow.read_text(encoding="utf-8", errors="replace")
         rel_path = str(workflow.relative_to(root if root.is_dir() else root.parent)).replace("\\", "/")
         findings.extend(_scan_workflow(rel_path, text))
-    return ScanReport(root=str(root), workflow_count=len(workflows), findings=findings)
+    active_findings, suppressed_findings = _apply_allowlist(findings, allowlist_entries)
+    return ScanReport(
+        root=str(root),
+        workflow_count=len(workflows),
+        findings=active_findings,
+        suppressed_findings=suppressed_findings,
+        allowlist_entries=allowlist_entries,
+    )
 
 
 def _iter_workflows(root: Path) -> list[Path]:

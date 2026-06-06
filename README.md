@@ -68,6 +68,14 @@ Generate a maintainer-facing review report:
 python -m agentic_actions_guard scan path\to\repo --format review --review-target owner/repo
 ```
 
+Suppress reviewed findings with a JSON allowlist policy:
+
+```powershell
+python -m agentic_actions_guard scan path\to\repo --allowlist agentic-actions-guard.allowlist.json --fail-on high
+```
+
+See [Allowlist Policy](docs/allowlist-policy.md).
+
 Request a public workflow safety review:
 
 - [Open a workflow review request](https://github.com/sho-tado/agentic-actions-guard/issues/new?template=workflow_review_request.yml)
@@ -90,7 +98,6 @@ See [AI GitHub Actions Safety Checklist](docs/ai-github-actions-safety-checklist
 Planned next steps:
 
 - YAML-aware parser while preserving dependency-light install
-- allowlist policy file for accepted workflows
 - curated checks for popular AI actions
 - public-safe review reports for maintainer outreach
 

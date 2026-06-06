@@ -34,6 +34,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="critical",
         help="Exit 1 when a finding at or above this severity is present.",
     )
+    scan.add_argument(
+        "--allowlist",
+        type=Path,
+        default=None,
+        help="Optional JSON policy file with accepted findings to suppress.",
+    )
     return parser
 
 
@@ -45,8 +51,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("unknown command")
 
     try:
-        report = scan_repository(args.path)
-    except OSError as exc:
+        report = scan_repository(args.path, allowlist_path=args.allowlist)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"scan error: {exc}", file=sys.stderr)
         return 2
 

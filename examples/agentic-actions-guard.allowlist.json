@@ -1,0 +1,9 @@
+{
+  "allowlist": [
+    {
+      "rule": "AGENT_JOB_RUNS_SHELL",
+      "path": "safer-readonly-review.yml",
+      "reason": "Example workflow runs a fixed scanner command and does not execute model output."
+    }
+  ]
+}

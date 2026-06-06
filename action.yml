@@ -19,6 +19,10 @@ inputs:
     description: Optional path to write the report.
     required: false
     default: "agentic-actions-guard.sarif"
+  allowlist:
+    description: Optional JSON allowlist policy path.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -34,7 +38,11 @@ runs:
       shell: bash
       run: |
         set +e
-        agentic-actions-guard scan "${{ inputs.path }}" --format "${{ inputs.format }}" --fail-on "${{ inputs.fail-on }}" > "${{ inputs.output }}"
+        args=(scan "${{ inputs.path }}" --format "${{ inputs.format }}" --fail-on "${{ inputs.fail-on }}")
+        if [ -n "${{ inputs.allowlist }}" ]; then
+          args+=(--allowlist "${{ inputs.allowlist }}")
+        fi
+        agentic-actions-guard "${args[@]}" > "${{ inputs.output }}"
         status=$?
         cat "${{ inputs.output }}"
         exit "$status"

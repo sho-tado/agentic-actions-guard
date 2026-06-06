@@ -53,3 +53,9 @@ For a maintainer-facing Markdown report instead of SARIF:
 ```powershell
 agentic-actions-guard scan . --format review --review-target owner/repo
 ```
+
+To suppress reviewed findings while still failing on new findings:
+
+```powershell
+agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --fail-on high
+```

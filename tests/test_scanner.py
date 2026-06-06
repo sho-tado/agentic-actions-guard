@@ -146,3 +146,44 @@ jobs:
     assert "Target: `example/repo`" in review
     assert "UNTRUSTED_INPUT_TO_AGENT" in review
     assert "Recommended Next Steps" in review
+
+
+def test_allowlist_suppresses_matching_finding(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github/workflows/triage.yml",
+      "reason": "Accepted for test fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path, allowlist_path=policy)
+
+    assert "UNTRUSTED_INPUT_TO_AGENT" not in {finding.rule for finding in report.findings}
+    assert {finding.rule for finding in report.findings} == {"MISSING_EXPLICIT_PERMISSIONS"}
+    assert [finding.rule for finding in report.suppressed_findings] == ["UNTRUSTED_INPUT_TO_AGENT"]
+    assert "Suppressed findings: `1`" in report.to_markdown()
