@@ -78,6 +78,8 @@ jobs:
 
 This keeps untrusted input analysis separate from repository mutation.
 
+For a more complete maintainer-facing design pattern, see [Two-Stage AI Workflow Pattern](two-stage-ai-workflows.md).
+
 ## Public Review Etiquette
 
 If you request or receive a public review:

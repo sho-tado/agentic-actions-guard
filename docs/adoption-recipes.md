@@ -117,3 +117,5 @@ Do not use allowlists to hide unknown AI workflow behavior.
 3. Fix or document critical findings.
 4. Enable SARIF upload on the default branch.
 5. Move to `fail-on: high` after expected high findings are fixed or explicitly accepted.
+
+When a workflow needs AI analysis and repository writes, use the [Two-Stage AI Workflow Pattern](two-stage-ai-workflows.md) to keep public event input separate from maintainer-approved mutation.

@@ -73,3 +73,20 @@ def test_risk_matrix_documents_all_rule_ids_and_is_linked() -> None:
     assert "docs/risk-matrix.md" in readme
     assert "risk-matrix.md" in reference
     assert "risk-matrix.md" in playbook
+
+
+def test_two_stage_workflow_pattern_is_linked_from_entrypoints() -> None:
+    pattern = (ROOT / "docs" / "two-stage-ai-workflows.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ai-github-actions-safety-checklist.md").read_text(encoding="utf-8")
+    recipes = (ROOT / "docs" / "adoption-recipes.md").read_text(encoding="utf-8")
+    playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
+
+    assert "Two-Stage AI Workflow Pattern" in pattern
+    assert "workflow_dispatch" in pattern
+    assert "rule-reference.md" in pattern
+    assert "ai-github-actions-safety-checklist.md" in pattern
+    assert "docs/two-stage-ai-workflows.md" in readme
+    assert "two-stage-ai-workflows.md" in checklist
+    assert "two-stage-ai-workflows.md" in recipes
+    assert "two-stage-ai-workflows.md" in playbook

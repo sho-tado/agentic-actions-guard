@@ -27,6 +27,8 @@ Prefer two jobs:
 
 The write job should consume structured, constrained output and should run after a human approval gate for risky actions.
 
+See [Two-Stage AI Workflow Pattern](two-stage-ai-workflows.md) for a maintainer-facing example.
+
 ## 3. Declare Permissions Explicitly
 
 Do not rely on implicit `GITHUB_TOKEN` permissions.
