@@ -37,6 +37,8 @@ Request a public workflow safety review:
 
 AI-assisted GitHub workflows are useful, but issue bodies, pull request descriptions, comments, and commit messages are attacker-controlled input. When those values are sent to an agent with write permissions, shell access, or repository secrets, the workflow becomes a new supply-chain risk.
 
+See [AI GitHub Actions Threat Model](docs/ai-actions-threat-model.md) for the risk model behind the scanner rules.
+
 `agentic-actions-guard` gives maintainers a fast local check that is easy to run in CI:
 
 - flags AI/agent-related actions and scripts
