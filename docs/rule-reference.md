@@ -4,6 +4,8 @@ This page documents the stable rule IDs emitted by `agentic-actions-guard`.
 
 Rule IDs are intended to be safe for CI policy, SARIF filtering, GitHub annotations, review reports, and allowlist entries. New rules may be added in minor releases. Existing rule meanings should only change when the safer interpretation is strictly narrower or less noisy.
 
+For maintainer-facing risk boundaries and release gate guidance, see [Risk Matrix](risk-matrix.md).
+
 ## Rules
 
 | Rule ID | Default severity | Meaning | Typical fix |

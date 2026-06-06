@@ -59,3 +59,17 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
+
+
+def test_risk_matrix_documents_all_rule_ids_and_is_linked() -> None:
+    matrix = (ROOT / "docs" / "risk-matrix.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    reference = (ROOT / "docs" / "rule-reference.md").read_text(encoding="utf-8")
+    playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
+
+    for rule_id in RULE_METADATA:
+        assert f"`{rule_id}`" in matrix
+    assert "Release Gate Guidance" in matrix
+    assert "docs/risk-matrix.md" in readme
+    assert "risk-matrix.md" in reference
+    assert "risk-matrix.md" in playbook

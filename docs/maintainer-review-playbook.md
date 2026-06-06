@@ -25,6 +25,8 @@ agentic-actions-guard scan . --format review --review-target owner/repo --fail-o
 - medium: tighten explicit permissions, checkout credential persistence, mutable action refs, and shell usage
 - info: review action-specific guidance for known AI maintainer actions
 
+For a rule-by-rule boundary map, see [Risk Matrix](risk-matrix.md).
+
 4. Decide the rollout gate:
 
 ```powershell
