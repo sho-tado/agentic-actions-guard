@@ -47,6 +47,12 @@ Risk: model output, issue text, branch names, or generated patches can be interp
 
 Safer shape: keep shell commands fixed, validate parameters against allowlists, and never execute raw model output.
 
+### Checkout credentials in agent jobs
+
+Risk: `actions/checkout` persists the workflow token in local Git config unless disabled. In an AI job with shell execution, generated patches, or untrusted prompt context, that credential path can make accidental or prompt-influenced git operations more damaging.
+
+Safer shape: set `persist-credentials: false` on checkout steps inside AI jobs, and move any intended push behavior into a separate trusted job.
+
 ## Minimal Safe Baseline
 
 Start AI workflow rollout with:

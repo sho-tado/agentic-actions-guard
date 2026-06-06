@@ -13,6 +13,7 @@ Rule IDs are intended to be safe for CI policy, SARIF filtering, GitHub annotati
 | `AGENT_WITH_WRITE_TOKEN` | high | An AI-related workflow has write permissions. | Use least-privilege permissions and split read-only analysis from write operations. |
 | `PULL_REQUEST_TARGET_AGENT` | high or critical | An AI-related workflow runs on `pull_request_target`. It becomes critical when it appears to check out fork-controlled content. | Prefer `pull_request` for read-only analysis. Use privileged follow-up jobs only after explicit maintainer approval. |
 | `AGENT_JOB_RUNS_SHELL` | medium | An AI-related job contains shell execution. | Keep shell commands fixed, avoid executing model output, and validate parameters against allowlists. |
+| `CHECKOUT_CREDENTIALS_IN_AGENT_JOB` | medium | An AI-related job checks out repository contents without disabling persisted Git credentials. | Set `persist-credentials: false` on checkout steps in AI jobs unless that job is explicitly trusted to push. |
 | `MISSING_EXPLICIT_PERMISSIONS` | medium | An AI-related workflow or AI job does not declare explicit `permissions`. | Declare workflow or job permissions explicitly, preferably `contents: read` for AI analysis jobs. |
 | `CURATED_AI_ACTION_DETECTED` | info | A known AI maintainer action was found. | Review the action-specific guidance and check whether other risk rules also apply. |
 | `AI_ACTION_DETECTED` | info | A generic AI or agent-like action was found. | Review permissions, prompt inputs, and secret exposure before enabling it on public events. |

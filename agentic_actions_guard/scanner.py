@@ -50,6 +50,10 @@ RULE_METADATA = {
         "name": "Agent job runs shell",
         "help": "Constrain shell steps near AI workflows and never interpolate model output into commands.",
     },
+    "CHECKOUT_CREDENTIALS_IN_AGENT_JOB": {
+        "name": "Checkout credentials in agent job",
+        "help": "Disable checkout credential persistence in AI jobs unless git push behavior is explicitly required.",
+    },
 }
 
 WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
@@ -77,6 +81,8 @@ CHECKOUT_HEAD_REF = re.compile(
     r"actions/checkout@[\w.\-]+[\s\S]{0,500}(github\.event\.pull_request\.head\.(sha|ref)|ref:\s*\$\{\{)",
     re.IGNORECASE,
 )
+CHECKOUT_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*actions/checkout@[\w.\-]+", re.IGNORECASE | re.MULTILINE)
+CHECKOUT_PERSIST_CREDENTIALS_FALSE = re.compile(r"persist-credentials:\s*false\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
 RUNS_SHELL = re.compile(r"^\s*(?:-\s*)?run:\s*(\||>|[^\n]+)", re.IGNORECASE | re.MULTILINE)
 USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.MULTILINE)
 
@@ -542,6 +548,7 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     has_checkout_head_ref = bool(CHECKOUT_HEAD_REF.search(text))
     shell_match = _first_scoped_match(RUNS_SHELL, text, ai_job_blocks)
     has_shell = shell_match is not None
+    checkout_credentials_match = _checkout_credentials_match(ai_job_blocks)
 
     for match in USES_ACTION.finditer(text):
         action = match.group(1)
@@ -665,6 +672,21 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
             )
         )
 
+    if has_ai and checkout_credentials_match is not None:
+        match_text, match_offset = checkout_credentials_match
+        findings.append(
+            _finding(
+                "medium",
+                "CHECKOUT_CREDENTIALS_IN_AGENT_JOB",
+                path,
+                text,
+                match_offset,
+                "AI-related job checks out repository contents without disabling persisted Git credentials.",
+                match_text,
+                "Set `persist-credentials: false` on checkout steps in AI jobs unless that job is explicitly trusted to push.",
+            )
+        )
+
     return findings
 
 
@@ -732,6 +754,43 @@ def _first_scoped_match(pattern: re.Pattern[str], text: str, scoped_blocks: list
     if match is None:
         return None
     return _line_at(text, match.start()), match.start()
+
+
+def _checkout_credentials_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
+    for block in ai_job_blocks:
+        for match in CHECKOUT_ACTION.finditer(block.text):
+            step_text = _step_text_at(block.text, match.start())
+            if CHECKOUT_PERSIST_CREDENTIALS_FALSE.search(step_text):
+                continue
+            return _line_at(block.text, match.start()), block.start_offset + match.start()
+    return None
+
+
+def _step_text_at(text: str, offset: int) -> str:
+    lines = text.splitlines(keepends=True)
+    current_offset = 0
+    start_index = 0
+    for index, line in enumerate(lines):
+        next_offset = current_offset + len(line)
+        if current_offset <= offset < next_offset:
+            start_index = index
+            break
+        current_offset = next_offset
+
+    current_line = lines[start_index]
+    match = re.match(r"^(\s*)-\s+", current_line)
+    if match:
+        step_indent = len(match.group(1))
+    else:
+        step_indent = len(current_line) - len(current_line.lstrip(" "))
+
+    end_index = len(lines)
+    for index in range(start_index + 1, len(lines)):
+        line = lines[index]
+        if re.match(rf"^\s{{0,{step_indent}}}-\s+", line):
+            end_index = index
+            break
+    return "".join(lines[start_index:end_index])
 
 
 def _has_top_level_permissions(text: str) -> bool:

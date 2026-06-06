@@ -401,3 +401,59 @@ jobs:
     assert any(rule["id"] == "CURATED_AI_ACTION_DETECTED" for rule in rules)
     assert result["level"] == "note"
     assert result["properties"]["evidence"] == "QwenLM/qwen-code-action@v0.1.1"
+
+
+def test_ai_job_checkout_without_persist_credentials_false_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai review
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.pull_request.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    checkout_finding = next(finding for finding in report.findings if finding.rule == "CHECKOUT_CREDENTIALS_IN_AGENT_JOB")
+    assert checkout_finding.line == 10
+    assert checkout_finding.evidence == "- uses: actions/checkout@v4"
+
+
+def test_ai_job_checkout_with_persist_credentials_false_is_not_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai review
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.pull_request.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "CHECKOUT_CREDENTIALS_IN_AGENT_JOB" not in {finding.rule for finding in report.findings}
