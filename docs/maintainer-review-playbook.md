@@ -83,6 +83,8 @@ For a more complete maintainer-facing design pattern, see [Two-Stage AI Workflow
 
 When the review finds a privileged `workflow_run` follow-up consuming upstream AI artifacts or outputs, use [Workflow Run Handoff Hardening](workflow-run-handoff.md).
 
+When the review finds AI-generated patches near commit, push, merge, release, or comment commands, use [AI Patch Handoff Recipe](ai-patch-handoff.md).
+
 ## Public Review Etiquette
 
 If you request or receive a public review:

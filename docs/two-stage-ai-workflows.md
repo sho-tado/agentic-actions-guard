@@ -118,3 +118,5 @@ Before enabling the workflow, verify:
 - accepted risks are documented with a scoped allowlist entry
 
 See [AI GitHub Actions Safety Checklist](ai-github-actions-safety-checklist.md), [Rule Reference](rule-reference.md), and [Risk Matrix](risk-matrix.md) for the full review model.
+
+For AI auto-fix workflows, see [AI Patch Handoff Recipe](ai-patch-handoff.md).

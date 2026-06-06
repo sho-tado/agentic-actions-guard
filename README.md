@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.1
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.9.0
+- uses: sho-tado/agentic-actions-guard@v1.9.1
   with:
     path: .
     format: sarif
@@ -47,6 +47,7 @@ See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short
 See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for how public review reports are shared after maintainer consent.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) for separating read-only AI analysis from maintainer-approved writes.
 See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) for responding to privileged `workflow_run` handoff findings.
+See [AI Patch Handoff Recipe](docs/ai-patch-handoff.md) for keeping AI-generated fixes review-only before commit or push.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste local, annotations, SARIF, and allowlist rollout examples.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) for keeping allowlisted findings owned and time-bound.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
@@ -143,6 +144,7 @@ See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for c
 See [Risk Matrix](docs/risk-matrix.md) when deciding which findings should block release.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) when designing AI triage, PR review, release-note, or auto-fix workflows.
 See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) when a privileged follow-up consumes AI workflow artifacts or outputs.
+See [AI Patch Handoff Recipe](docs/ai-patch-handoff.md) when AI-generated fixes might be committed, pushed, merged, released, or commented.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste rollout examples.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) before suppressing findings with an allowlist.
 See [Curated AI Action Checks](docs/curated-ai-actions.md) for currently recognized AI maintainer actions.

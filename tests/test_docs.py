@@ -55,7 +55,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.0" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.9.1" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -140,3 +140,21 @@ def test_workflow_run_handoff_hardening_is_linked_from_entrypoints() -> None:
     assert "workflow-run-handoff.md" in checklist
     assert "workflow-run-handoff.md" in matrix
     assert "workflow-run-handoff.md" in playbook
+
+
+def test_ai_patch_handoff_recipe_is_linked_from_entrypoints() -> None:
+    handoff = (ROOT / "docs" / "ai-patch-handoff.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    recipes = (ROOT / "docs" / "adoption-recipes.md").read_text(encoding="utf-8")
+    pattern = (ROOT / "docs" / "two-stage-ai-workflows.md").read_text(encoding="utf-8")
+    playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
+
+    assert "AI Patch Handoff Recipe" in handoff
+    assert "`AI_GENERATED_CHANGES_PUSHED`" in handoff
+    assert "pull_request_target" in handoff
+    assert "persist-credentials: false" in handoff
+    assert "accepted-risk-cadence.md" in handoff
+    assert "docs/ai-patch-handoff.md" in readme
+    assert "ai-patch-handoff.md" in recipes
+    assert "ai-patch-handoff.md" in pattern
+    assert "ai-patch-handoff.md" in playbook
