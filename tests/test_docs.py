@@ -32,3 +32,16 @@ def test_action_pinning_guide_documents_unpinned_rule() -> None:
     assert "full-length commit SHA" in guide
     assert "action-pinning.md" in checklist
     assert "docs/action-pinning.md" in readme
+
+
+def test_maintainer_review_playbook_is_linked_from_entrypoints() -> None:
+    playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    request_docs = (ROOT / "docs" / "request-workflow-review.md").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ai-github-actions-safety-checklist.md").read_text(encoding="utf-8")
+
+    assert "15 Minute Review" in playbook
+    assert "AI output to shell" in playbook
+    assert "docs/maintainer-review-playbook.md" in readme
+    assert "maintainer-review-playbook.md" in request_docs
+    assert "maintainer-review-playbook.md" in checklist

@@ -42,6 +42,7 @@ AI-assisted GitHub workflows are useful, but issue bodies, pull request descript
 
 See [AI GitHub Actions Threat Model](docs/ai-actions-threat-model.md) for the risk model behind the scanner rules.
 See [Rule Reference](docs/rule-reference.md) for stable rule IDs, severities, and remediation guidance.
+See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short workflow review process.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
 
 `agentic-actions-guard` gives maintainers a fast local check that is easy to run in CI:
@@ -129,6 +130,7 @@ The scanner is intentionally conservative and dependency-light. It uses lightwei
 
 See [AI GitHub Actions Safety Checklist](docs/ai-github-actions-safety-checklist.md) before adding AI triage, PR review, release-note, or auto-fix workflows to a public repository.
 
+See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a 15 minute review flow.
 See [Curated AI Action Checks](docs/curated-ai-actions.md) for currently recognized AI maintainer actions.
 See [AI Action Pinning Guide](docs/action-pinning.md) for the recommended update process when pinning AI action refs.
 See [Fixture Corpus](docs/fixture-corpus.md) for the public-safe examples used by the test suite.

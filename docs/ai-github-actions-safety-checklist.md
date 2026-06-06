@@ -2,6 +2,8 @@
 
 Use this checklist before adding AI issue triage, PR review, release note generation, auto-fix, or maintainer-assistant workflows to a public repository.
 
+For a short end-to-end review flow, see [Maintainer Review Playbook](maintainer-review-playbook.md).
+
 ## 1. Classify Inputs
 
 Treat these as untrusted:
