@@ -1,0 +1,35 @@
+name: safer ai release notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Commit, tag, or branch selected by a maintainer.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  draft-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_ref }}
+          persist-credentials: false
+      - name: Collect release context
+        run: |
+          git log --oneline -n 25 > release-context.txt
+      - name: Draft release notes artifact
+        run: |
+          {
+            echo "# Release notes draft"
+            echo
+            cat release-context.txt
+          } > release-notes-draft.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes-draft
+          path: release-notes-draft.md

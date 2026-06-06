@@ -31,3 +31,14 @@ def test_risky_ai_output_shell_fixture_exercises_specific_rule() -> None:
 
     rules = {finding.rule for finding in report.findings}
     assert "AI_OUTPUT_TO_SHELL" in rules
+
+
+def test_safer_release_notes_fixture_stays_review_only() -> None:
+    report = scan_repository(EXAMPLES / "safer-release-notes.yml")
+
+    severities = {finding.severity for finding in report.findings}
+    rules = {finding.rule for finding in report.findings}
+
+    assert not (severities & {"high", "critical"})
+    assert "WRITE_TOKEN_WITH_AGENT" not in rules
+    assert "UNTRUSTED_INPUT_TO_AGENT" not in rules

@@ -19,6 +19,7 @@ Risky fixtures should produce at least one high or critical finding.
 |---|---|
 | `safer-readonly-review.yml` | Read-only AI review job with explicit permissions. |
 | `safer-ai-output-report.yml` | AI-style analysis output written as a report artifact instead of interpolated into shell execution. |
+| `safer-release-notes.yml` | Maintainer-dispatched release note draft that keeps credentials read-only and writes an artifact for review. |
 | `safer-two-stage-triage.yml` | Two-stage pattern that separates AI analysis from maintainer-controlled write operations. |
 
 Safer fixtures should not produce high or critical findings.
