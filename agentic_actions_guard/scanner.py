@@ -22,6 +22,10 @@ RULE_METADATA = {
         "name": "AI action detected",
         "help": "Review AI or agent-like actions before enabling them on public repository events.",
     },
+    "CURATED_AI_ACTION_DETECTED": {
+        "name": "Curated AI action detected",
+        "help": "Review known AI maintainer actions with action-specific guardrails before enabling them on public events.",
+    },
     "UNTRUSTED_INPUT_WITH_SECRETS": {
         "name": "Untrusted input with secrets",
         "help": "Separate untrusted event text analysis from privileged jobs that have secrets or write tokens.",
@@ -52,7 +56,7 @@ WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
 
 AI_HINTS = re.compile(
     r"(?<![A-Za-z0-9])"
-    r"(ai|agent|codex|openai|claude|anthropic|gemini|copilot|aider|llm|gpt|reviewdog|autofix|triage)"
+    r"(ai|agent|codex|openai|claude|anthropic|gemini|qwen|iflow|copilot|aider|llm|gpt|reviewdog|autofix|triage)"
     r"(?![A-Za-z0-9])",
     re.IGNORECASE,
 )
@@ -74,7 +78,7 @@ CHECKOUT_HEAD_REF = re.compile(
     re.IGNORECASE,
 )
 RUNS_SHELL = re.compile(r"^\s*(?:-\s*)?run:\s*(\||>|[^\n]+)", re.IGNORECASE | re.MULTILINE)
-USES_ACTION = re.compile(r"^\s*uses:\s*([^\s#]+)", re.IGNORECASE | re.MULTILINE)
+USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.MULTILINE)
 
 
 @dataclass(frozen=True)
@@ -82,6 +86,57 @@ class TextBlock:
     name: str
     text: str
     start_offset: int
+
+
+@dataclass(frozen=True)
+class CuratedActionProfile:
+    name: str
+    pattern: re.Pattern[str]
+    recommendation: str
+
+
+CURATED_AI_ACTION_PROFILES = [
+    CuratedActionProfile(
+        name="Anthropic Claude Code Action",
+        pattern=re.compile(r"^anthropics/claude-code(-base)?-action(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Keep Claude issue and PR automation read-only by default; require maintainer approval before file writes, "
+            "tool expansion, or privileged GitHub token use."
+        ),
+    ),
+    CuratedActionProfile(
+        name="Google Gemini CLI Action",
+        pattern=re.compile(r"^google-github-actions/run-gemini-cli(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Review Gemini prompts, command arguments, and token scope together; isolate untrusted issue or PR text "
+            "from jobs with secrets or write permissions."
+        ),
+    ),
+    CuratedActionProfile(
+        name="Qwen Code Action",
+        pattern=re.compile(r"^qwenlm/qwen-code-action(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Constrain Qwen Code review and triage jobs to read-only permissions unless a separate trusted workflow "
+            "performs the write step."
+        ),
+    ),
+    CuratedActionProfile(
+        name="iFlow CLI Action",
+        pattern=re.compile(r"^iflow-ai/iflow-cli-action(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Treat iFlow CLI commands as tool-capable agent execution; keep public-event inputs away from secrets, "
+            "write tokens, and broad shell mutation steps."
+        ),
+    ),
+    CuratedActionProfile(
+        name="OpenAI or Codex agent action",
+        pattern=re.compile(r"^(openai|[^/\s]+)/(?:.*(?:codex|agent).*)action(?:@|$)", re.IGNORECASE),
+        recommendation=(
+            "Split OpenAI/Codex agent analysis from repository mutation and explicitly document accepted token and "
+            "secret exposure."
+        ),
+    ),
+]
 
 
 @dataclass(frozen=True)
@@ -491,6 +546,21 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     for match in USES_ACTION.finditer(text):
         action = match.group(1)
         if AI_HINTS.search(action):
+            profile = _curated_action_profile(action)
+            if profile is not None:
+                findings.append(
+                    _finding(
+                        "info",
+                        "CURATED_AI_ACTION_DETECTED",
+                        path,
+                        text,
+                        match.start(),
+                        f"Workflow uses a known AI maintainer action: {profile.name}.",
+                        action,
+                        profile.recommendation,
+                    )
+                )
+                continue
             findings.append(
                 _finding(
                     "info",
@@ -596,6 +666,14 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
         )
 
     return findings
+
+
+def _curated_action_profile(action: str) -> CuratedActionProfile | None:
+    normalized = action.strip().lower()
+    for profile in CURATED_AI_ACTION_PROFILES:
+        if profile.pattern.search(normalized):
+            return profile
+    return None
 
 
 def _job_blocks(text: str) -> list[TextBlock]:

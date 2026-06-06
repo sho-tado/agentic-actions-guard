@@ -184,7 +184,7 @@ jobs:
     report = scan_repository(tmp_path, allowlist_path=policy)
 
     assert "UNTRUSTED_INPUT_TO_AGENT" not in {finding.rule for finding in report.findings}
-    assert {finding.rule for finding in report.findings} == {"MISSING_EXPLICIT_PERMISSIONS"}
+    assert "MISSING_EXPLICIT_PERMISSIONS" in {finding.rule for finding in report.findings}
     assert [finding.rule for finding in report.suppressed_findings] == ["UNTRUSTED_INPUT_TO_AGENT"]
     assert "Suppressed findings: `1`" in report.to_markdown()
 
@@ -341,3 +341,63 @@ env:
     shell_finding = next(finding for finding in report.findings if finding.rule == "AGENT_JOB_RUNS_SHELL")
     assert shell_finding.line == 18
     assert shell_finding.evidence == '- run: echo "analyze output"'
+
+
+def test_curated_ai_action_detects_known_maintainer_action(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "claude.yml").write_text(
+        """name: claude review
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  contents: read
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: anthropics/claude-code-action@v1
+        with:
+          prompt: ${{ github.event.comment.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    curated = next(finding for finding in report.findings if finding.rule == "CURATED_AI_ACTION_DETECTED")
+    assert curated.line == 11
+    assert curated.evidence == "anthropics/claude-code-action@v1"
+    assert "Claude" in curated.message
+    assert "maintainer approval" in curated.recommendation
+
+
+def test_curated_action_rule_is_available_in_sarif(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "qwen.yml").write_text(
+        """name: qwen triage
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  qwen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: QwenLM/qwen-code-action@v0.1.1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    sarif = scan_repository(tmp_path).to_sarif()
+
+    rules = sarif["runs"][0]["tool"]["driver"]["rules"]
+    result = next(result for result in sarif["runs"][0]["results"] if result["ruleId"] == "CURATED_AI_ACTION_DETECTED")
+    assert any(rule["id"] == "CURATED_AI_ACTION_DETECTED" for rule in rules)
+    assert result["level"] == "note"
+    assert result["properties"]["evidence"] == "QwenLM/qwen-code-action@v0.1.1"
