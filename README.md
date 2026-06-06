@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.4
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.5
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.9.4
+- uses: sho-tado/agentic-actions-guard@v1.9.5
   with:
     path: .
     format: sarif
@@ -162,7 +162,6 @@ See [Request a Workflow Safety Review](docs/request-workflow-review.md) if you m
 Planned next steps:
 
 - broader real-world fixture coverage
-- reviewed allowlist examples
 - maintainer-approved patch handoff recipes for AI auto-fix workflows
 
 See [ROADMAP.md](ROADMAP.md) for planned releases.

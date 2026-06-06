@@ -50,7 +50,7 @@ The response flow is documented in [Maintainer Opt-In Review Response Flow](revi
 Self-service install:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.4
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.5
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 

@@ -55,7 +55,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.4" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.9.5" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -121,6 +121,21 @@ def test_accepted_risk_cadence_is_linked_from_entrypoints() -> None:
     assert "accepted-risk-cadence.md" in allowlist
     assert "accepted-risk-cadence.md" in matrix
     assert "accepted-risk-cadence.md" in response
+
+
+def test_allowlist_policy_documents_reviewed_examples() -> None:
+    allowlist = (ROOT / "docs" / "allowlist-policy.md").read_text(encoding="utf-8")
+    cadence = (ROOT / "docs" / "accepted-risk-cadence.md").read_text(encoding="utf-8")
+
+    assert "Reviewed Examples" in allowlist
+    assert "`AGENT_WITH_WRITE_TOKEN`" in allowlist or '"rule": "AGENT_WITH_WRITE_TOKEN"' in allowlist
+    assert '"rule": "CHECKOUT_CREDENTIALS_IN_AGENT_JOB"' in allowlist
+    assert "Owner: maintainer-team" in allowlist
+    assert "Review date: 2026-06-14" in allowlist
+    assert "Review date: 2026-07-07" in allowlist
+    assert "Removal condition" in allowlist
+    assert "Avoid broad entries" in allowlist
+    assert "allowlist-policy.md#reviewed-examples" in cadence
 
 
 def test_workflow_run_handoff_hardening_is_linked_from_entrypoints() -> None:

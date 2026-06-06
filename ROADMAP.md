@@ -31,12 +31,12 @@
 - v1.9.2: copy-paste annotation and SARIF workflow templates for adoption
 - v1.9.3: roadmap refresh with open contributor tasks for fixtures, allowlists, and adoption examples
 - v1.9.4: maintainer adoption decision report example for rollout mode selection
+- v1.9.5: reviewed allowlist examples for high and medium accepted risks
 
 ## Next
 
 - broader real-world fixture coverage and more curated action profiles
 - comment-triggered AI workflow fixture pair: [#18](https://github.com/sho-tado/agentic-actions-guard/issues/18)
-- reviewed allowlist examples: [#17](https://github.com/sho-tado/agentic-actions-guard/issues/17)
 
 ## Research Backlog
 

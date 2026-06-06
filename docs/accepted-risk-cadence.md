@@ -18,6 +18,8 @@ For each accepted risk, record:
 
 The allowlist policy supports `rule`, `path`, `evidence`, and `reason`. Track owner, review date, and removal condition next to the policy in an issue, pull request, or security review note.
 
+For concrete high and medium examples, see [Allowlist Policy](allowlist-policy.md#reviewed-examples).
+
 ## Suggested Cadence
 
 Use this default schedule:
