@@ -1,0 +1,21 @@
+name: safer ai output report
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read-only AI analysis
+        run: |
+          mkdir -p reports
+          printf '%s\n' "Synthetic read-only analysis output." > reports/ai-summary.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-summary
+          path: reports/ai-summary.md

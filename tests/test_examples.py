@@ -24,3 +24,10 @@ def test_safer_examples_have_no_high_or_critical_findings() -> None:
         report = scan_repository(example)
         severities = {finding.severity for finding in report.findings}
         assert not (severities & {"high", "critical"}), example.name
+
+
+def test_risky_ai_output_shell_fixture_exercises_specific_rule() -> None:
+    report = scan_repository(EXAMPLES / "risky-ai-output-shell.yml")
+
+    rules = {finding.rule for finding in report.findings}
+    assert "AI_OUTPUT_TO_SHELL" in rules

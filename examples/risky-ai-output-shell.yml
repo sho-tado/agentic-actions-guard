@@ -1,0 +1,21 @@
+name: risky ai output shell
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - id: ai_review
+        uses: openai/agent-action@v1
+        with:
+          prompt: |
+            Summarize this issue for maintainers:
+            ${{ github.event.issue.body }}
+      - run: gh issue comment "$ISSUE_NUMBER" --body "${{ steps.ai_review.outputs.summary }}"
