@@ -31,6 +31,8 @@ See [Two-Stage AI Workflow Pattern](two-stage-ai-workflows.md) for a maintainer-
 
 If the second stage runs on `workflow_run`, treat downloaded artifacts and upstream outputs as untrusted handoff data until a maintainer validates them.
 
+See [Workflow Run Handoff Hardening](workflow-run-handoff.md) for a compact response guide for `WORKFLOW_RUN_AGENT_HANDOFF` findings.
+
 ## 3. Declare Permissions Explicitly
 
 Do not rely on implicit `GITHUB_TOKEN` permissions.

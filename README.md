@@ -46,6 +46,7 @@ See [Risk Matrix](docs/risk-matrix.md) for the maintainer boundary each rule rev
 See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short workflow review process.
 See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for how public review reports are shared after maintainer consent.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) for separating read-only AI analysis from maintainer-approved writes.
+See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) for responding to privileged `workflow_run` handoff findings.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste local, annotations, SARIF, and allowlist rollout examples.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) for keeping allowlisted findings owned and time-bound.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
@@ -140,6 +141,7 @@ See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a 15 mi
 See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for consent-first public review handling.
 See [Risk Matrix](docs/risk-matrix.md) when deciding which findings should block release.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) when designing AI triage, PR review, release-note, or auto-fix workflows.
+See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) when a privileged follow-up consumes AI workflow artifacts or outputs.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste rollout examples.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) before suppressing findings with an allowlist.
 See [Curated AI Action Checks](docs/curated-ai-actions.md) for currently recognized AI maintainer actions.

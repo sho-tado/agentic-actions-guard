@@ -121,3 +121,22 @@ def test_accepted_risk_cadence_is_linked_from_entrypoints() -> None:
     assert "accepted-risk-cadence.md" in allowlist
     assert "accepted-risk-cadence.md" in matrix
     assert "accepted-risk-cadence.md" in response
+
+
+def test_workflow_run_handoff_hardening_is_linked_from_entrypoints() -> None:
+    handoff = (ROOT / "docs" / "workflow-run-handoff.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ai-github-actions-safety-checklist.md").read_text(encoding="utf-8")
+    matrix = (ROOT / "docs" / "risk-matrix.md").read_text(encoding="utf-8")
+    playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
+
+    assert "Workflow Run Handoff Hardening" in handoff
+    assert "`WORKFLOW_RUN_AGENT_HANDOFF`" in handoff
+    assert "upstream artifacts and outputs" in handoff
+    assert "rule-reference.md" in handoff
+    assert "risk-matrix.md" in handoff
+    assert "two-stage-ai-workflows.md" in handoff
+    assert "docs/workflow-run-handoff.md" in readme
+    assert "workflow-run-handoff.md" in checklist
+    assert "workflow-run-handoff.md" in matrix
+    assert "workflow-run-handoff.md" in playbook

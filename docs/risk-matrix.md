@@ -28,4 +28,6 @@ Use this default priority:
 
 For rollout commands, see [Adoption Recipes](adoption-recipes.md). For stable rule wording, see [Rule Reference](rule-reference.md).
 
+For the `WORKFLOW_RUN_AGENT_HANDOFF` response flow, see [Workflow Run Handoff Hardening](workflow-run-handoff.md).
+
 For time-bound accepted risks, see [Accepted Risk Review Cadence](accepted-risk-cadence.md).
