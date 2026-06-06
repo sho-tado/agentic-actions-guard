@@ -24,6 +24,8 @@ Curated action matches emit:
 
 Other risk rules still apply independently. For example, a curated action can also produce `UNTRUSTED_INPUT_TO_AGENT`, `AGENT_WITH_WRITE_TOKEN`, `UNTRUSTED_INPUT_WITH_SECRETS`, or `PULL_REQUEST_TARGET_AGENT` when the workflow combines the action with risky inputs or permissions.
 
+Curated and generic AI action references also produce `UNPINNED_AI_ACTION_REF` when they use mutable refs such as tags or branches instead of a full-length commit SHA.
+
 ## Review Guidance
 
 For public repositories, prefer this shape:

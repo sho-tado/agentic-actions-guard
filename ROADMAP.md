@@ -21,10 +21,11 @@
 - v1.3.0: top-level environment secret detection for AI jobs
 - v1.4.0: workflow dispatch and repository dispatch input detection
 - v1.5.0: branch ref and pull request head label input detection
+- v1.6.0: mutable AI action reference detection
 
 ## Next
 
-- v1.6.0: broader real-world fixture coverage and more curated action profiles
+- broader real-world fixture coverage and more curated action profiles
 
 ## Research Backlog
 

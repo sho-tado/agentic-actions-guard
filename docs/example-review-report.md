@@ -19,6 +19,7 @@ The risky fixture combines:
 - untrusted issue text: `${{ github.event.issue.body }}`
 - repository write permission: `issues: write`
 - an agent-like workflow step
+- a mutable AI action tag instead of a full commit SHA pin
 - an API key exposed to the same job
 - shell execution in the same AI-related job
 
@@ -31,14 +32,14 @@ The risky fixture combines:
 
 - Target: `examples/risky-ai-triage`
 - Workflows scanned: `1`
-- Findings: `4`
+- Findings: `5`
 - Suppressed findings: `0`
 
 ## Severity Summary
 
 - critical: `1`
 - high: `1`
-- medium: `1`
+- medium: `2`
 - low: `0`
 - info: `1`
 
@@ -61,6 +62,13 @@ This workflow set has high-impact AI-agent automation risks. Prioritize separati
 - Evidence: `issues: write`
 - Risk: AI-agent workflow has write permissions.
 - Suggested fix: Use least-privilege permissions and split read-only analysis from write operations.
+
+### MEDIUM UNPINNED_AI_ACTION_REF
+
+- Location: `risky-ai-triage.yml:15`
+- Evidence: `openai/agent-action@v1`
+- Risk: Workflow uses an AI maintainer action without an immutable commit SHA pin.
+- Suggested fix: Pin AI maintainer actions to a reviewed full-length commit SHA and update intentionally.
 
 ### MEDIUM AGENT_JOB_RUNS_SHELL
 

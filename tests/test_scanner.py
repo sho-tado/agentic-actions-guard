@@ -514,6 +514,58 @@ jobs:
     assert "maintainer approval" in curated.recommendation
 
 
+def test_unpinned_ai_action_ref_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai review
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.pull_request.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNPINNED_AI_ACTION_REF")
+    assert finding.severity == "medium"
+    assert finding.evidence == "openai/agent-action@v1"
+
+
+def test_full_sha_pinned_ai_action_ref_is_not_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai review
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+        with:
+          prompt: ${{ github.event.pull_request.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "UNPINNED_AI_ACTION_REF" not in {finding.rule for finding in report.findings}
+
+
 def test_curated_action_rule_is_available_in_sarif(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

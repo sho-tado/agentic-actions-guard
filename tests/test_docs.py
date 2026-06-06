@@ -16,8 +16,8 @@ def test_rule_reference_documents_all_rule_ids() -> None:
 def test_example_review_report_matches_current_fixture_counts() -> None:
     example_report = (ROOT / "docs" / "example-review-report.md").read_text(encoding="utf-8")
 
-    assert "- Findings: `4`" in example_report
+    assert "- Findings: `5`" in example_report
     assert "- critical: `1`" in example_report
     assert "- high: `1`" in example_report
-    assert "- medium: `1`" in example_report
+    assert "- medium: `2`" in example_report
     assert "- info: `1`" in example_report

@@ -54,6 +54,10 @@ RULE_METADATA = {
         "name": "Checkout credentials in agent job",
         "help": "Disable checkout credential persistence in AI jobs unless git push behavior is explicitly required.",
     },
+    "UNPINNED_AI_ACTION_REF": {
+        "name": "Unpinned AI action reference",
+        "help": "Pin AI maintainer actions to an immutable full-length commit SHA when possible.",
+    },
 }
 
 WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
@@ -91,6 +95,7 @@ CHECKOUT_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*actions/checkout@[\w.\-]+", 
 CHECKOUT_PERSIST_CREDENTIALS_FALSE = re.compile(r"persist-credentials:\s*false\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
 RUNS_SHELL = re.compile(r"^\s*(?:-\s*)?run:\s*(\||>|[^\n]+)", re.IGNORECASE | re.MULTILINE)
 USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.MULTILINE)
+FULL_COMMIT_SHA_REF = re.compile(r"@[0-9a-f]{40}$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -587,6 +592,19 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
                         profile.recommendation,
                     )
                 )
+                if not _is_pinned_action_ref(action):
+                    findings.append(
+                        _finding(
+                            "medium",
+                            "UNPINNED_AI_ACTION_REF",
+                            path,
+                            text,
+                            match.start(),
+                            "Workflow uses an AI maintainer action without an immutable commit SHA pin.",
+                            action,
+                            "Pin AI maintainer actions to a reviewed full-length commit SHA and update intentionally.",
+                        )
+                    )
                 continue
             findings.append(
                 _finding(
@@ -600,6 +618,19 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
                     "Review the action's permissions, prompt inputs, and secret exposure before enabling it on public events.",
                 )
             )
+            if not _is_pinned_action_ref(action):
+                findings.append(
+                    _finding(
+                        "medium",
+                        "UNPINNED_AI_ACTION_REF",
+                        path,
+                        text,
+                        match.start(),
+                        "Workflow uses an AI or agent-like action without an immutable commit SHA pin.",
+                        action,
+                        "Pin AI maintainer actions to a reviewed full-length commit SHA and update intentionally.",
+                    )
+                )
 
     if has_ai and has_untrusted and has_secret:
         match_text, match_offset = untrusted_match
@@ -716,6 +747,10 @@ def _curated_action_profile(action: str) -> CuratedActionProfile | None:
         if profile.pattern.search(normalized):
             return profile
     return None
+
+
+def _is_pinned_action_ref(action: str) -> bool:
+    return bool(FULL_COMMIT_SHA_REF.search(action.strip()))
 
 
 def _job_blocks(text: str) -> list[TextBlock]:
