@@ -15,7 +15,7 @@ AI-assisted GitHub workflows are useful, but issue bodies, pull request descript
 - warns on broad or implicit `GITHUB_TOKEN` permissions
 - highlights risky `pull_request_target` checkout patterns
 - reports secret exposure in agent jobs
-- emits Markdown or JSON for issue comments and release gates
+- emits Markdown, JSON, or SARIF for issue comments, release gates, and code scanning
 
 ## Install
 
@@ -49,6 +49,19 @@ Emit SARIF for GitHub code scanning or downstream security tooling:
 python -m agentic_actions_guard scan path\to\repo --format sarif --fail-on high > agentic-actions-guard.sarif
 ```
 
+Use it in GitHub Actions:
+
+```yaml
+- uses: sho-tado/agentic-actions-guard@v0.4.0
+  with:
+    path: .
+    format: sarif
+    fail-on: critical
+    output: agentic-actions-guard.sarif
+```
+
+See [GitHub Code Scanning Setup](docs/github-code-scanning.md) for a full workflow.
+
 Exit codes:
 
 - `0`: no finding at or above the fail threshold
@@ -69,6 +82,8 @@ Planned next steps:
 - allowlist policy file for accepted workflows
 - curated checks for popular AI actions
 - fixture corpus from real-world public workflows
+
+See [ROADMAP.md](ROADMAP.md) for planned releases.
 
 ## License
 

@@ -1,0 +1,22 @@
+# Roadmap
+
+## Completed
+
+- v0.1.0: dependency-light scanner for AI-agent GitHub Actions risks
+- v0.2.0: SARIF output for code scanning and security tooling
+- v0.3.0: public-safe fixture corpus and maintainer safety checklist
+- v0.4.0: composite GitHub Action and code scanning setup docs
+
+## Next
+
+- v0.5.0: YAML-aware parsing for more precise job-level permissions
+- v0.6.0: allowlist policy file for accepted workflow risks
+- v0.7.0: curated checks for popular AI triage, review, and auto-fix actions
+- v0.8.0: report templates for maintainer outreach and issue comments
+
+## Research Backlog
+
+- Compare findings against OpenSSF Scorecard coverage.
+- Build a public corpus of AI workflow patterns without copying private data.
+- Document safe two-stage workflows for issue triage, PR review, and release notes.
+- Explore GitHub Advanced Security and CodeQL SARIF integration ergonomics.

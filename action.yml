@@ -1,0 +1,40 @@
+name: Agentic Actions Guard
+description: Audit GitHub Actions workflows for risky AI-agent automation patterns.
+author: OSS Maintainer Safety Contributors
+
+inputs:
+  path:
+    description: Repository root, workflow directory, or workflow file to scan.
+    required: false
+    default: "."
+  format:
+    description: Output format: markdown, json, or sarif.
+    required: false
+    default: "sarif"
+  fail-on:
+    description: Severity threshold that fails the workflow.
+    required: false
+    default: "high"
+  output:
+    description: Optional path to write the report.
+    required: false
+    default: "agentic-actions-guard.sarif"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install Agentic Actions Guard
+      shell: bash
+      run: python -m pip install "$GITHUB_ACTION_PATH"
+    - name: Scan workflows
+      shell: bash
+      run: |
+        set +e
+        agentic-actions-guard scan "${{ inputs.path }}" --format "${{ inputs.format }}" --fail-on "${{ inputs.fail-on }}" > "${{ inputs.output }}"
+        status=$?
+        cat "${{ inputs.output }}"
+        exit "$status"
