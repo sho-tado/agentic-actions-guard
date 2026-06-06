@@ -86,6 +86,8 @@ Generate a maintainer-facing review report:
 python -m agentic_actions_guard scan path\to\repo --format review --review-target owner/repo
 ```
 
+See [Example Review Report](docs/example-review-report.md) for a sample maintainer-facing report.
+
 Emit GitHub Actions annotations directly in a workflow log:
 
 ```powershell
