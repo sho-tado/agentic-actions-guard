@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.8.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.8.0
+- uses: sho-tado/agentic-actions-guard@v1.9.0
   with:
     path: .
     format: sarif
@@ -62,6 +62,7 @@ See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable ac
 - warns when AI maintainer actions use mutable refs instead of full commit SHA pins
 - warns when AI step outputs are interpolated into shell commands
 - warns when privileged `workflow_run` follow-ups consume AI workflow handoff context
+- warns when AI-related jobs with write permissions commit, push, merge, publish releases, or write comments
 - reports secret exposure in agent jobs
 - treats workflow top-level `env` secrets as available to AI jobs
 - emits Markdown, JSON, SARIF, review reports, or GitHub annotations for issue comments, release gates, and code scanning
@@ -156,6 +157,7 @@ Planned next steps:
 
 - broader real-world fixture coverage
 - maintainer opt-in review report examples
+- maintainer-approved patch handoff recipes for AI auto-fix workflows
 
 See [ROADMAP.md](ROADMAP.md) for planned releases.
 

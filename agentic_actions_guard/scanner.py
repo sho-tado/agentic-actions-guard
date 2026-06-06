@@ -66,6 +66,10 @@ RULE_METADATA = {
         "name": "Workflow run agent handoff",
         "help": "Review workflow_run handoffs before privileged AI follow-up jobs consume artifacts or upstream outputs.",
     },
+    "AI_GENERATED_CHANGES_PUSHED": {
+        "name": "AI generated changes pushed",
+        "help": "Require maintainer review before AI-related jobs commit, push, merge, or publish repository changes.",
+    },
 }
 
 WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
@@ -107,6 +111,14 @@ USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.M
 FULL_COMMIT_SHA_REF = re.compile(r"@[0-9a-f]{40}$", re.IGNORECASE)
 STEP_START = re.compile(r"^\s*-\s+", re.MULTILINE)
 STEP_ID = re.compile(r"^\s*(?:-\s*)?id:\s*([A-Za-z0-9_-]+)\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
+REPOSITORY_MUTATION_COMMAND = re.compile(
+    r"^\s*(?:-\s*run:\s*)?"
+    r"(?:"
+    r"git\s+(?:commit|push|tag)"
+    r"|gh\s+(?:pr\s+(?:create|merge)|release\s+(?:create|upload)|issue\s+(?:edit|comment))"
+    r")\b",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 @dataclass(frozen=True)
@@ -587,6 +599,7 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     has_shell = shell_match is not None
     checkout_credentials_match = _checkout_credentials_match(ai_job_blocks)
     ai_output_shell_match = _ai_output_to_shell_match(ai_job_blocks)
+    repository_mutation_match = _ai_repository_mutation_match(ai_job_blocks)
 
     for match in USES_ACTION.finditer(text):
         action = match.group(1)
@@ -752,6 +765,21 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
             )
         )
 
+    if has_ai and write_permission is not None and repository_mutation_match is not None:
+        match_text, match_offset = repository_mutation_match
+        findings.append(
+            _finding(
+                "high",
+                "AI_GENERATED_CHANGES_PUSHED",
+                path,
+                text,
+                match_offset,
+                "AI-related workflow appears able to push, merge, publish, or comment repository changes.",
+                match_text,
+                "Move repository mutation into a maintainer-approved stage and keep AI-generated patches as review artifacts.",
+            )
+        )
+
     if has_ai and ai_output_shell_match is not None:
         match_text, match_offset = ai_output_shell_match
         findings.append(
@@ -892,6 +920,16 @@ def _ai_output_to_shell_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int]
             step_text = _step_text_at(block.text, match.start())
             if any(pattern.search(step_text) for pattern in output_patterns):
                 return _line_at(block.text, match.start()), block.start_offset + match.start()
+    return None
+
+
+def _ai_repository_mutation_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
+    for block in ai_job_blocks:
+        for match in RUNS_SHELL.finditer(block.text):
+            step_text = _step_text_at(block.text, match.start())
+            mutation_match = REPOSITORY_MUTATION_COMMAND.search(step_text)
+            if mutation_match is not None:
+                return _line_at(step_text, mutation_match.start()), block.start_offset + match.start() + mutation_match.start()
     return None
 
 

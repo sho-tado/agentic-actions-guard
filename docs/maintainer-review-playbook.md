@@ -21,7 +21,7 @@ agentic-actions-guard scan . --format review --review-target owner/repo --fail-o
 3. Triage findings in this order:
 
 - critical: separate untrusted event text from secrets or privileged tokens before enabling the workflow
-- high: review write permissions, `pull_request_target`, and AI output to shell boundaries
+- high: review write permissions, `pull_request_target`, AI output to shell, and direct repository mutation boundaries
 - medium: tighten explicit permissions, checkout credential persistence, mutable action refs, and shell usage
 - info: review action-specific guidance for known AI maintainer actions
 
@@ -43,6 +43,7 @@ Ask these questions before merging an AI workflow:
 - Can an outside contributor write that text?
 - Does the same job have secrets, `GITHUB_TOKEN`, or write permissions?
 - Does the job run shell commands after AI output is produced?
+- Does the job commit, push, merge, publish releases, or write comments after AI generation?
 - Does the workflow run on `pull_request_target`?
 - Does checkout persist credentials in an AI-related job?
 - Are AI action refs pinned to reviewed full commit SHAs?

@@ -40,7 +40,7 @@ Reports should not include:
 Use severity as review priority, not as proof of exploitation:
 
 - critical: untrusted GitHub event text appears near secrets or privileged tokens
-- high: write permissions, `pull_request_target`, or AI output to shell need maintainer review
+- high: write permissions, `pull_request_target`, AI output to shell, or AI-generated repository mutation need maintainer review
 - medium: hardening work such as explicit permissions, checkout credentials, shell usage, or mutable action refs
 - info: known AI maintainer action detected for context
 

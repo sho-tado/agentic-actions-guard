@@ -7,7 +7,7 @@ The `examples/` directory contains public-safe workflow fixtures used by the tes
 | Fixture | Pattern covered |
 |---|---|
 | `risky-ai-triage.yml` | Issue triage workflow that combines untrusted issue text, an AI action, secrets, write permissions, and shell execution. |
-| `risky-ai-autofix.yml` | Auto-fix workflow that combines `pull_request_target`, fork-controlled checkout, AI patching, secrets, write permissions, and shell mutation. |
+| `risky-ai-autofix.yml` | Auto-fix workflow that combines `pull_request_target`, fork-controlled checkout, AI patching, secrets, write permissions, and direct commit/push mutation. |
 | `risky-ai-output-shell.yml` | AI step output interpolated into a shell command that writes back to an issue. |
 | `risky-pr-review.yml` | PR review workflow pattern for untrusted pull request text and AI review automation. |
 | `risky-release-notes.yml` | Release-note automation pattern where commit or event text can reach AI automation. |

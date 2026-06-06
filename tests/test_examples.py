@@ -55,8 +55,10 @@ def test_ai_autofix_fixture_pair_exercises_write_boundary() -> None:
     assert "PULL_REQUEST_TARGET_AGENT" in risky_rules
     assert "UNTRUSTED_INPUT_WITH_SECRETS" in risky_rules
     assert "AGENT_WITH_WRITE_TOKEN" in risky_rules
+    assert "AI_GENERATED_CHANGES_PUSHED" in risky_rules
     assert not (safer_severities & {"high", "critical"})
     assert "AGENT_WITH_WRITE_TOKEN" not in safer_rules
+    assert "AI_GENERATED_CHANGES_PUSHED" not in safer_rules
 
 
 def test_workflow_run_handoff_fixture_pair_exercises_handoff_boundary() -> None:

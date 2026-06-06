@@ -765,3 +765,62 @@ jobs:
     handoff = next(finding for finding in report.findings if finding.rule == "WORKFLOW_RUN_AGENT_HANDOFF")
     assert handoff.severity == "high"
     assert handoff.evidence == "workflow_run:"
+
+
+def test_ai_generated_changes_pushed_with_write_token_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "autofix.yml").write_text(
+        """name: ai autofix
+on:
+  pull_request:
+permissions:
+  contents: write
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/autofix-agent@v1
+        with:
+          prompt: ${{ github.event.pull_request.body }}
+      - run: |
+          git add .
+          git commit -m "Apply AI fix"
+          git push
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "AI_GENERATED_CHANGES_PUSHED")
+    assert finding.severity == "high"
+    assert finding.evidence == 'git commit -m "Apply AI fix"'
+
+
+def test_ai_generated_changes_artifact_without_write_token_is_not_flagged_as_push(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "plan.yml").write_text(
+        """name: ai fix plan
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/autofix-agent@1234567890abcdef1234567890abcdef12345678
+        with:
+          prompt: summarize only
+      - run: |
+          mkdir -p out
+          echo "review patch manually" > out/plan.md
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "AI_GENERATED_CHANGES_PUSHED" not in {finding.rule for finding in report.findings}

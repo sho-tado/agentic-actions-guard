@@ -95,6 +95,7 @@ Two-stage designs reduce or eliminate findings from:
 - [`AGENT_WITH_WRITE_TOKEN`](rule-reference.md)
 - [`PULL_REQUEST_TARGET_AGENT`](rule-reference.md)
 - [`AI_OUTPUT_TO_SHELL`](rule-reference.md)
+- [`AI_GENERATED_CHANGES_PUSHED`](rule-reference.md)
 
 They also make medium-severity hardening easier to review:
 
@@ -111,6 +112,7 @@ Before enabling the workflow, verify:
 - AI output is stored as a report or constrained plan
 - write permissions appear only in the maintainer-approved stage
 - shell commands do not interpolate AI output
+- AI-generated patches are reviewed before commit, push, merge, release, or comment actions
 - checkout uses `persist-credentials: false` in AI-related jobs that do not push
 - AI action refs are pinned to reviewed full-length commit SHAs
 - accepted risks are documented with a scoped allowlist entry
