@@ -457,3 +457,30 @@ jobs:
     report = scan_repository(tmp_path)
 
     assert "CHECKOUT_CREDENTIALS_IN_AGENT_JOB" not in {finding.rule for finding in report.findings}
+
+
+def test_review_output_summarizes_findings_beyond_top_five(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    for index in range(6):
+        (workflows / f"triage-{index}.yml").write_text(
+            f"""name: ai triage {index}
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{{{ github.event.issue.body }}}}
+""",
+            encoding="utf-8",
+        )
+
+    review = scan_repository(tmp_path).to_review_markdown(target="example/repo")
+
+    assert "## Additional Findings Summary" in review
+    assert "`UNTRUSTED_INPUT_TO_AGENT`:" in review
+    assert "additional finding(s)" in review

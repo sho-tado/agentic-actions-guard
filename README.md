@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.1.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.2.0
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.1.0
+- uses: sho-tado/agentic-actions-guard@v1.2.0
   with:
     path: .
     format: sarif
@@ -53,6 +53,7 @@ See [Rule Reference](docs/rule-reference.md) for stable rule IDs, severities, an
 - warns when AI jobs use checkout without `persist-credentials: false`
 - reports secret exposure in agent jobs
 - emits Markdown, JSON, SARIF, review reports, or GitHub annotations for issue comments, release gates, and code scanning
+- summarizes additional review findings by rule after the top maintainer-facing findings
 
 ## CLI Usage
 

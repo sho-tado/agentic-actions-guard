@@ -350,6 +350,12 @@ class ScanReport:
                         "",
                     ]
                 )
+            remaining_findings = sorted(self.findings, key=lambda f: (-SEVERITY_ORDER[f.severity], f.path, f.line))[5:]
+            if remaining_findings:
+                lines.extend(["## Additional Findings Summary", ""])
+                for rule, count in _count_by_rule(remaining_findings):
+                    lines.append(f"- `{rule}`: `{count}` additional finding(s)")
+                lines.append("")
 
         lines.extend(
             [
@@ -376,6 +382,13 @@ def summarize_findings(findings: list[Finding]) -> dict[str, int]:
     for finding in findings:
         summary[finding.severity] += 1
     return summary
+
+
+def _count_by_rule(findings: list[Finding]) -> list[tuple[str, int]]:
+    counts: dict[str, int] = {}
+    for finding in findings:
+        counts[finding.rule] = counts.get(finding.rule, 0) + 1
+    return sorted(counts.items(), key=lambda item: (-item[1], item[0]))
 
 
 def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
