@@ -43,6 +43,12 @@ Scan one of the examples:
 python -m agentic_actions_guard scan examples\risky-ai-triage.yml --format markdown
 ```
 
+Emit SARIF for GitHub code scanning or downstream security tooling:
+
+```powershell
+python -m agentic_actions_guard scan path\to\repo --format sarif --fail-on high > agentic-actions-guard.sarif
+```
+
 Exit codes:
 
 - `0`: no finding at or above the fail threshold

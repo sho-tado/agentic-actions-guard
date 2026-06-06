@@ -13,6 +13,40 @@ SEVERITY_ORDER = {
     "critical": 4,
 }
 
+SARIF_VERSION = "2.1.0"
+SARIF_SCHEMA = "https://json.schemastore.org/sarif-2.1.0.json"
+
+RULE_METADATA = {
+    "AI_ACTION_DETECTED": {
+        "name": "AI action detected",
+        "help": "Review AI or agent-like actions before enabling them on public repository events.",
+    },
+    "UNTRUSTED_INPUT_WITH_SECRETS": {
+        "name": "Untrusted input with secrets",
+        "help": "Separate untrusted event text analysis from privileged jobs that have secrets or write tokens.",
+    },
+    "UNTRUSTED_INPUT_TO_AGENT": {
+        "name": "Untrusted input to agent",
+        "help": "Treat issue, pull request, comment, review, and commit text as hostile input to AI agents.",
+    },
+    "AGENT_WITH_WRITE_TOKEN": {
+        "name": "Agent with write token",
+        "help": "Use least-privilege permissions and split read-only AI analysis from write operations.",
+    },
+    "MISSING_EXPLICIT_PERMISSIONS": {
+        "name": "Missing explicit permissions",
+        "help": "Declare workflow or job permissions explicitly, preferably read-only for AI analysis jobs.",
+    },
+    "PULL_REQUEST_TARGET_AGENT": {
+        "name": "Agent on pull_request_target",
+        "help": "Avoid running AI agent workflows on pull_request_target, especially with fork code checkout.",
+    },
+    "AGENT_JOB_RUNS_SHELL": {
+        "name": "Agent job runs shell",
+        "help": "Constrain shell steps near AI workflows and never interpolate model output into commands.",
+    },
+}
+
 WORKFLOW_EXTENSIONS = {".yml", ".yaml"}
 
 AI_HINTS = re.compile(
@@ -75,6 +109,29 @@ class ScanReport:
             "summary": summarize_findings(self.findings),
         }
 
+    def to_sarif(self) -> dict[str, object]:
+        return {
+            "$schema": SARIF_SCHEMA,
+            "version": SARIF_VERSION,
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": "agentic-actions-guard",
+                            "informationUri": "https://github.com/sho-tado/agentic-actions-guard",
+                            "rules": _sarif_rules(self.findings),
+                        }
+                    },
+                    "results": [_sarif_result(finding) for finding in self.findings],
+                    "properties": {
+                        "root": self.root,
+                        "workflowCount": self.workflow_count,
+                        "summary": summarize_findings(self.findings),
+                    },
+                }
+            ],
+        }
+
     def to_markdown(self) -> str:
         summary = summarize_findings(self.findings)
         lines = [
@@ -114,6 +171,54 @@ def summarize_findings(findings: list[Finding]) -> dict[str, int]:
     for finding in findings:
         summary[finding.severity] += 1
     return summary
+
+
+def _sarif_rules(findings: list[Finding]) -> list[dict[str, object]]:
+    rule_ids = sorted({finding.rule for finding in findings})
+    return [_sarif_rule(rule_id) for rule_id in rule_ids]
+
+
+def _sarif_rule(rule_id: str) -> dict[str, object]:
+    metadata = RULE_METADATA.get(rule_id, {"name": rule_id, "help": "Review this workflow finding."})
+    return {
+        "id": rule_id,
+        "name": metadata["name"],
+        "shortDescription": {"text": metadata["name"]},
+        "fullDescription": {"text": metadata["help"]},
+        "help": {"text": metadata["help"]},
+    }
+
+
+def _sarif_result(finding: Finding) -> dict[str, object]:
+    return {
+        "ruleId": finding.rule,
+        "level": _sarif_level(finding.severity),
+        "message": {"text": f"{finding.message} Recommendation: {finding.recommendation}"},
+        "locations": [
+            {
+                "physicalLocation": {
+                    "artifactLocation": {"uri": finding.path.replace("\\", "/")},
+                    "region": {
+                        "startLine": finding.line,
+                        "startColumn": 1,
+                    },
+                }
+            }
+        ],
+        "properties": {
+            "severity": finding.severity,
+            "evidence": finding.evidence,
+            "recommendation": finding.recommendation,
+        },
+    }
+
+
+def _sarif_level(severity: str) -> str:
+    if severity in {"critical", "high"}:
+        return "error"
+    if severity == "medium":
+        return "warning"
+    return "note"
 
 
 def scan_repository(path: Path) -> ScanReport:

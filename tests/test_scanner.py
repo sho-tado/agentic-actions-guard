@@ -58,3 +58,39 @@ jobs:
 
     assert report.workflow_count == 1
     assert report.findings == []
+
+
+def test_sarif_output_maps_high_severity_finding_to_workflow_line(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+permissions:
+  issues: write
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    sarif = scan_repository(tmp_path).to_sarif()
+
+    run = sarif["runs"][0]
+    rules = run["tool"]["driver"]["rules"]
+    results = run["results"]
+    high_result = next(result for result in results if result["ruleId"] == "UNTRUSTED_INPUT_TO_AGENT")
+    location = high_result["locations"][0]["physicalLocation"]
+
+    assert sarif["version"] == "2.1.0"
+    assert any(rule["id"] == "UNTRUSTED_INPUT_TO_AGENT" for rule in rules)
+    assert high_result["level"] == "error"
+    assert location["artifactLocation"]["uri"] == ".github/workflows/triage.yml"
+    assert location["region"]["startLine"] == 13
