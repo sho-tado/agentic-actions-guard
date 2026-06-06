@@ -1,0 +1,28 @@
+name: risky scheduled batch triage
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      triage_scope:
+        description: "Synthetic batch triage scope"
+        required: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - id: ai_batch_triage
+        uses: openai/agent-action@v1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          prompt: |
+            Triage public issues matching this maintainer-provided scope:
+            ${{ github.event.inputs.triage_scope }}
+      - run: gh issue comment "$ISSUE_NUMBER" --body "${{ steps.ai_batch_triage.outputs.summary }}"

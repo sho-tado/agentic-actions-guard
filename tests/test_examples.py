@@ -87,3 +87,19 @@ def test_comment_triggered_fixture_pair_exercises_comment_boundary() -> None:
     assert "AI_GENERATED_CHANGES_PUSHED" in risky_rules
     assert not (safer_severities & {"high", "critical"})
     assert "UNTRUSTED_INPUT_TO_AGENT" not in safer_rules
+
+
+def test_scheduled_batch_triage_fixture_pair_exercises_batch_boundary() -> None:
+    risky_report = scan_repository(EXAMPLES / "risky-scheduled-batch-triage.yml")
+    safer_report = scan_repository(EXAMPLES / "safer-scheduled-batch-triage.yml")
+
+    risky_rules = {finding.rule for finding in risky_report.findings}
+    safer_severities = {finding.severity for finding in safer_report.findings}
+    safer_rules = {finding.rule for finding in safer_report.findings}
+
+    assert "UNTRUSTED_INPUT_WITH_SECRETS" in risky_rules
+    assert "AGENT_WITH_WRITE_TOKEN" in risky_rules
+    assert "AI_OUTPUT_TO_SHELL" in risky_rules
+    assert "AI_GENERATED_CHANGES_PUSHED" in risky_rules
+    assert not (safer_severities & {"high", "critical"})
+    assert "AGENT_WITH_WRITE_TOKEN" not in safer_rules

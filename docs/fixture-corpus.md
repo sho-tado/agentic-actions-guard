@@ -12,6 +12,7 @@ The `examples/` directory contains public-safe workflow fixtures used by the tes
 | `risky-comment-triggered-review.yml` | Comment-triggered AI review workflow that sends public comment text to AI automation near secrets, write permissions, and shell comment output. |
 | `risky-pr-review.yml` | PR review workflow pattern for untrusted pull request text and AI review automation. |
 | `risky-release-notes.yml` | Release-note automation pattern where commit or event text can reach AI automation. |
+| `risky-scheduled-batch-triage.yml` | Scheduled or manually scoped batch triage workflow that can combine AI analysis, secrets, write permissions, and issue comments. |
 | `risky-workflow-run-handoff.yml` | `workflow_run` handoff pattern where an upstream AI plan is consumed by a privileged follow-up job. |
 
 Risky fixtures should produce at least one high or critical finding.
@@ -25,6 +26,7 @@ Risky fixtures should produce at least one high or critical finding.
 | `safer-ai-output-report.yml` | AI-style analysis output written as a report artifact instead of interpolated into shell execution. |
 | `safer-comment-triggered-review.yml` | Comment-triggered review workflow that keeps permissions read-only and writes only a synthetic review artifact. |
 | `safer-release-notes.yml` | Maintainer-dispatched release note draft that keeps credentials read-only and writes an artifact for review. |
+| `safer-scheduled-batch-triage.yml` | Scheduled batch triage pattern that writes a maintainer review artifact instead of comments or labels. |
 | `safer-two-stage-triage.yml` | Two-stage pattern that separates AI analysis from maintainer-controlled write operations. |
 | `safer-workflow-run-handoff.yml` | `workflow_run` handoff pattern that keeps permissions read-only and turns upstream output into a review artifact. |
 

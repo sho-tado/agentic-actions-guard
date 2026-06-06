@@ -1,0 +1,27 @@
+name: safer scheduled batch triage
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      triage_scope:
+        description: "Synthetic batch triage scope"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build maintainer review artifact
+        run: |
+          mkdir -p reports
+          printf '%s\n' "Synthetic scheduled triage summary for maintainer review." > reports/scheduled-triage.md
+          printf '%s\n' "Apply labels or comments only from a separate maintainer-approved workflow." >> reports/scheduled-triage.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scheduled-triage-review
+          path: reports/scheduled-triage.md
