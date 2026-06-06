@@ -90,3 +90,17 @@ def test_two_stage_workflow_pattern_is_linked_from_entrypoints() -> None:
     assert "two-stage-ai-workflows.md" in checklist
     assert "two-stage-ai-workflows.md" in recipes
     assert "two-stage-ai-workflows.md" in playbook
+
+
+def test_review_response_flow_is_linked_from_entrypoints() -> None:
+    flow = (ROOT / "docs" / "review-response-flow.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    request_docs = (ROOT / "docs" / "request-workflow-review.md").read_text(encoding="utf-8")
+    playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
+
+    assert "Maintainer Opt-In Review Response Flow" in flow
+    assert "Do not include" in flow or "Reports should not include" in flow
+    assert "proof of exploitability" in flow
+    assert "docs/review-response-flow.md" in readme
+    assert "review-response-flow.md" in request_docs
+    assert "review-response-flow.md" in playbook

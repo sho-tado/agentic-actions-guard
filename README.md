@@ -44,6 +44,7 @@ See [AI GitHub Actions Threat Model](docs/ai-actions-threat-model.md) for the ri
 See [Rule Reference](docs/rule-reference.md) for stable rule IDs, severities, and remediation guidance.
 See [Risk Matrix](docs/risk-matrix.md) for the maintainer boundary each rule reviews.
 See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short workflow review process.
+See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for how public review reports are shared after maintainer consent.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) for separating read-only AI analysis from maintainer-approved writes.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste local, annotations, SARIF, and allowlist rollout examples.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
@@ -134,6 +135,7 @@ The scanner is intentionally conservative and dependency-light. It uses lightwei
 See [AI GitHub Actions Safety Checklist](docs/ai-github-actions-safety-checklist.md) before adding AI triage, PR review, release-note, or auto-fix workflows to a public repository.
 
 See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a 15 minute review flow.
+See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for consent-first public review handling.
 See [Risk Matrix](docs/risk-matrix.md) when deciding which findings should block release.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) when designing AI triage, PR review, release-note, or auto-fix workflows.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste rollout examples.

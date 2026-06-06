@@ -89,3 +89,5 @@ If you request or receive a public review:
 - treat findings as workflow-boundary hardening advice, not vulnerability proof
 - use allowlists only for reviewed, time-bound accepted risks
 - re-run the scanner when workflow automation changes
+
+For the opt-in response process, see [Maintainer Opt-In Review Response Flow](review-response-flow.md).

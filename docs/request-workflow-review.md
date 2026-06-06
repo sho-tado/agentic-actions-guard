@@ -8,6 +8,7 @@ Open a [Workflow safety review issue](https://github.com/sho-tado/agentic-action
 
 If you want to self-review first, follow the [Maintainer Review Playbook](maintainer-review-playbook.md).
 If you want to add CI directly, use the [Adoption Recipes](adoption-recipes.md).
+If you opt in to receiving a report, see the [Maintainer Opt-In Review Response Flow](review-response-flow.md).
 
 ## Scope
 
@@ -42,6 +43,8 @@ agentic-actions-guard scan . --format review --review-target owner/repo
 ```
 
 A report includes scope, severity counts, top findings, suggested fixes, and reproduction steps.
+
+The response flow is documented in [Maintainer Opt-In Review Response Flow](review-response-flow.md).
 
 Self-service install:
 
