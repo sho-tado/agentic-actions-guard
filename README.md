@@ -1,6 +1,7 @@
 # Agentic Actions Guard
 
 [![CI](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/ci.yml)
+[![Agentic Actions Guard](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/agentic-actions-guard.yml/badge.svg)](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/agentic-actions-guard.yml)
 [![Latest release](https://img.shields.io/github/v/release/sho-tado/agentic-actions-guard)](https://github.com/sho-tado/agentic-actions-guard/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -13,20 +14,22 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.0.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.0.1
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.0.0
+- uses: sho-tado/agentic-actions-guard@v1.0.1
   with:
     path: .
     format: sarif
     fail-on: critical
     output: agentic-actions-guard.sarif
 ```
+
+This repository dogfoods the action in [`.github/workflows/agentic-actions-guard.yml`](.github/workflows/agentic-actions-guard.yml), including SARIF upload on `main`.
 
 Request a public workflow safety review:
 
