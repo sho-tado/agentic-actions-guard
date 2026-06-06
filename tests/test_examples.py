@@ -71,3 +71,19 @@ def test_workflow_run_handoff_fixture_pair_exercises_handoff_boundary() -> None:
     assert "WORKFLOW_RUN_AGENT_HANDOFF" in risky_rules
     assert "AGENT_WITH_WRITE_TOKEN" in risky_rules
     assert not (safer_severities & {"high", "critical"})
+
+
+def test_comment_triggered_fixture_pair_exercises_comment_boundary() -> None:
+    risky_report = scan_repository(EXAMPLES / "risky-comment-triggered-review.yml")
+    safer_report = scan_repository(EXAMPLES / "safer-comment-triggered-review.yml")
+
+    risky_rules = {finding.rule for finding in risky_report.findings}
+    safer_severities = {finding.severity for finding in safer_report.findings}
+    safer_rules = {finding.rule for finding in safer_report.findings}
+
+    assert "UNTRUSTED_INPUT_WITH_SECRETS" in risky_rules
+    assert "AGENT_WITH_WRITE_TOKEN" in risky_rules
+    assert "AI_OUTPUT_TO_SHELL" in risky_rules
+    assert "AI_GENERATED_CHANGES_PUSHED" in risky_rules
+    assert not (safer_severities & {"high", "critical"})
+    assert "UNTRUSTED_INPUT_TO_AGENT" not in safer_rules

@@ -32,11 +32,11 @@
 - v1.9.3: roadmap refresh with open contributor tasks for fixtures, allowlists, and adoption examples
 - v1.9.4: maintainer adoption decision report example for rollout mode selection
 - v1.9.5: reviewed allowlist examples for high and medium accepted risks
+- v1.9.6: comment-triggered AI workflow fixture pair
 
 ## Next
 
 - broader real-world fixture coverage and more curated action profiles
-- comment-triggered AI workflow fixture pair: [#18](https://github.com/sho-tado/agentic-actions-guard/issues/18)
 
 ## Research Backlog
 

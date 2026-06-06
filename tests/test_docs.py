@@ -55,7 +55,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.5" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.9.6" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
