@@ -40,5 +40,20 @@ def test_safer_release_notes_fixture_stays_review_only() -> None:
     rules = {finding.rule for finding in report.findings}
 
     assert not (severities & {"high", "critical"})
-    assert "WRITE_TOKEN_WITH_AGENT" not in rules
+    assert "AGENT_WITH_WRITE_TOKEN" not in rules
     assert "UNTRUSTED_INPUT_TO_AGENT" not in rules
+
+
+def test_ai_autofix_fixture_pair_exercises_write_boundary() -> None:
+    risky_report = scan_repository(EXAMPLES / "risky-ai-autofix.yml")
+    safer_report = scan_repository(EXAMPLES / "safer-ai-autofix.yml")
+
+    risky_rules = {finding.rule for finding in risky_report.findings}
+    safer_severities = {finding.severity for finding in safer_report.findings}
+    safer_rules = {finding.rule for finding in safer_report.findings}
+
+    assert "PULL_REQUEST_TARGET_AGENT" in risky_rules
+    assert "UNTRUSTED_INPUT_WITH_SECRETS" in risky_rules
+    assert "AGENT_WITH_WRITE_TOKEN" in risky_rules
+    assert not (safer_severities & {"high", "critical"})
+    assert "AGENT_WITH_WRITE_TOKEN" not in safer_rules

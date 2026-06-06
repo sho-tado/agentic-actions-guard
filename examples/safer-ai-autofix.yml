@@ -1,0 +1,27 @@
+name: safer ai autofix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  draft-fix-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare reviewed fix plan artifact
+        run: |
+          mkdir -p out
+          {
+            echo "# AI autofix plan"
+            echo
+            echo "Review this plan manually before opening a patch."
+          } > out/autofix-plan.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: autofix-plan
+          path: out/autofix-plan.md
