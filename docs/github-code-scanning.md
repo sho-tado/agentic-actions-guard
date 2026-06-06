@@ -2,6 +2,8 @@
 
 Use this workflow to publish SARIF findings in GitHub code scanning.
 
+For non-SARIF rollout options, see [Adoption Recipes](adoption-recipes.md).
+
 ```yaml
 name: agentic-actions-guard
 

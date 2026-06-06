@@ -45,3 +45,17 @@ def test_maintainer_review_playbook_is_linked_from_entrypoints() -> None:
     assert "docs/maintainer-review-playbook.md" in readme
     assert "maintainer-review-playbook.md" in request_docs
     assert "maintainer-review-playbook.md" in checklist
+
+
+def test_adoption_recipes_are_linked_from_entrypoints() -> None:
+    recipes = (ROOT / "docs" / "adoption-recipes.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    code_scanning = (ROOT / "docs" / "github-code-scanning.md").read_text(encoding="utf-8")
+    request_docs = (ROOT / "docs" / "request-workflow-review.md").read_text(encoding="utf-8")
+
+    assert "Recipe 1: Local Maintainer Review" in recipes
+    assert "Recipe 3: Code Scanning SARIF" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.7.1" in recipes
+    assert "docs/adoption-recipes.md" in readme
+    assert "adoption-recipes.md" in code_scanning
+    assert "adoption-recipes.md" in request_docs
