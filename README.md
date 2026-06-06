@@ -78,6 +78,7 @@ See [Allowlist Policy](docs/allowlist-policy.md).
 
 Request a public workflow safety review:
 
+- [Join the public review call](https://github.com/sho-tado/agentic-actions-guard/issues/4)
 - [Open a workflow review request](https://github.com/sho-tado/agentic-actions-guard/issues/new?template=workflow_review_request.yml)
 - Read [Request a Workflow Safety Review](docs/request-workflow-review.md)
 

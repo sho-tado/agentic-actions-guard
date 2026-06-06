@@ -2,6 +2,8 @@
 
 Maintainers can request a lightweight review of public GitHub Actions workflows that use AI agents for issue triage, PR review, release-note generation, auto-fix automation, or other repository maintenance.
 
+The public review call is tracked in [issue #4](https://github.com/sho-tado/agentic-actions-guard/issues/4).
+
 Open a [Workflow safety review issue](https://github.com/sho-tado/agentic-actions-guard/issues/new?template=workflow_review_request.yml) with a link to the public repository or workflow file.
 
 ## Scope
