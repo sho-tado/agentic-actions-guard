@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.3
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.9.4
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.9.3
+- uses: sho-tado/agentic-actions-guard@v1.9.4
   with:
     path: .
     format: sarif
@@ -49,6 +49,7 @@ See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) for separati
 See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) for responding to privileged `workflow_run` handoff findings.
 See [AI Patch Handoff Recipe](docs/ai-patch-handoff.md) for keeping AI-generated fixes review-only before commit or push.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste local, annotations, SARIF, and allowlist rollout examples.
+See [Maintainer Adoption Decision Report](docs/adoption-decision-report.md) for choosing report-only, annotations, SARIF, or stricter gates after a review.
 See [Workflow Templates](docs/workflow-templates.md) for copy-paste GitHub Actions files.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) for keeping allowlisted findings owned and time-bound.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
@@ -147,6 +148,7 @@ See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) when designi
 See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) when a privileged follow-up consumes AI workflow artifacts or outputs.
 See [AI Patch Handoff Recipe](docs/ai-patch-handoff.md) when AI-generated fixes might be committed, pushed, merged, released, or commented.
 See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste rollout examples.
+See [Maintainer Adoption Decision Report](docs/adoption-decision-report.md) when deciding whether a repository is ready for annotations, SARIF, or stricter gates.
 See [Workflow Templates](docs/workflow-templates.md) for drop-in annotation and SARIF workflows.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) before suppressing findings with an allowlist.
 See [Curated AI Action Checks](docs/curated-ai-actions.md) for currently recognized AI maintainer actions.
@@ -160,7 +162,7 @@ See [Request a Workflow Safety Review](docs/request-workflow-review.md) if you m
 Planned next steps:
 
 - broader real-world fixture coverage
-- maintainer opt-in review report examples
+- reviewed allowlist examples
 - maintainer-approved patch handoff recipes for AI auto-fix workflows
 
 See [ROADMAP.md](ROADMAP.md) for planned releases.

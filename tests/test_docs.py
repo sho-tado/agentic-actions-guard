@@ -55,7 +55,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.9.3" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.9.4" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -181,3 +181,19 @@ def test_workflow_templates_are_linked_from_entrypoints() -> None:
     assert "workflow-templates.md" in recipes
     assert "workflow-templates.md" in code_scanning
     assert "workflow-templates.md" in request_docs
+
+
+def test_adoption_decision_report_is_linked_from_entrypoints() -> None:
+    decision = (ROOT / "docs" / "adoption-decision-report.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "Maintainer Adoption Decision Report" in decision
+    assert "Decision Table" in decision
+    assert "report-only" in decision
+    assert "annotations" in decision
+    assert "SARIF" in decision
+    assert "fail-on: high" in decision
+    assert "workflow-templates.md" in decision
+    assert "adoption-recipes.md" in decision
+    assert "risk-matrix.md" in decision
+    assert "docs/adoption-decision-report.md" in readme

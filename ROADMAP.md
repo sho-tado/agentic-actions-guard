@@ -30,13 +30,13 @@
 - v1.9.1: AI patch handoff recipe for maintainer-approved generated fixes
 - v1.9.2: copy-paste annotation and SARIF workflow templates for adoption
 - v1.9.3: roadmap refresh with open contributor tasks for fixtures, allowlists, and adoption examples
+- v1.9.4: maintainer adoption decision report example for rollout mode selection
 
 ## Next
 
 - broader real-world fixture coverage and more curated action profiles
 - comment-triggered AI workflow fixture pair: [#18](https://github.com/sho-tado/agentic-actions-guard/issues/18)
 - reviewed allowlist examples: [#17](https://github.com/sho-tado/agentic-actions-guard/issues/17)
-- maintainer adoption decision report example: [#16](https://github.com/sho-tado/agentic-actions-guard/issues/16)
 
 ## Research Backlog
 

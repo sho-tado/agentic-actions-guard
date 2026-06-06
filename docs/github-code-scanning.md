@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.9.3
+      - uses: sho-tado/agentic-actions-guard@v1.9.4
         with:
           path: .
           format: sarif
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.9.3
+      - uses: sho-tado/agentic-actions-guard@v1.9.4
         with:
           path: .
           format: annotations
