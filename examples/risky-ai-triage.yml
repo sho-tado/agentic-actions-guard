@@ -1,0 +1,22 @@
+name: risky ai triage
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          prompt: |
+            Triage this issue and apply labels:
+            ${{ github.event.issue.body }}
+      - run: echo "agent result would be used here"

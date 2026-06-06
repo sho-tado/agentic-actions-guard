@@ -1,0 +1,20 @@
+name: Rule request
+description: Suggest a new AI workflow safety rule.
+title: "[rule]: "
+labels: ["rule-request", "needs-triage"]
+body:
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk pattern
+      description: Describe the workflow behavior that should be detected.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Public-safe example
+      description: Paste a minimal workflow snippet. Do not include secrets.
+      render: yaml
+    validations:
+      required: false

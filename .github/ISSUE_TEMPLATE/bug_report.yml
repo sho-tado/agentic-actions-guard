@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a scanner bug or false result.
+title: "[bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Minimal workflow example
+      description: Paste only a minimal public-safe workflow snippet. Do not include secrets.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

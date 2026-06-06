@@ -1,0 +1,15 @@
+name: safer readonly ai review
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate local report
+        run: python -m agentic_actions_guard scan . --format markdown
