@@ -17,7 +17,7 @@ For each accepted risk, record:
 - rationale for accepting the risk temporarily instead of fixing it now
 - removal condition
 
-The allowlist policy supports `rule`, `path`, `evidence`, `reason`, `owner`, `expires`, and `rationale`. Expired entries are rejected so accepted risks cannot suppress findings indefinitely. Track the removal condition next to the policy in an issue, pull request, or security review note.
+The allowlist policy supports `rule`, `path`, `evidence`, `reason`, `owner`, `expires`, `rationale`, and `removal_condition`. Expired entries are rejected so accepted risks cannot suppress findings indefinitely. Use `validate-allowlist --require-removal-condition` when CI should require the removal condition inside the policy file.
 
 For concrete high and medium examples, see [Allowlist Policy](allowlist-policy.md#reviewed-examples).
 
@@ -66,7 +66,7 @@ Run allowlisted scans with an explicit policy file:
 agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --fail-on high
 ```
 
-Suppressed findings stay out of CI failure decisions, but reports include suppressed counts, owners, expiry dates, rationales, and reasons so accepted risks remain visible.
+Suppressed findings stay out of CI failure decisions, but reports include suppressed counts, owners, expiry dates, rationales, reasons, and removal conditions so accepted risks remain visible.
 
 Markdown reports, maintainer review reports, and GitHub Actions step summaries include an accepted-risk review queue sorted by expiry date. Use that queue during maintenance windows to renew, narrow, or remove accepted risks before they expire.
 

@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.13
+      - uses: sho-tado/agentic-actions-guard@v1.10.14
         with:
           path: .
           format: sarif
@@ -44,7 +44,7 @@ Start with `fail-on: critical` so teams see findings without blocking most exist
 
 For public repositories, scan workflow changes on pull requests and scan the default branch on push. Do not give the scan job secrets.
 
-Suppressed accepted risks are not uploaded as active SARIF alerts. When an allowlist is used, the SARIF file records accepted-risk metadata in `runs[0].properties.suppressions`, including rule, location, owner, expiry date, reason, and rationale for downstream audit trails.
+Suppressed accepted risks are not uploaded as active SARIF alerts. When an allowlist is used, the SARIF file records accepted-risk metadata in `runs[0].properties.suppressions`, including rule, location, owner, expiry date, reason, rationale, and removal condition for downstream audit trails.
 
 ## Local Reproduction
 
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.13
+      - uses: sho-tado/agentic-actions-guard@v1.10.14
         with:
           path: .
           format: annotations

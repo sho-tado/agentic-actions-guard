@@ -242,8 +242,8 @@ class AllowlistEntry:
 
     def matches(self, finding: Finding) -> bool:
         return (
-            _matches_optional(self.rule, finding.rule)
-            and _matches_optional(self.path, finding.path)
+            _matches_rule(self.rule, finding.rule)
+            and _matches_path(self.path, finding.path)
             and _matches_optional(self.evidence, finding.evidence)
         )
 
@@ -704,6 +704,9 @@ def load_allowlist(
 def _require_allowlist_matcher(entry: dict[str, object], index: int) -> None:
     if not any(_optional_string(entry, key) is not None for key in ("rule", "path", "evidence")):
         raise ValueError(f"allowlist entry {index} must include at least one matcher: 'rule', 'path', or 'evidence'")
+    rule = _optional_string(entry, "rule")
+    if rule is not None and rule not in RULE_METADATA:
+        raise ValueError(f"allowlist entry {index} references unknown rule '{rule}'")
 
 
 def _required_reason(entry: dict[str, object], index: int) -> str:
@@ -754,6 +757,27 @@ def _matches_optional(pattern: str | None, value: str) -> bool:
     if pattern is None:
         return True
     return pattern == value or pattern in value
+
+
+def _matches_rule(pattern: str | None, value: str) -> bool:
+    if pattern is None:
+        return True
+    return pattern == value
+
+
+def _matches_path(pattern: str | None, value: str) -> bool:
+    if pattern is None:
+        return True
+    normalized_pattern = _normalize_match_path(pattern)
+    normalized_value = _normalize_match_path(value)
+    return normalized_pattern == normalized_value or normalized_pattern in normalized_value
+
+
+def _normalize_match_path(value: str) -> str:
+    normalized = value.replace("\\", "/")
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized
 
 
 def _apply_allowlist(

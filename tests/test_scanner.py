@@ -481,6 +481,70 @@ jobs:
     assert summary.index(early) < summary.index(late)
 
 
+def test_allowlist_accepts_windows_path_matcher(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github\\\\workflows\\\\triage.yml",
+      "reason": "Accepted for test fixture.",
+      "owner": "maintainer-team",
+      "expires": "2099-12-31",
+      "rationale": "Synthetic fixture keeps one accepted risk visible while other findings stay active."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path, allowlist_path=policy)
+
+    assert [finding.rule for finding in report.suppressed_findings] == ["UNTRUSTED_INPUT_TO_AGENT"]
+
+
+def test_allowlist_rejects_unknown_rule_id(tmp_path: Path) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "TOKEN",
+      "path": ".github/workflows/triage.yml",
+      "reason": "Accepted for test fixture.",
+      "owner": "maintainer-team",
+      "expires": "2099-12-31",
+      "rationale": "Synthetic fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="unknown rule 'TOKEN'"):
+        load_allowlist(policy)
+
+
 def test_allowlist_requires_reason(tmp_path: Path) -> None:
     policy = tmp_path / "agentic-actions-guard.allowlist.json"
     policy.write_text(

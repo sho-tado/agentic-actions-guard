@@ -50,6 +50,7 @@
 - v1.10.11: rule catalog CLI command for maintainer report interpretation
 - v1.10.12: max expiry window for allowlist validation
 - v1.10.13: optional removal condition validation for allowlists
+- v1.10.14: stricter allowlist rule matching and Windows path matcher normalization
 
 ## Next
 

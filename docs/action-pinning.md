@@ -36,7 +36,7 @@ A mutable ref may be an accepted risk for a short period when:
 - the action does not execute tools or shell commands
 - a dependency update process will replace the tag with a commit SHA
 
-If you accept that risk, add a scoped allowlist entry with a reason, owner, expiry date, and rationale.
+If you accept that risk, add a scoped allowlist entry with a reason, owner, expiry date, rationale, and removal condition.
 
 ## Example Allowlist
 
@@ -50,7 +50,8 @@ If you accept that risk, add a scoped allowlist entry with a reason, owner, expi
       "reason": "Temporary while the maintainer team reviews the upstream v1.2.3 commit SHA.",
       "owner": "maintainer-team",
       "expires": "2026-07-01",
-      "rationale": "The workflow is read-only during the review window, and the next dependency update will replace the tag with a full commit SHA."
+      "rationale": "The workflow is read-only during the review window, and the next dependency update will replace the tag with a full commit SHA.",
+      "removal_condition": "The action reference is replaced with a reviewed full-length commit SHA."
     }
   ]
 }
