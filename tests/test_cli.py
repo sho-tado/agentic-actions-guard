@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from agentic_actions_guard.cli import main
 
@@ -51,3 +52,27 @@ def test_validate_allowlist_cli_rejects_invalid_policy(tmp_path: Path, capsys) -
     assert captured.out == ""
     assert "allowlist error:" in captured.err
     assert "at least one matcher" in captured.err
+
+
+def test_rules_cli_emits_markdown_catalog(capsys) -> None:
+    exit_code = main(["rules"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "| Rule | Severity | Name | Help |" in captured.out
+    assert "`UNTRUSTED_INPUT_WITH_SECRETS` | critical" in captured.out
+    assert "`PULL_REQUEST_TARGET_AGENT` | high or critical" in captured.out
+    assert captured.err == ""
+
+
+def test_rules_cli_emits_json_catalog(capsys) -> None:
+    exit_code = main(["rules", "--format", "json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    rules = {rule["rule"]: rule for rule in payload["rules"]}
+    assert exit_code == 0
+    assert rules["UNTRUSTED_INPUT_WITH_SECRETS"]["severity"] == "critical"
+    assert "untrusted event text" in rules["UNTRUSTED_INPUT_WITH_SECRETS"]["help"]
+    assert rules["PULL_REQUEST_TARGET_AGENT"]["severity"] == "high or critical"
+    assert captured.err == ""

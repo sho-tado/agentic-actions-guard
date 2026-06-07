@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.10
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.11
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.10
+- uses: sho-tado/agentic-actions-guard@v1.10.11
   with:
     path: .
     format: sarif
@@ -88,6 +88,13 @@ From this repository:
 
 ```powershell
 python -m agentic_actions_guard scan . --format markdown
+```
+
+List the current rule catalog:
+
+```powershell
+python -m agentic_actions_guard rules
+python -m agentic_actions_guard rules --format json
 ```
 
 ## Example

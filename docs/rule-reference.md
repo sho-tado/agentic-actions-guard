@@ -6,6 +6,13 @@ Rule IDs are intended to be safe for CI policy, SARIF filtering, GitHub annotati
 
 For maintainer-facing risk boundaries and release gate guidance, see [Risk Matrix](risk-matrix.md).
 
+The same rule catalog is available from the CLI:
+
+```powershell
+agentic-actions-guard rules
+agentic-actions-guard rules --format json
+```
+
 ## Rules
 
 | Rule ID | Default severity | Meaning | Typical fix |
