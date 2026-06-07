@@ -388,6 +388,72 @@ jobs:
         "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture. "
         "(owner: `maintainer-team`, expires: `2099-12-31`)"
     ) in summary
+    assert "Accepted risk review queue:" in markdown
+    assert (
+        "`2099-12-31` `UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11` "
+        "(owner: `maintainer-team`)"
+    ) in markdown
+    assert "Accepted risk review queue:" in review
+    assert "Accepted risk review queue:" in summary
+
+
+def test_accepted_risk_review_queue_is_sorted_by_expiry(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+      - run: echo "fixed shell command"
+""",
+        encoding="utf-8",
+    )
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "AGENT_JOB_RUNS_SHELL",
+      "path": ".github/workflows/triage.yml",
+      "reason": "Fixed shell command accepted temporarily.",
+      "owner": "workflow-team",
+      "expires": "2099-12-31",
+      "rationale": "Shell command is fixed while the team moves to an artifact-only report."
+    },
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github/workflows/triage.yml",
+      "reason": "Prompt input accepted during review rollout.",
+      "owner": "security-team",
+      "expires": "2099-01-01",
+      "rationale": "Read-only rollout keeps the prompt visible while maintainers evaluate the workflow."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path, allowlist_path=policy)
+    markdown = report.to_markdown()
+    review = report.to_review_markdown(target="example/repo")
+    summary = report.to_step_summary()
+
+    early = "`2099-01-01` `UNTRUSTED_INPUT_TO_AGENT`"
+    late = "`2099-12-31` `AGENT_JOB_RUNS_SHELL`"
+    assert early in markdown
+    assert late in markdown
+    assert markdown.index(early) < markdown.index(late)
+    assert review.index(early) < review.index(late)
+    assert summary.index(early) < summary.index(late)
 
 
 def test_allowlist_requires_reason(tmp_path: Path) -> None:

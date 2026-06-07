@@ -41,7 +41,7 @@ All provided match fields must match. Omitted match fields match any value, so a
 
 ## Output
 
-Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts, matched rules, locations, evidence, reasons, owners, expiry dates, and rationales so accepted risks stay visible. JSON output keeps `suppressed_findings` for compatibility and also includes `suppressions` with the matched allowlist entry. Policies with a missing or blank required field, an invalid or expired `expires` date, or no `rule`, `path`, or `evidence` matcher, are rejected.
+Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts, matched rules, locations, evidence, reasons, owners, expiry dates, and rationales so accepted risks stay visible. Markdown reports, maintainer review reports, and GitHub Actions step summaries also include an accepted-risk review queue sorted by expiry date. JSON output keeps `suppressed_findings` for compatibility and also includes `suppressions` with the matched allowlist entry. Policies with a missing or blank required field, an invalid or expired `expires` date, or no `rule`, `path`, or `evidence` matcher, are rejected.
 
 Review allowlists periodically. Prefer fixing findings over suppressing them permanently.
 

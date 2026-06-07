@@ -68,4 +68,6 @@ agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --
 
 Suppressed findings stay out of CI failure decisions, but reports include suppressed counts, owners, expiry dates, rationales, and reasons so accepted risks remain visible.
 
+Markdown reports, maintainer review reports, and GitHub Actions step summaries include an accepted-risk review queue sorted by expiry date. Use that queue during maintenance windows to renew, narrow, or remove accepted risks before they expire.
+
 See [Allowlist Policy](allowlist-policy.md), [Risk Matrix](risk-matrix.md), and [Maintainer Opt-In Review Response Flow](review-response-flow.md).

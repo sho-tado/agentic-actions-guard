@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.7
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.8
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.7
+- uses: sho-tado/agentic-actions-guard@v1.10.8
   with:
     path: .
     format: sarif
@@ -73,6 +73,7 @@ See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable ac
 - treats workflow top-level `env` secrets as available to AI jobs
 - emits Markdown, JSON, SARIF, review reports, GitHub annotations, or short step summaries for issue comments, release gates, and code scanning
 - summarizes additional review findings by rule after the top maintainer-facing findings
+- shows allowlisted accepted risks as an expiry-sorted review queue in Markdown, review, and step summary output
 
 ## CLI Usage
 

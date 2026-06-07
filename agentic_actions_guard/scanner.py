@@ -376,6 +376,7 @@ class ScanReport:
                 ]
             )
             lines.extend(_suppression_summary_lines(self.suppressed_findings, self.allowlist_entries, limit=3))
+            lines.extend(_suppression_review_queue_lines(self.suppressed_findings, self.allowlist_entries, limit=5))
 
         return "\n".join(lines).rstrip()
 
@@ -417,6 +418,8 @@ class ScanReport:
         if self.suppressed_findings:
             lines.extend(["", "## Suppressed Findings", ""])
             lines.extend(_suppression_detail_lines(self.suppressed_findings, self.allowlist_entries))
+            lines.extend(["", "## Accepted Risk Review Queue", ""])
+            lines.extend(_suppression_review_queue_lines(self.suppressed_findings, self.allowlist_entries, limit=10))
         return "\n".join(lines).rstrip()
 
     def to_review_markdown(self, target: str | None = None) -> str:
@@ -459,6 +462,7 @@ class ScanReport:
                 ]
             )
             lines.extend(_suppression_summary_lines(self.suppressed_findings, self.allowlist_entries, limit=5))
+            lines.extend(_suppression_review_queue_lines(self.suppressed_findings, self.allowlist_entries, limit=5))
 
         top_findings = sorted(self.findings, key=lambda f: (-SEVERITY_ORDER[f.severity], f.path, f.line))[:5]
         if top_findings:
@@ -565,6 +569,36 @@ def _suppression_detail_lines(
                 "",
             ]
         )
+    return lines
+
+
+def _suppression_review_queue_lines(
+    suppressed_findings: list[Finding],
+    allowlist_entries: list[AllowlistEntry],
+    *,
+    limit: int,
+) -> list[str]:
+    rows = sorted(
+        _suppression_rows(suppressed_findings, allowlist_entries),
+        key=lambda row: (
+            row[1].expires or "",
+            -SEVERITY_ORDER[row[0].severity],
+            row[0].path,
+            row[0].line,
+            row[0].rule,
+        ),
+    )
+    if not rows:
+        return []
+
+    lines = ["", "Accepted risk review queue:"]
+    for finding, entry in rows[:limit]:
+        lines.append(
+            f"- `{entry.expires}` `{finding.rule}` at `{finding.path}:{finding.line}` "
+            f"(owner: `{entry.owner}`): {entry.rationale}"
+        )
+    if len(rows) > limit:
+        lines.append(f"- `{len(rows) - limit}` additional accepted risk(s)")
     return lines
 
 

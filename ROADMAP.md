@@ -44,11 +44,12 @@
 - v1.10.5: require allowlist suppressions to include at least one matcher
 - v1.10.6: show allowlist suppression reasons in reports and JSON output
 - v1.10.7: require owner, expiry date, and rationale for accepted-risk allowlists
+- v1.10.8: show accepted-risk review queues sorted by expiry date in reports and summaries
 
 ## Next
 
-- broader real-world fixture coverage after maintainer opt-in feedback
 - maintainer feedback loop for which step summary sections help triage fastest
+- broader real-world fixture coverage after maintainer opt-in feedback
 
 ## Research Backlog
 
