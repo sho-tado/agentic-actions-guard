@@ -35,7 +35,7 @@ All provided match fields must match. Omitted match fields match any value, so a
 
 ## Output
 
-Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts so accepted risks stay visible. Policies with a missing or blank `reason`, or with no `rule`, `path`, or `evidence` matcher, are rejected.
+Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts, matched rules, locations, evidence, and allowlist reasons so accepted risks stay visible. JSON output keeps `suppressed_findings` for compatibility and also includes `suppressions` with the matched allowlist entry. Policies with a missing or blank `reason`, or with no `rule`, `path`, or `evidence` matcher, are rejected.
 
 Review allowlists periodically. Prefer fixing findings over suppressing them permanently.
 

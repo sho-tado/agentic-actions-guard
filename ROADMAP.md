@@ -42,6 +42,7 @@
 - v1.10.3: richer step summary output with rule breakdowns and suggested next actions
 - v1.10.4: require documented reasons for allowlist suppressions
 - v1.10.5: require allowlist suppressions to include at least one matcher
+- v1.10.6: show allowlist suppression reasons in reports and JSON output
 
 ## Next
 

@@ -354,11 +354,23 @@ jobs:
     )
 
     report = scan_repository(tmp_path, allowlist_path=policy)
+    report_json = report.to_dict()
+    markdown = report.to_markdown()
+    review = report.to_review_markdown(target="example/repo")
+    summary = report.to_step_summary()
 
     assert "UNTRUSTED_INPUT_TO_AGENT" not in {finding.rule for finding in report.findings}
     assert "MISSING_EXPLICIT_PERMISSIONS" in {finding.rule for finding in report.findings}
     assert [finding.rule for finding in report.suppressed_findings] == ["UNTRUSTED_INPUT_TO_AGENT"]
-    assert "Suppressed findings: `1`" in report.to_markdown()
+    assert report_json["suppressions"][0]["finding"]["rule"] == "UNTRUSTED_INPUT_TO_AGENT"
+    assert report_json["suppressions"][0]["allowlist_entry"]["reason"] == "Accepted for test fixture."
+    assert "Suppressed findings: `1`" in markdown
+    assert "## Suppressed Findings" in markdown
+    assert "Allowlist reason: Accepted for test fixture." in markdown
+    assert "Suppressed accepted risks:" in review
+    assert "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture." in review
+    assert "Suppressed accepted risks:" in summary
+    assert "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture." in summary
 
 
 def test_allowlist_requires_reason(tmp_path: Path) -> None:

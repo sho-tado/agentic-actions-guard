@@ -269,6 +269,10 @@ class ScanReport:
             "workflow_count": self.workflow_count,
             "findings": [finding.to_dict() for finding in self.findings],
             "suppressed_findings": [finding.to_dict() for finding in self.suppressed_findings],
+            "suppressions": [
+                {"finding": finding.to_dict(), "allowlist_entry": entry.to_dict()}
+                for finding, entry in _suppression_rows(self.suppressed_findings, self.allowlist_entries)
+            ],
             "allowlist_entries": [entry.to_dict() for entry in self.allowlist_entries],
             "summary": summarize_findings(self.findings),
             "suppressed_summary": summarize_findings(self.suppressed_findings),
@@ -364,6 +368,7 @@ class ScanReport:
                     f"`{len(self.suppressed_findings)}` finding(s) were suppressed by allowlist policy. Review accepted risks on their documented cadence.",
                 ]
             )
+            lines.extend(_suppression_summary_lines(self.suppressed_findings, self.allowlist_entries, limit=3))
 
         return "\n".join(lines).rstrip()
 
@@ -386,6 +391,7 @@ class ScanReport:
             lines.extend(["", "No risky AI-agent workflow patterns were detected."])
             if self.suppressed_findings:
                 lines.extend(["", f"`{len(self.suppressed_findings)}` finding(s) were suppressed by policy."])
+                lines.extend(_suppression_detail_lines(self.suppressed_findings, self.allowlist_entries))
             return "\n".join(lines)
 
         lines.extend(["", "## Findings", ""])
@@ -401,6 +407,9 @@ class ScanReport:
                     "",
                 ]
             )
+        if self.suppressed_findings:
+            lines.extend(["", "## Suppressed Findings", ""])
+            lines.extend(_suppression_detail_lines(self.suppressed_findings, self.allowlist_entries))
         return "\n".join(lines).rstrip()
 
     def to_review_markdown(self, target: str | None = None) -> str:
@@ -442,6 +451,7 @@ class ScanReport:
                     f"Policy note: `{len(self.suppressed_findings)}` finding(s) were suppressed by allowlist policy. Review accepted risks periodically.",
                 ]
             )
+            lines.extend(_suppression_summary_lines(self.suppressed_findings, self.allowlist_entries, limit=5))
 
         top_findings = sorted(self.findings, key=lambda f: (-SEVERITY_ORDER[f.severity], f.path, f.line))[:5]
         if top_findings:
@@ -497,6 +507,52 @@ def _count_by_rule(findings: list[Finding]) -> list[tuple[str, int]]:
     for finding in findings:
         counts[finding.rule] = counts.get(finding.rule, 0) + 1
     return sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+
+
+def _suppression_rows(
+    suppressed_findings: list[Finding],
+    allowlist_entries: list[AllowlistEntry],
+) -> list[tuple[Finding, AllowlistEntry]]:
+    rows: list[tuple[Finding, AllowlistEntry]] = []
+    for finding in suppressed_findings:
+        entry = next((candidate for candidate in allowlist_entries if candidate.matches(finding)), None)
+        if entry is not None:
+            rows.append((finding, entry))
+    return rows
+
+
+def _suppression_summary_lines(
+    suppressed_findings: list[Finding],
+    allowlist_entries: list[AllowlistEntry],
+    *,
+    limit: int,
+) -> list[str]:
+    rows = _suppression_rows(suppressed_findings, allowlist_entries)
+    lines = ["", "Suppressed accepted risks:"]
+    for finding, entry in rows[:limit]:
+        lines.append(f"- `{finding.rule}` at `{finding.path}:{finding.line}`: {entry.reason}")
+    if len(rows) > limit:
+        lines.append(f"- `{len(rows) - limit}` additional suppressed finding(s)")
+    return lines
+
+
+def _suppression_detail_lines(
+    suppressed_findings: list[Finding],
+    allowlist_entries: list[AllowlistEntry],
+) -> list[str]:
+    lines: list[str] = []
+    for finding, entry in _suppression_rows(suppressed_findings, allowlist_entries):
+        lines.extend(
+            [
+                f"### {finding.severity.upper()} {finding.rule}",
+                "",
+                f"- Location: `{finding.path}:{finding.line}`",
+                f"- Evidence: `{finding.evidence}`",
+                f"- Allowlist reason: {entry.reason}",
+                "",
+            ]
+        )
+    return lines
 
 
 def _recommended_gate(summary: dict[str, int]) -> str:
