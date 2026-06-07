@@ -5,7 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-from .scanner import SEVERITY_ORDER, scan_repository
+from .scanner import SEVERITY_ORDER, load_allowlist, scan_repository
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,12 +40,27 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional JSON policy file with accepted findings to suppress.",
     )
+
+    validate_allowlist = subcommands.add_parser(
+        "validate-allowlist",
+        help="Validate an accepted-risk allowlist policy without scanning workflows.",
+    )
+    validate_allowlist.add_argument("path", type=Path, help="JSON allowlist policy file.")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.command == "validate-allowlist":
+        try:
+            entries = load_allowlist(args.path)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"allowlist error: {exc}", file=sys.stderr)
+            return 2
+        print(f"allowlist ok: {len(entries)} entr{'y' if len(entries) == 1 else 'ies'}")
+        return 0
 
     if args.command != "scan":
         parser.error("unknown command")

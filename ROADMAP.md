@@ -46,10 +46,11 @@
 - v1.10.7: require owner, expiry date, and rationale for accepted-risk allowlists
 - v1.10.8: show accepted-risk review queues sorted by expiry date in reports and summaries
 - v1.10.9: include accepted-risk suppression metadata in SARIF run properties
+- v1.10.10: allowlist validation CLI command for pre-CI policy checks
 
 ## Next
 
-- maintainer feedback loop for which step summary sections help triage fastest
+- maintainer feedback loop for which accepted-risk outputs help triage fastest
 - broader real-world fixture coverage after maintainer opt-in feedback
 
 ## Research Backlog
