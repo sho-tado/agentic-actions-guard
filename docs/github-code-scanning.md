@@ -1,4 +1,4 @@
-# GitHub Code Scanning Setup
+﻿# GitHub Code Scanning Setup
 
 Use this workflow to publish SARIF findings in GitHub code scanning.
 
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.1
+      - uses: sho-tado/agentic-actions-guard@v1.10.2
         with:
           path: .
           format: sarif
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.1
+      - uses: sho-tado/agentic-actions-guard@v1.10.2
         with:
           path: .
           format: annotations

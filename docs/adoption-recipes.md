@@ -1,4 +1,4 @@
-# Adoption Recipes
+﻿# Adoption Recipes
 
 Use these copy-paste recipes when adding `agentic-actions-guard` to a public repository. Start with the least disruptive mode, then tighten the gate after maintainers understand expected findings.
 
@@ -9,7 +9,7 @@ For drop-in workflow files, see [Workflow Templates](workflow-templates.md).
 Use this before opening a workflow hardening issue or pull request.
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.1
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.2
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.1
+      - uses: sho-tado/agentic-actions-guard@v1.10.2
         with:
           path: .
           format: annotations
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.1
+      - uses: sho-tado/agentic-actions-guard@v1.10.2
         with:
           path: .
           format: sarif

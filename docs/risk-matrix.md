@@ -4,7 +4,7 @@ This matrix maps `agentic-actions-guard` rules to the maintainer boundary they r
 
 | Rule ID | Boundary reviewed | Maintainer question | Primary fix |
 |---|---|---|---|
-| `UNTRUSTED_INPUT_WITH_SECRETS` | Untrusted event text plus secrets or privileged tokens | Can outside-authored text influence a job that has secrets or tokens? | Move secrets and privileged token use into a separate trusted job. |
+| `UNTRUSTED_INPUT_WITH_SECRETS` | Untrusted event text plus secrets or privileged tokens | Can outside-authored text influence a job that has secrets or explicit token contexts such as `${{ github.token }}`? | Move secrets and privileged token use into a separate trusted job. |
 | `UNTRUSTED_INPUT_TO_AGENT` | Untrusted event text into AI automation | Can an issue, PR, comment, review, commit, branch, or dispatch payload shape the agent prompt? | Treat the text as hostile; isolate, summarize, or constrain it before agent use. |
 | `AGENT_WITH_WRITE_TOKEN` | AI job write permissions | Can the AI-related job mutate issues, PRs, contents, checks, statuses, packages, or deployments? | Keep AI analysis read-only and move writes into a maintainer-approved job. |
 | `PULL_REQUEST_TARGET_AGENT` | Privileged event context | Does agent automation run on `pull_request_target`, especially near fork checkout? | Prefer read-only `pull_request`; use privileged follow-up only after approval. |

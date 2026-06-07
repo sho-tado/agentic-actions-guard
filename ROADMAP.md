@@ -38,6 +38,7 @@
 - v1.9.9: scheduled batch triage fixture pair
 - v1.10.0: GitHub Actions step summary output for adoption decisions
 - v1.10.1: public-safe GitHub Actions step summary example docs
+- v1.10.2: explicit `github.token` detection when AI workflows process untrusted input
 
 ## Next
 

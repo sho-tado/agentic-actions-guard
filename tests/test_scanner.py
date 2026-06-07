@@ -64,6 +64,35 @@ jobs:
     assert critical.evidence == "prompt: ${{ github.event.issue.body }}"
 
 
+def test_github_token_context_applies_to_ai_job(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "token-review.yml").write_text(
+        """name: ai token review
+on:
+  issues:
+    types: [opened]
+permissions:
+  issues: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: clouatre-labs/aptu@v1
+        with:
+          reference: ${{ github.event.issue.body }}
+          github-token: ${{ github.token }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    critical = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_WITH_SECRETS")
+    assert critical.severity == "critical"
+    assert critical.evidence == "reference: ${{ github.event.issue.body }}"
+
+
 def test_clean_non_ai_workflow_has_no_findings(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

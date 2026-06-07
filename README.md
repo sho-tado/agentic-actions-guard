@@ -1,4 +1,4 @@
-# Agentic Actions Guard
+﻿# Agentic Actions Guard
 
 [![CI](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/ci.yml)
 [![Agentic Actions Guard](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/agentic-actions-guard.yml/badge.svg)](https://github.com/sho-tado/agentic-actions-guard/actions/workflows/agentic-actions-guard.yml)
@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.1
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.2
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.1
+- uses: sho-tado/agentic-actions-guard@v1.10.2
   with:
     path: .
     format: sarif
