@@ -69,6 +69,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Reject entries whose expires date is more than this many days in the future.",
     )
+    validate_allowlist.add_argument(
+        "--require-removal-condition",
+        action="store_true",
+        help="Reject entries that do not document the condition for removing the accepted risk.",
+    )
 
     rules = subcommands.add_parser("rules", help="List stable scanner rule IDs.")
     rules.add_argument(
@@ -110,7 +115,11 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate-allowlist":
         try:
-            entries = load_allowlist(args.path, max_expiry_days=args.max_expiry_days)
+            entries = load_allowlist(
+                args.path,
+                max_expiry_days=args.max_expiry_days,
+                require_removal_condition=args.require_removal_condition,
+            )
         except (OSError, ValueError, json.JSONDecodeError) as exc:
             print(f"allowlist error: {exc}", file=sys.stderr)
             return 2

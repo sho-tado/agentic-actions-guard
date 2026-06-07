@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.12
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.13
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.12
+- uses: sho-tado/agentic-actions-guard@v1.10.13
   with:
     path: .
     format: sarif
@@ -153,6 +153,12 @@ Reject accepted risks with review windows that are too long:
 
 ```powershell
 python -m agentic_actions_guard validate-allowlist agentic-actions-guard.allowlist.json --max-expiry-days 30
+```
+
+Require each accepted risk to document its removal condition:
+
+```powershell
+python -m agentic_actions_guard validate-allowlist agentic-actions-guard.allowlist.json --require-removal-condition
 ```
 
 See [Allowlist Policy](docs/allowlist-policy.md).

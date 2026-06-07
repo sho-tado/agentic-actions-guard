@@ -238,6 +238,7 @@ class AllowlistEntry:
     owner: str | None = None
     expires: str | None = None
     rationale: str | None = None
+    removal_condition: str | None = None
 
     def matches(self, finding: Finding) -> bool:
         return (
@@ -257,6 +258,7 @@ class AllowlistEntry:
                 "owner": self.owner,
                 "expires": self.expires,
                 "rationale": self.rationale,
+                "removal_condition": self.removal_condition,
             }.items()
             if value is not None
         }
@@ -548,6 +550,7 @@ def _suppression_records(
             "owner": entry.owner,
             "expires": entry.expires,
             "rationale": entry.rationale,
+            "removalCondition": entry.removal_condition,
         }
         for finding, entry in _suppression_rows(suppressed_findings, allowlist_entries)
     ]
@@ -587,6 +590,7 @@ def _suppression_detail_lines(
                 f"- Owner: `{entry.owner}`",
                 f"- Expires: `{entry.expires}`",
                 f"- Rationale: {entry.rationale}",
+                *([f"- Removal condition: {entry.removal_condition}"] if entry.removal_condition else []),
                 "",
             ]
         )
@@ -663,7 +667,11 @@ def _summary_next_actions(summary: dict[str, int]) -> list[str]:
     ]
 
 
-def load_allowlist(path: Path | None, max_expiry_days: int | None = None) -> list[AllowlistEntry]:
+def load_allowlist(
+    path: Path | None,
+    max_expiry_days: int | None = None,
+    require_removal_condition: bool = False,
+) -> list[AllowlistEntry]:
     if path is None:
         return []
     if max_expiry_days is not None and max_expiry_days < 0:
@@ -687,6 +695,7 @@ def load_allowlist(path: Path | None, max_expiry_days: int | None = None) -> lis
                 owner=_required_non_empty_string(entry, "owner", index),
                 expires=_required_expires(entry, index, max_expiry_days=max_expiry_days),
                 rationale=_required_non_empty_string(entry, "rationale", index),
+                removal_condition=_removal_condition(entry, index, required=require_removal_condition),
             )
         )
     return allowlist
@@ -699,6 +708,15 @@ def _require_allowlist_matcher(entry: dict[str, object], index: int) -> None:
 
 def _required_reason(entry: dict[str, object], index: int) -> str:
     return _required_non_empty_string(entry, "reason", index)
+
+
+def _removal_condition(entry: dict[str, object], index: int, *, required: bool) -> str | None:
+    if required:
+        return _required_non_empty_string(entry, "removal_condition", index)
+    value = _optional_string(entry, "removal_condition")
+    if value is not None and not value.strip():
+        raise ValueError(f"allowlist entry {index} must include a non-empty 'removal_condition'")
+    return value
 
 
 def _required_non_empty_string(entry: dict[str, object], key: str, index: int) -> str:

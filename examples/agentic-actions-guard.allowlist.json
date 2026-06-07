@@ -6,7 +6,8 @@
       "reason": "Example workflow runs a fixed scanner command and does not execute model output.",
       "owner": "maintainer-team",
       "expires": "2026-07-01",
-      "rationale": "Synthetic example demonstrating a reviewed, scoped, and short-lived accepted risk."
+      "rationale": "Synthetic example demonstrating a reviewed, scoped, and short-lived accepted risk.",
+      "removal_condition": "The example workflow no longer needs a shell step near AI review output."
     }
   ]
 }

@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.12
+      - uses: sho-tado/agentic-actions-guard@v1.10.13
         with:
           path: .
           format: annotations

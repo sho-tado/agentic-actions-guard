@@ -348,7 +348,8 @@ jobs:
       "reason": "Accepted for test fixture.",
       "owner": "maintainer-team",
       "expires": "2099-12-31",
-      "rationale": "Synthetic fixture keeps one accepted risk visible while other findings stay active."
+      "rationale": "Synthetic fixture keeps one accepted risk visible while other findings stay active.",
+      "removal_condition": "Delete the accepted risk after the replacement workflow is merged."
     }
   ]
 }
@@ -373,6 +374,9 @@ jobs:
     assert report_json["suppressions"][0]["allowlist_entry"]["rationale"] == (
         "Synthetic fixture keeps one accepted risk visible while other findings stay active."
     )
+    assert report_json["suppressions"][0]["allowlist_entry"]["removal_condition"] == (
+        "Delete the accepted risk after the replacement workflow is merged."
+    )
     sarif_run = sarif["runs"][0]
     sarif_suppressions = sarif_run["properties"]["suppressions"]
     active_sarif_rules = {result["ruleId"] for result in sarif_run["results"]}
@@ -389,6 +393,7 @@ jobs:
             "owner": "maintainer-team",
             "expires": "2099-12-31",
             "rationale": "Synthetic fixture keeps one accepted risk visible while other findings stay active.",
+            "removalCondition": "Delete the accepted risk after the replacement workflow is merged.",
         }
     ]
     assert "Suppressed findings: `1`" in markdown
@@ -397,6 +402,7 @@ jobs:
     assert "Owner: `maintainer-team`" in markdown
     assert "Expires: `2099-12-31`" in markdown
     assert "Rationale: Synthetic fixture keeps one accepted risk visible while other findings stay active." in markdown
+    assert "Removal condition: Delete the accepted risk after the replacement workflow is merged." in markdown
     assert "Suppressed accepted risks:" in review
     assert (
         "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture. "
