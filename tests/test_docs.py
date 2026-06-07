@@ -261,3 +261,17 @@ def test_step_summary_example_is_linked_from_entrypoints() -> None:
     assert "sho-tado/agentic-actions-guard@v1.10.1" in step_summary
     assert "docs/step-summary-example.md" in readme
     assert "step-summary-example.md" in recipes
+
+
+def test_workflow_review_request_form_documents_consent_and_scope() -> None:
+    form = (ROOT / ".github" / "ISSUE_TEMPLATE" / "workflow_review_request.yml").read_text(encoding="utf-8")
+    request_docs = (ROOT / "docs" / "request-workflow-review.md").read_text(encoding="utf-8")
+
+    assert "workflow_scope" in form
+    assert "report_location" in form
+    assert "maintainer of this repository or have permission" in form
+    assert "public best-effort report" in form
+    assert "Do not paste secrets" in form
+    assert "optional workflow paths" in request_docs
+    assert "preferred public report location" in request_docs
+    assert "public-report consent" in request_docs

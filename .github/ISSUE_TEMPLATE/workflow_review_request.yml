@@ -17,6 +17,17 @@ body:
       placeholder: https://github.com/owner/repo
     validations:
       required: true
+  - type: textarea
+    id: workflow_scope
+    attributes:
+      label: Workflow scope
+      description: List public workflow paths, pull requests, or branches that should be reviewed.
+      placeholder: |
+        .github/workflows/ai-triage.yml
+        .github/workflows/ai-pr-review.yml
+      render: text
+    validations:
+      required: false
   - type: dropdown
     id: automation_type
     attributes:
@@ -30,14 +41,29 @@ body:
         - Other public workflow automation
     validations:
       required: true
+  - type: dropdown
+    id: report_location
+    attributes:
+      label: Preferred public report location
+      description: Reports are only posted after maintainer opt-in.
+      options:
+        - Comment on this issue
+        - Comment on a linked pull request
+        - Open a focused follow-up issue
+    validations:
+      required: true
   - type: checkboxes
     id: scope_confirmation
     attributes:
       label: Scope confirmation
       options:
+        - label: I am a maintainer of this repository or have permission to request this public workflow review.
+          required: true
         - label: The repository or workflow is public.
           required: true
         - label: I am not sharing secrets, private prompts, tokens, or private repository content.
+          required: true
+        - label: I consent to receiving a public best-effort report in the preferred location above.
           required: true
         - label: I understand the review is best-effort and is not a full security audit.
           required: true

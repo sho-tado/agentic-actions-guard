@@ -6,6 +6,14 @@ The public review call is tracked in [issue #4](https://github.com/sho-tado/agen
 
 Open a [Workflow safety review issue](https://github.com/sho-tado/agentic-actions-guard/issues/new?template=workflow_review_request.yml) with a link to the public repository or workflow file.
 
+The request form asks for:
+
+- the public repository or workflow URL
+- optional workflow paths, pull requests, or branches to keep the review scoped
+- the AI automation type
+- the preferred public report location
+- maintainer permission and public-report consent
+
 If you want to self-review first, follow the [Maintainer Review Playbook](maintainer-review-playbook.md).
 If you want to add CI directly, use the [Adoption Recipes](adoption-recipes.md).
 If you want copy-paste workflow files, use [Workflow Templates](workflow-templates.md).
