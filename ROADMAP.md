@@ -41,6 +41,7 @@
 - v1.10.2: explicit `github.token` detection when AI workflows process untrusted input
 - v1.10.3: richer step summary output with rule breakdowns and suggested next actions
 - v1.10.4: require documented reasons for allowlist suppressions
+- v1.10.5: require allowlist suppressions to include at least one matcher
 
 ## Next
 

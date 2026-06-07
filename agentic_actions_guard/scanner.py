@@ -551,6 +551,7 @@ def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
     for index, entry in enumerate(entries):
         if not isinstance(entry, dict):
             raise ValueError(f"allowlist entry {index} must be an object")
+        _require_allowlist_matcher(entry, index)
         allowlist.append(
             AllowlistEntry(
                 rule=_optional_string(entry, "rule"),
@@ -560,6 +561,11 @@ def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
             )
         )
     return allowlist
+
+
+def _require_allowlist_matcher(entry: dict[str, object], index: int) -> None:
+    if not any(_optional_string(entry, key) is not None for key in ("rule", "path", "evidence")):
+        raise ValueError(f"allowlist entry {index} must include at least one matcher: 'rule', 'path', or 'evidence'")
 
 
 def _required_reason(entry: dict[str, object], index: int) -> str:

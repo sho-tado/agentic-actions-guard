@@ -400,6 +400,24 @@ def test_allowlist_rejects_blank_reason(tmp_path: Path) -> None:
         load_allowlist(policy)
 
 
+def test_allowlist_rejects_reason_only_entry(tmp_path: Path) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "reason": "Accepted for test fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="at least one matcher"):
+        load_allowlist(policy)
+
+
 def test_github_annotations_output_emits_workflow_commands(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)
