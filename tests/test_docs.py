@@ -72,7 +72,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.10.0" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.10.1" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -194,6 +194,7 @@ def test_ai_patch_handoff_recipe_is_linked_from_entrypoints() -> None:
 
 def test_workflow_templates_are_linked_from_entrypoints() -> None:
     templates = (ROOT / "docs" / "workflow-templates.md").read_text(encoding="utf-8")
+    step_summary = (ROOT / "docs" / "step-summary-example.md").read_text(encoding="utf-8")
     annotations = (ROOT / "docs" / "workflow-templates" / "agentic-actions-guard-annotations.yml").read_text(
         encoding="utf-8"
     )
@@ -210,6 +211,9 @@ def test_workflow_templates_are_linked_from_entrypoints() -> None:
     assert "format: sarif" in sarif
     assert "step-summary" in annotations
     assert "step-summary" in sarif
+    assert "step-summary-example.md" in templates
+    assert "Agentic Actions Guard Summary" in step_summary
+    assert "risky-ai-output-shell.yml" in step_summary
     assert "security-events: write" in sarif
     assert "docs/workflow-templates.md" in readme
     assert "workflow-templates.md" in recipes
@@ -245,3 +249,15 @@ def test_openssf_scorecard_comparison_is_linked_from_entrypoints() -> None:
     assert "adoption-recipes.md" in comparison
     assert "scorecard/blob/main/docs/checks.md" in comparison
     assert "docs/openssf-scorecard-comparison.md" in readme
+
+
+def test_step_summary_example_is_linked_from_entrypoints() -> None:
+    step_summary = (ROOT / "docs" / "step-summary-example.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    recipes = (ROOT / "docs" / "adoption-recipes.md").read_text(encoding="utf-8")
+
+    assert "GitHub Actions Step Summary Example" in step_summary
+    assert "Agentic Actions Guard Summary" in step_summary
+    assert "sho-tado/agentic-actions-guard@v1.10.1" in step_summary
+    assert "docs/step-summary-example.md" in readme
+    assert "step-summary-example.md" in recipes

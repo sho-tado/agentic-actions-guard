@@ -9,7 +9,7 @@ For drop-in workflow files, see [Workflow Templates](workflow-templates.md).
 Use this before opening a workflow hardening issue or pull request.
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.1
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
@@ -18,6 +18,8 @@ Good for:
 - first review before adding CI
 - public review request reproduction
 - maintainer handoff notes
+
+For the compact Actions UI output used by the workflow recipes below, see [GitHub Actions Step Summary Example](step-summary-example.md).
 
 ## Recipe 2: Pull Request Annotations
 
@@ -39,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.0
+      - uses: sho-tado/agentic-actions-guard@v1.10.1
         with:
           path: .
           format: annotations
@@ -79,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.0
+      - uses: sho-tado/agentic-actions-guard@v1.10.1
         with:
           path: .
           format: sarif

@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.0
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.1
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.0
+- uses: sho-tado/agentic-actions-guard@v1.10.1
   with:
     path: .
     format: sarif
@@ -53,6 +53,7 @@ See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste local, annotatio
 See [Maintainer Adoption Decision Report](docs/adoption-decision-report.md) for choosing report-only, annotations, SARIF, or stricter gates after a review.
 See [OpenSSF Scorecard Comparison](docs/openssf-scorecard-comparison.md) for how this tool complements broad repository health checks.
 See [Workflow Templates](docs/workflow-templates.md) for copy-paste GitHub Actions files.
+See [GitHub Actions Step Summary Example](docs/step-summary-example.md) for the compact first-run summary shown in Actions.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) for keeping allowlisted findings owned and time-bound.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
 
@@ -159,6 +160,7 @@ See [Adoption Recipes](docs/adoption-recipes.md) for copy-paste rollout examples
 See [Maintainer Adoption Decision Report](docs/adoption-decision-report.md) when deciding whether a repository is ready for annotations, SARIF, or stricter gates.
 See [OpenSSF Scorecard Comparison](docs/openssf-scorecard-comparison.md) when combining broad repository health checks with AI workflow review.
 See [Workflow Templates](docs/workflow-templates.md) for drop-in annotation and SARIF workflows.
+See [GitHub Actions Step Summary Example](docs/step-summary-example.md) for the compact first-run summary shown in Actions.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) before suppressing findings with an allowlist.
 See [Curated AI Action Checks](docs/curated-ai-actions.md) for currently recognized AI maintainer actions.
 See [AI Action Pinning Guide](docs/action-pinning.md) for the recommended update process when pinning AI action refs.

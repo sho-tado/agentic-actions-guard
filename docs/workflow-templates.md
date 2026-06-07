@@ -17,6 +17,7 @@ This template:
 - runs only when workflow files change
 - uses read-only repository permissions
 - emits GitHub Actions annotations
+- writes a compact step summary by default
 - starts with `fail-on: critical`
 
 ## SARIF Template
@@ -32,6 +33,7 @@ This template:
 - scans workflow changes on pull requests
 - scans the default branch on pushes to `main`
 - uploads SARIF to GitHub code scanning
+- writes a compact step summary by default
 - grants only `contents: read` and `security-events: write`
 
 ## Rollout
@@ -42,4 +44,4 @@ This template:
 4. Switch to the SARIF template when code scanning history is useful.
 5. Move from `fail-on: critical` to `fail-on: high` after expected high findings are fixed or accepted.
 
-For the rule model, see [Rule Reference](rule-reference.md). For local review commands, see [Adoption Recipes](adoption-recipes.md).
+For the rule model, see [Rule Reference](rule-reference.md). For local review commands, see [Adoption Recipes](adoption-recipes.md). For the first-run summary shown in Actions, see [GitHub Actions Step Summary Example](step-summary-example.md).
