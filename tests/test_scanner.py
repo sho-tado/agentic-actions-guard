@@ -358,6 +358,7 @@ jobs:
 
     report = scan_repository(tmp_path, allowlist_path=policy)
     report_json = report.to_dict()
+    sarif = report.to_sarif()
     markdown = report.to_markdown()
     review = report.to_review_markdown(target="example/repo")
     summary = report.to_step_summary()
@@ -372,6 +373,24 @@ jobs:
     assert report_json["suppressions"][0]["allowlist_entry"]["rationale"] == (
         "Synthetic fixture keeps one accepted risk visible while other findings stay active."
     )
+    sarif_run = sarif["runs"][0]
+    sarif_suppressions = sarif_run["properties"]["suppressions"]
+    active_sarif_rules = {result["ruleId"] for result in sarif_run["results"]}
+    assert "UNTRUSTED_INPUT_TO_AGENT" not in active_sarif_rules
+    assert "MISSING_EXPLICIT_PERMISSIONS" in active_sarif_rules
+    assert sarif_suppressions == [
+        {
+            "rule": "UNTRUSTED_INPUT_TO_AGENT",
+            "severity": "high",
+            "path": ".github/workflows/triage.yml",
+            "line": 11,
+            "evidence": "prompt: ${{ github.event.issue.body }}",
+            "reason": "Accepted for test fixture.",
+            "owner": "maintainer-team",
+            "expires": "2099-12-31",
+            "rationale": "Synthetic fixture keeps one accepted risk visible while other findings stay active.",
+        }
+    ]
     assert "Suppressed findings: `1`" in markdown
     assert "## Suppressed Findings" in markdown
     assert "Allowlist reason: Accepted for test fixture." in markdown

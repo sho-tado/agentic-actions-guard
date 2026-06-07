@@ -304,6 +304,7 @@ class ScanReport:
                         "workflowCount": self.workflow_count,
                         "summary": summarize_findings(self.findings),
                         "suppressedSummary": summarize_findings(self.suppressed_findings),
+                        "suppressions": _suppression_records(self.suppressed_findings, self.allowlist_entries),
                     },
                 }
             ],
@@ -530,6 +531,26 @@ def _suppression_rows(
         if entry is not None:
             rows.append((finding, entry))
     return rows
+
+
+def _suppression_records(
+    suppressed_findings: list[Finding],
+    allowlist_entries: list[AllowlistEntry],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "rule": finding.rule,
+            "severity": finding.severity,
+            "path": finding.path,
+            "line": finding.line,
+            "evidence": finding.evidence,
+            "reason": entry.reason,
+            "owner": entry.owner,
+            "expires": entry.expires,
+            "rationale": entry.rationale,
+        }
+        for finding, entry in _suppression_rows(suppressed_findings, allowlist_entries)
+    ]
 
 
 def _suppression_summary_lines(

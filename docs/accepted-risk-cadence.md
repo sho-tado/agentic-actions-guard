@@ -70,4 +70,6 @@ Suppressed findings stay out of CI failure decisions, but reports include suppre
 
 Markdown reports, maintainer review reports, and GitHub Actions step summaries include an accepted-risk review queue sorted by expiry date. Use that queue during maintenance windows to renew, narrow, or remove accepted risks before they expire.
 
+SARIF output keeps suppressed findings out of active `results`, but includes the same accepted-risk metadata in `runs[0].properties.suppressions` so code scanning pipelines and archived SARIF artifacts retain an audit trail.
+
 See [Allowlist Policy](allowlist-policy.md), [Risk Matrix](risk-matrix.md), and [Maintainer Opt-In Review Response Flow](review-response-flow.md).
