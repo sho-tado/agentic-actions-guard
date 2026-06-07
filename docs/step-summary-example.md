@@ -1,11 +1,11 @@
 ﻿# GitHub Actions Step Summary Example
 
-`agentic-actions-guard` can write a compact Markdown report to the GitHub Actions step summary. This is useful during first adoption because maintainers can inspect severity counts and gate guidance without opening SARIF alerts or reading the full workflow log.
+`agentic-actions-guard` can write a compact Markdown report to the GitHub Actions step summary. This is useful during first adoption because maintainers can inspect severity counts, gate guidance, rule breakdowns, and next actions without opening SARIF alerts or reading the full workflow log.
 
 The composite action enables this by default:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.2
+- uses: sho-tado/agentic-actions-guard@v1.10.3
   with:
     path: .
     format: sarif
@@ -48,6 +48,24 @@ Run in report-only or annotations mode, review high findings, then move CI to `-
 - `high` `AGENT_WITH_WRITE_TOKEN` at `risky-ai-output-shell.yml:9`
 - `high` `UNTRUSTED_INPUT_TO_AGENT` at `risky-ai-output-shell.yml:20`
 - `high` `AI_GENERATED_CHANGES_PUSHED` at `risky-ai-output-shell.yml:21`
+
+### Rule Breakdown
+
+| Rule | Count |
+|---|---:|
+| `AGENT_JOB_RUNS_SHELL` | `1` |
+| `AGENT_WITH_WRITE_TOKEN` | `1` |
+| `AI_GENERATED_CHANGES_PUSHED` | `1` |
+| `AI_OUTPUT_TO_SHELL` | `1` |
+| `CURATED_AI_ACTION_DETECTED` | `1` |
+| `UNPINNED_AI_ACTION_REF` | `1` |
+| `UNTRUSTED_INPUT_TO_AGENT` | `1` |
+
+### Suggested Next Actions
+
+1. Review high findings for write tokens, privileged events, AI output to shell, or repository mutation.
+2. Keep AI analysis read-only and move writes into maintainer-approved jobs.
+3. Move to `--fail-on high` only after expected high findings are fixed or explicitly accepted.
 ```
 
 ## How To Use It

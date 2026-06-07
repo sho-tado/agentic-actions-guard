@@ -343,6 +343,18 @@ class ScanReport:
             for finding in top_findings:
                 lines.append(f"- `{finding.severity}` `{finding.rule}` at `{finding.path}:{finding.line}`")
 
+        rule_counts = _count_by_rule(self.findings)
+        if rule_counts:
+            lines.extend(["", "### Rule Breakdown", "", "| Rule | Count |", "|---|---:|"])
+            for rule, count in rule_counts[:8]:
+                lines.append(f"| `{rule}` | `{count}` |")
+            if len(rule_counts) > 8:
+                remaining = sum(count for _, count in rule_counts[8:])
+                lines.append(f"| Other rules | `{remaining}` |")
+
+            lines.extend(["", "### Suggested Next Actions", ""])
+            lines.extend(f"{index}. {action}" for index, action in enumerate(_summary_next_actions(summary), start=1))
+
         if self.suppressed_findings:
             lines.extend(
                 [
@@ -499,6 +511,32 @@ def _recommended_gate(summary: dict[str, int]) -> str:
     if summary["medium"]:
         return "Use annotations or SARIF with `--fail-on high`; track medium findings as hardening tasks."
     return "No active high-risk AI workflow boundary was detected. Re-run the scan whenever AI workflow automation changes."
+
+
+def _summary_next_actions(summary: dict[str, int]) -> list[str]:
+    if summary["critical"]:
+        return [
+            "Split jobs that process untrusted public event text away from secrets or privileged token contexts.",
+            "Keep the first rollout at `--fail-on critical` until critical findings are fixed or removed.",
+            "Use `--format review` for a maintainer-facing report before enabling stricter gates.",
+        ]
+    if summary["high"]:
+        return [
+            "Review high findings for write tokens, privileged events, AI output to shell, or repository mutation.",
+            "Keep AI analysis read-only and move writes into maintainer-approved jobs.",
+            "Move to `--fail-on high` only after expected high findings are fixed or explicitly accepted.",
+        ]
+    if summary["medium"]:
+        return [
+            "Review medium findings for missing explicit permissions, checkout credentials, and mutable AI action refs.",
+            "Document any temporary accepted risk with an owner, review date, and removal condition.",
+            "Re-run the scan after hardening before enabling stricter CI gates.",
+        ]
+    return [
+        "Keep monitoring enabled for workflow changes.",
+        "Re-run the scan whenever AI actions, prompts, permissions, or token scopes change.",
+        "Use review reports for periodic maintainer checks even when CI stays green.",
+    ]
 
 
 def load_allowlist(path: Path | None) -> list[AllowlistEntry]:

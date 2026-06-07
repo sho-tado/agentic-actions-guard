@@ -17,7 +17,7 @@ This template:
 - runs only when workflow files change
 - uses read-only repository permissions
 - emits GitHub Actions annotations
-- writes a compact step summary by default
+- writes a compact step summary with severity counts, rule breakdowns, and next actions by default
 - starts with `fail-on: critical`
 
 ## SARIF Template
@@ -33,7 +33,7 @@ This template:
 - scans workflow changes on pull requests
 - scans the default branch on pushes to `main`
 - uploads SARIF to GitHub code scanning
-- writes a compact step summary by default
+- writes a compact step summary with severity counts, rule breakdowns, and next actions by default
 - grants only `contents: read` and `security-events: write`
 
 ## Rollout

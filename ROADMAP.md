@@ -39,11 +39,12 @@
 - v1.10.0: GitHub Actions step summary output for adoption decisions
 - v1.10.1: public-safe GitHub Actions step summary example docs
 - v1.10.2: explicit `github.token` detection when AI workflows process untrusted input
+- v1.10.3: richer step summary output with rule breakdowns and suggested next actions
 
 ## Next
 
 - broader real-world fixture coverage after maintainer opt-in feedback
-- richer summary output after maintainers report which sections help triage fastest
+- maintainer feedback loop for which step summary sections help triage fastest
 
 ## Research Backlog
 

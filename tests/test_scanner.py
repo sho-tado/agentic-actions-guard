@@ -409,6 +409,10 @@ jobs:
     assert "| Severity | Count |" in summary
     assert "| high | `1` |" in summary
     assert "### Recommended Gate" in summary
+    assert "### Rule Breakdown" in summary
+    assert "| `UNTRUSTED_INPUT_TO_AGENT` | `1` |" in summary
+    assert "### Suggested Next Actions" in summary
+    assert "Review high findings" in summary
     assert "UNTRUSTED_INPUT_TO_AGENT" in summary
 
 
