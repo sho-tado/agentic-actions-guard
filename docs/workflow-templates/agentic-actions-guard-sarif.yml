@@ -1,4 +1,4 @@
-﻿name: agentic-actions-guard
+name: agentic-actions-guard
 
 on:
   pull_request:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.3
+      - uses: sho-tado/agentic-actions-guard@v1.10.4
         with:
           path: .
           format: sarif

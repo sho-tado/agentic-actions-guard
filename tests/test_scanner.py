@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from agentic_actions_guard.scanner import scan_repository
+import pytest
+
+from agentic_actions_guard.scanner import load_allowlist, scan_repository
 
 
 def test_flags_untrusted_agent_with_secret(tmp_path: Path) -> None:
@@ -357,6 +359,45 @@ jobs:
     assert "MISSING_EXPLICIT_PERMISSIONS" in {finding.rule for finding in report.findings}
     assert [finding.rule for finding in report.suppressed_findings] == ["UNTRUSTED_INPUT_TO_AGENT"]
     assert "Suppressed findings: `1`" in report.to_markdown()
+
+
+def test_allowlist_requires_reason(tmp_path: Path) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github/workflows/triage.yml"
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="non-empty 'reason'"):
+        load_allowlist(policy)
+
+
+def test_allowlist_rejects_blank_reason(tmp_path: Path) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github/workflows/triage.yml",
+      "reason": "   "
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="non-empty 'reason'"):
+        load_allowlist(policy)
 
 
 def test_github_annotations_output_emits_workflow_commands(tmp_path: Path) -> None:

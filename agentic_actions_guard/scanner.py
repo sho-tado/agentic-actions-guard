@@ -556,10 +556,17 @@ def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
                 rule=_optional_string(entry, "rule"),
                 path=_optional_string(entry, "path"),
                 evidence=_optional_string(entry, "evidence"),
-                reason=_optional_string(entry, "reason"),
+                reason=_required_reason(entry, index),
             )
         )
     return allowlist
+
+
+def _required_reason(entry: dict[str, object], index: int) -> str:
+    reason = _optional_string(entry, "reason")
+    if reason is None or not reason.strip():
+        raise ValueError(f"allowlist entry {index} must include a non-empty 'reason'")
+    return reason
 
 
 def _optional_string(entry: dict[str, object], key: str) -> str | None:

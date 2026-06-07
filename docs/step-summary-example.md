@@ -1,11 +1,11 @@
-﻿# GitHub Actions Step Summary Example
+# GitHub Actions Step Summary Example
 
 `agentic-actions-guard` can write a compact Markdown report to the GitHub Actions step summary. This is useful during first adoption because maintainers can inspect severity counts, gate guidance, rule breakdowns, and next actions without opening SARIF alerts or reading the full workflow log.
 
 The composite action enables this by default:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.3
+- uses: sho-tado/agentic-actions-guard@v1.10.4
   with:
     path: .
     format: sarif

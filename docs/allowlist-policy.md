@@ -24,18 +24,18 @@ agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --
 
 ## Matching
 
-Each allowlist entry can contain:
+Each allowlist entry must include a non-empty `reason` and can narrow the match with:
 
 - `rule`: exact rule ID
 - `path`: exact workflow path or path substring
 - `evidence`: exact evidence text or evidence substring
-- `reason`: human-readable reason for accepting the finding
+- `reason`: required human-readable reason for accepting the finding
 
-All provided fields must match. Omitted fields match any value.
+All provided match fields must match. Omitted match fields match any value, but avoid broad entries without `path` or `evidence` unless the accepted risk has been reviewed explicitly.
 
 ## Output
 
-Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts so accepted risks stay visible.
+Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts so accepted risks stay visible. Policies with a missing or blank `reason` are rejected.
 
 Review allowlists periodically. Prefer fixing findings over suppressing them permanently.
 

@@ -1,4 +1,4 @@
-﻿# Request a Workflow Safety Review
+# Request a Workflow Safety Review
 
 Maintainers can request a lightweight review of public GitHub Actions workflows that use AI agents for issue triage, PR review, release-note generation, auto-fix automation, or other repository maintenance.
 
@@ -58,7 +58,7 @@ The response flow is documented in [Maintainer Opt-In Review Response Flow](revi
 Self-service install:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.3
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.4
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 

@@ -1,4 +1,4 @@
-﻿# Maintainer Adoption Decision Report
+# Maintainer Adoption Decision Report
 
 Use this example after a local review to decide whether `agentic-actions-guard` should run in report-only, annotations, SARIF, or stricter CI gating mode.
 
@@ -52,7 +52,7 @@ agentic-actions-guard scan . --format review --review-target example-org/example
 Then add the annotation template in report-only rollout mode:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.3
+- uses: sho-tado/agentic-actions-guard@v1.10.4
   with:
     path: .
     format: annotations
