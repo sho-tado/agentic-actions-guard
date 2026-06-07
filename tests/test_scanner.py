@@ -345,7 +345,10 @@ jobs:
     {
       "rule": "UNTRUSTED_INPUT_TO_AGENT",
       "path": ".github/workflows/triage.yml",
-      "reason": "Accepted for test fixture."
+      "reason": "Accepted for test fixture.",
+      "owner": "maintainer-team",
+      "expires": "2099-12-31",
+      "rationale": "Synthetic fixture keeps one accepted risk visible while other findings stay active."
     }
   ]
 }
@@ -364,13 +367,27 @@ jobs:
     assert [finding.rule for finding in report.suppressed_findings] == ["UNTRUSTED_INPUT_TO_AGENT"]
     assert report_json["suppressions"][0]["finding"]["rule"] == "UNTRUSTED_INPUT_TO_AGENT"
     assert report_json["suppressions"][0]["allowlist_entry"]["reason"] == "Accepted for test fixture."
+    assert report_json["suppressions"][0]["allowlist_entry"]["owner"] == "maintainer-team"
+    assert report_json["suppressions"][0]["allowlist_entry"]["expires"] == "2099-12-31"
+    assert report_json["suppressions"][0]["allowlist_entry"]["rationale"] == (
+        "Synthetic fixture keeps one accepted risk visible while other findings stay active."
+    )
     assert "Suppressed findings: `1`" in markdown
     assert "## Suppressed Findings" in markdown
     assert "Allowlist reason: Accepted for test fixture." in markdown
+    assert "Owner: `maintainer-team`" in markdown
+    assert "Expires: `2099-12-31`" in markdown
+    assert "Rationale: Synthetic fixture keeps one accepted risk visible while other findings stay active." in markdown
     assert "Suppressed accepted risks:" in review
-    assert "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture." in review
+    assert (
+        "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture. "
+        "(owner: `maintainer-team`, expires: `2099-12-31`)"
+    ) in review
     assert "Suppressed accepted risks:" in summary
-    assert "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture." in summary
+    assert (
+        "`UNTRUSTED_INPUT_TO_AGENT` at `.github/workflows/triage.yml:11`: Accepted for test fixture. "
+        "(owner: `maintainer-team`, expires: `2099-12-31`)"
+    ) in summary
 
 
 def test_allowlist_requires_reason(tmp_path: Path) -> None:
@@ -427,6 +444,69 @@ def test_allowlist_rejects_reason_only_entry(tmp_path: Path) -> None:
     )
 
     with pytest.raises(ValueError, match="at least one matcher"):
+        load_allowlist(policy)
+
+
+def test_allowlist_requires_owner_expires_and_rationale(tmp_path: Path) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "reason": "Accepted for test fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="non-empty 'owner'"):
+        load_allowlist(policy)
+
+
+def test_allowlist_rejects_invalid_expires_date(tmp_path: Path) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "reason": "Accepted for test fixture.",
+      "owner": "maintainer-team",
+      "expires": "31-12-2099",
+      "rationale": "Synthetic fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="YYYY-MM-DD"):
+        load_allowlist(policy)
+
+
+def test_allowlist_rejects_expired_entries(tmp_path: Path) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "reason": "Accepted for test fixture.",
+      "owner": "maintainer-team",
+      "expires": "2000-01-01",
+      "rationale": "Synthetic fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="expired on 2000-01-01"):
         load_allowlist(policy)
 
 

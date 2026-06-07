@@ -43,6 +43,7 @@
 - v1.10.4: require documented reasons for allowlist suppressions
 - v1.10.5: require allowlist suppressions to include at least one matcher
 - v1.10.6: show allowlist suppression reasons in reports and JSON output
+- v1.10.7: require owner, expiry date, and rationale for accepted-risk allowlists
 
 ## Next
 

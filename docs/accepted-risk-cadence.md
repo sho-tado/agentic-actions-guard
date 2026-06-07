@@ -13,10 +13,11 @@ For each accepted risk, record:
 - evidence or matching scope
 - reason for accepting the risk
 - owner
-- review date
+- expires date
+- rationale for accepting the risk temporarily instead of fixing it now
 - removal condition
 
-The allowlist policy supports `rule`, `path`, `evidence`, and `reason`. Track owner, review date, and removal condition next to the policy in an issue, pull request, or security review note.
+The allowlist policy supports `rule`, `path`, `evidence`, `reason`, `owner`, `expires`, and `rationale`. Expired entries are rejected so accepted risks cannot suppress findings indefinitely. Track the removal condition next to the policy in an issue, pull request, or security review note.
 
 For concrete high and medium examples, see [Allowlist Policy](allowlist-policy.md#reviewed-examples).
 
@@ -33,7 +34,7 @@ Shorten the interval when the workflow has secrets, write permissions, `pull_req
 
 ## Review Questions
 
-At each review date, ask:
+Before each expiry date, ask:
 
 - Does the finding still exist?
 - Has the workflow gained new secrets, write permissions, shell steps, or privileged events?
@@ -52,7 +53,8 @@ Accepted risk:
 - Evidence: run: ./scripts/fixed-review.sh
 - Reason: Shell step uses fixed commands and does not consume model output.
 - Owner: maintainer-team
-- Review date: 2026-07-01
+- Expires: 2026-07-01
+- Rationale: The shell step is fixed and reviewed, but the team plans to replace it with a report artifact upload.
 - Removal condition: replace shell step with report artifact upload
 ```
 
@@ -64,6 +66,6 @@ Run allowlisted scans with an explicit policy file:
 agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --fail-on high
 ```
 
-Suppressed findings stay out of CI failure decisions, but reports include suppressed counts so accepted risks remain visible.
+Suppressed findings stay out of CI failure decisions, but reports include suppressed counts, owners, expiry dates, rationales, and reasons so accepted risks remain visible.
 
 See [Allowlist Policy](allowlist-policy.md), [Risk Matrix](risk-matrix.md), and [Maintainer Opt-In Review Response Flow](review-response-flow.md).

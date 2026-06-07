@@ -24,7 +24,7 @@ Use this default priority:
 
 1. Block on `critical` while separating secrets from untrusted event text.
 2. Review `high` findings before enabling write behavior or shell execution.
-3. Track `medium` findings as hardening tasks with owners and revisit dates.
+3. Track `medium` findings as hardening tasks with owners, expiry dates, and rationales when temporarily accepted.
 4. Treat `info` findings as inventory that points maintainers to action-specific guidance.
 
 For rollout commands, see [Adoption Recipes](adoption-recipes.md). For stable rule wording, see [Rule Reference](rule-reference.md).

@@ -112,7 +112,7 @@ Before enabling AI auto-fix:
 - upload generated patches as artifacts or summaries
 - require maintainer approval before commit, push, merge, release, or comment actions
 - validate artifact names, paths, branches, labels, and commands against allowlists
-- document any exception with an owner, review date, and removal condition
+- document any exception with an owner, expiry date, rationale, and removal condition
 
 Related rules and guides:
 

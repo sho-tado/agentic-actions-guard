@@ -52,7 +52,7 @@ agentic-actions-guard scan . --format review --review-target example-org/example
 Then add the annotation template in report-only rollout mode:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.6
+- uses: sho-tado/agentic-actions-guard@v1.10.7
   with:
     path: .
     format: annotations
@@ -72,6 +72,6 @@ Recommended decision:
 
 Do not treat a lower `fail-on` threshold as proof that a workflow is safe. It is a rollout control that lets maintainers sequence fixes without hiding risk.
 
-Do not use broad allowlists during first adoption. If a finding must be accepted temporarily, document the owner, review date, and removal condition before suppressing it.
+Do not use broad allowlists during first adoption. If a finding must be accepted temporarily, document the owner, expiry date, rationale, and removal condition before suppressing it.
 
 For rule-by-rule prioritization, use the [Risk Matrix](risk-matrix.md). For copy-paste CI files, use [Workflow Templates](workflow-templates.md). For staged rollout commands, use [Adoption Recipes](adoption-recipes.md).

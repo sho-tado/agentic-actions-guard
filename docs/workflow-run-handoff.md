@@ -123,6 +123,6 @@ Before accepting the risk, confirm:
 - the job does not execute downloaded artifacts, AI output, or generated shell
 - the job does not pass free-form AI output into release, deployment, package, or repository write commands
 - every write operation has an explicit maintainer approval gate
-- every accepted exception has an owner, review date, and removal condition
+- every accepted exception has an owner, expiry date, rationale, and removal condition
 
 For time-bound exceptions, see [Accepted Risk Review Cadence](accepted-risk-cadence.md).

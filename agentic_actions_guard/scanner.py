@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 import json
 from pathlib import Path
 import re
@@ -234,6 +235,9 @@ class AllowlistEntry:
     path: str | None = None
     evidence: str | None = None
     reason: str | None = None
+    owner: str | None = None
+    expires: str | None = None
+    rationale: str | None = None
 
     def matches(self, finding: Finding) -> bool:
         return (
@@ -250,6 +254,9 @@ class AllowlistEntry:
                 "path": self.path,
                 "evidence": self.evidence,
                 "reason": self.reason,
+                "owner": self.owner,
+                "expires": self.expires,
+                "rationale": self.rationale,
             }.items()
             if value is not None
         }
@@ -530,7 +537,10 @@ def _suppression_summary_lines(
     rows = _suppression_rows(suppressed_findings, allowlist_entries)
     lines = ["", "Suppressed accepted risks:"]
     for finding, entry in rows[:limit]:
-        lines.append(f"- `{finding.rule}` at `{finding.path}:{finding.line}`: {entry.reason}")
+        lines.append(
+            f"- `{finding.rule}` at `{finding.path}:{finding.line}`: {entry.reason} "
+            f"(owner: `{entry.owner}`, expires: `{entry.expires}`)"
+        )
     if len(rows) > limit:
         lines.append(f"- `{len(rows) - limit}` additional suppressed finding(s)")
     return lines
@@ -549,6 +559,9 @@ def _suppression_detail_lines(
                 f"- Location: `{finding.path}:{finding.line}`",
                 f"- Evidence: `{finding.evidence}`",
                 f"- Allowlist reason: {entry.reason}",
+                f"- Owner: `{entry.owner}`",
+                f"- Expires: `{entry.expires}`",
+                f"- Rationale: {entry.rationale}",
                 "",
             ]
         )
@@ -585,7 +598,7 @@ def _summary_next_actions(summary: dict[str, int]) -> list[str]:
     if summary["medium"]:
         return [
             "Review medium findings for missing explicit permissions, checkout credentials, and mutable AI action refs.",
-            "Document any temporary accepted risk with an owner, review date, and removal condition.",
+            "Document any temporary accepted risk with an owner, expiry date, rationale, and removal condition.",
             "Re-run the scan after hardening before enabling stricter CI gates.",
         ]
     return [
@@ -614,6 +627,9 @@ def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
                 path=_optional_string(entry, "path"),
                 evidence=_optional_string(entry, "evidence"),
                 reason=_required_reason(entry, index),
+                owner=_required_non_empty_string(entry, "owner", index),
+                expires=_required_expires(entry, index),
+                rationale=_required_non_empty_string(entry, "rationale", index),
             )
         )
     return allowlist
@@ -625,10 +641,25 @@ def _require_allowlist_matcher(entry: dict[str, object], index: int) -> None:
 
 
 def _required_reason(entry: dict[str, object], index: int) -> str:
-    reason = _optional_string(entry, "reason")
-    if reason is None or not reason.strip():
-        raise ValueError(f"allowlist entry {index} must include a non-empty 'reason'")
-    return reason
+    return _required_non_empty_string(entry, "reason", index)
+
+
+def _required_non_empty_string(entry: dict[str, object], key: str, index: int) -> str:
+    value = _optional_string(entry, key)
+    if value is None or not value.strip():
+        raise ValueError(f"allowlist entry {index} must include a non-empty '{key}'")
+    return value
+
+
+def _required_expires(entry: dict[str, object], index: int) -> str:
+    expires = _required_non_empty_string(entry, "expires", index)
+    try:
+        expires_date = date.fromisoformat(expires)
+    except ValueError as exc:
+        raise ValueError(f"allowlist entry {index} must include 'expires' as YYYY-MM-DD") from exc
+    if expires_date < date.today():
+        raise ValueError(f"allowlist entry {index} expired on {expires}")
+    return expires
 
 
 def _optional_string(entry: dict[str, object], key: str) -> str | None:

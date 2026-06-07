@@ -36,7 +36,7 @@ A mutable ref may be an accepted risk for a short period when:
 - the action does not execute tools or shell commands
 - a dependency update process will replace the tag with a commit SHA
 
-If you accept that risk, add a scoped allowlist entry with a reason and revisit date.
+If you accept that risk, add a scoped allowlist entry with a reason, owner, expiry date, and rationale.
 
 ## Example Allowlist
 
@@ -47,7 +47,10 @@ If you accept that risk, add a scoped allowlist entry with a reason and revisit 
       "rule": "UNPINNED_AI_ACTION_REF",
       "path": ".github/workflows/ai-review.yml",
       "evidence": "owner/ai-maintainer-action@v1",
-      "reason": "Temporary while the maintainer team reviews the upstream v1.2.3 commit SHA. Revisit by 2026-07-01."
+      "reason": "Temporary while the maintainer team reviews the upstream v1.2.3 commit SHA.",
+      "owner": "maintainer-team",
+      "expires": "2026-07-01",
+      "rationale": "The workflow is read-only during the review window, and the next dependency update will replace the tag with a full commit SHA."
     }
   ]
 }

@@ -10,7 +10,10 @@ Policies are JSON files with an `allowlist` array.
     {
       "rule": "AGENT_JOB_RUNS_SHELL",
       "path": ".github/workflows/ai-review.yml",
-      "reason": "Shell step uses fixed commands and does not consume model output."
+      "reason": "Shell step uses fixed commands and does not consume model output.",
+      "owner": "maintainer-team",
+      "expires": "2026-07-01",
+      "rationale": "Temporary while the team replaces the shell step with a report artifact upload."
     }
   ]
 }
@@ -24,18 +27,21 @@ agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --
 
 ## Matching
 
-Each allowlist entry must include a non-empty `reason` and at least one matcher:
+Each allowlist entry must include a non-empty `reason`, `owner`, `expires`, and `rationale`, plus at least one matcher:
 
 - `rule`: exact rule ID
 - `path`: exact workflow path or path substring
 - `evidence`: exact evidence text or evidence substring
 - `reason`: required human-readable reason for accepting the finding
+- `owner`: required person, team, or maintainer group responsible for review
+- `expires`: required `YYYY-MM-DD` date; expired entries are rejected
+- `rationale`: required explanation of why the risk is temporarily accepted instead of fixed now
 
 All provided match fields must match. Omitted match fields match any value, so a broad rule-only entry suppresses every matching rule across every workflow. Reason-only entries are rejected because they would suppress every finding.
 
 ## Output
 
-Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts, matched rules, locations, evidence, and allowlist reasons so accepted risks stay visible. JSON output keeps `suppressed_findings` for compatibility and also includes `suppressions` with the matched allowlist entry. Policies with a missing or blank `reason`, or with no `rule`, `path`, or `evidence` matcher, are rejected.
+Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts, matched rules, locations, evidence, reasons, owners, expiry dates, and rationales so accepted risks stay visible. JSON output keeps `suppressed_findings` for compatibility and also includes `suppressions` with the matched allowlist entry. Policies with a missing or blank required field, an invalid or expired `expires` date, or no `rule`, `path`, or `evidence` matcher, are rejected.
 
 Review allowlists periodically. Prefer fixing findings over suppressing them permanently.
 
@@ -54,7 +60,10 @@ High finding example:
       "rule": "AGENT_WITH_WRITE_TOKEN",
       "path": ".github/workflows/ai-review.yml",
       "evidence": "pull-requests: write",
-      "reason": "Temporarily accepted while the team moves PR comments into a maintainer-approved follow-up workflow."
+      "reason": "Temporarily accepted while the team moves PR comments into a maintainer-approved follow-up workflow.",
+      "owner": "maintainer-team",
+      "expires": "2026-06-14",
+      "rationale": "The existing workflow is needed for launch triage, but writes are limited to PR comments while the two-stage design is implemented."
     }
   ]
 }
@@ -69,7 +78,8 @@ Accepted risk:
 - Path: .github/workflows/ai-review.yml
 - Evidence: pull-requests: write
 - Owner: maintainer-team
-- Review date: 2026-06-14
+- Expires: 2026-06-14
+- Rationale: The existing workflow is needed for launch triage, but writes are limited to PR comments while the two-stage design is implemented.
 - Removal condition: comments move to a separate workflow that runs after maintainer approval
 ```
 
@@ -82,7 +92,10 @@ Medium finding example:
       "rule": "CHECKOUT_CREDENTIALS_IN_AGENT_JOB",
       "path": ".github/workflows/ai-summary.yml",
       "evidence": "actions/checkout",
-      "reason": "Temporarily accepted for a read-only summary job while persist-credentials is changed to false."
+      "reason": "Temporarily accepted for a read-only summary job while persist-credentials is changed to false.",
+      "owner": "maintainer-team",
+      "expires": "2026-07-07",
+      "rationale": "The job only writes a summary, but checkout credentials should still be removed during the next maintenance window."
     }
   ]
 }
@@ -97,8 +110,9 @@ Accepted risk:
 - Path: .github/workflows/ai-summary.yml
 - Evidence: actions/checkout
 - Owner: maintainer-team
-- Review date: 2026-07-07
+- Expires: 2026-07-07
+- Rationale: The job only writes a summary, but checkout credentials should still be removed during the next maintenance window.
 - Removal condition: checkout step sets persist-credentials: false
 ```
 
-Avoid broad entries such as `{ "rule": "AGENT_WITH_WRITE_TOKEN", "reason": "accepted temporarily" }` because they suppress every matching finding across every workflow. Scope accepted risks by workflow path and evidence whenever possible.
+Avoid broad entries such as `{ "rule": "AGENT_WITH_WRITE_TOKEN", "reason": "accepted temporarily", "owner": "team", "expires": "2026-06-14", "rationale": "temporary launch exception" }` because they suppress every matching finding across every workflow. Scope accepted risks by workflow path and evidence whenever possible.
