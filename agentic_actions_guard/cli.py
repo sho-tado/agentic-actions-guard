@@ -63,6 +63,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Validate an accepted-risk allowlist policy without scanning workflows.",
     )
     validate_allowlist.add_argument("path", type=Path, help="JSON allowlist policy file.")
+    validate_allowlist.add_argument(
+        "--max-expiry-days",
+        type=int,
+        default=None,
+        help="Reject entries whose expires date is more than this many days in the future.",
+    )
 
     rules = subcommands.add_parser("rules", help="List stable scanner rule IDs.")
     rules.add_argument(
@@ -104,7 +110,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate-allowlist":
         try:
-            entries = load_allowlist(args.path)
+            entries = load_allowlist(args.path, max_expiry_days=args.max_expiry_days)
         except (OSError, ValueError, json.JSONDecodeError) as exc:
             print(f"allowlist error: {exc}", file=sys.stderr)
             return 2

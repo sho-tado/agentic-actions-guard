@@ -5,8 +5,8 @@
       "path": "safer-readonly-review.yml",
       "reason": "Example workflow runs a fixed scanner command and does not execute model output.",
       "owner": "maintainer-team",
-      "expires": "2099-12-31",
-      "rationale": "Synthetic example demonstrating a reviewed, scoped, and time-bound accepted risk."
+      "expires": "2026-07-01",
+      "rationale": "Synthetic example demonstrating a reviewed, scoped, and short-lived accepted risk."
     }
   ]
 }

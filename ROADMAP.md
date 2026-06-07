@@ -48,6 +48,7 @@
 - v1.10.9: include accepted-risk suppression metadata in SARIF run properties
 - v1.10.10: allowlist validation CLI command for pre-CI policy checks
 - v1.10.11: rule catalog CLI command for maintainer report interpretation
+- v1.10.12: max expiry window for allowlist validation
 
 ## Next
 

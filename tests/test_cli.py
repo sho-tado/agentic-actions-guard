@@ -54,6 +54,34 @@ def test_validate_allowlist_cli_rejects_invalid_policy(tmp_path: Path, capsys) -
     assert "at least one matcher" in captured.err
 
 
+def test_validate_allowlist_cli_rejects_expiry_beyond_max_window(tmp_path: Path, capsys) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github/workflows/triage.yml",
+      "reason": "Accepted for a short rollout window.",
+      "owner": "maintainer-team",
+      "expires": "2099-12-31",
+      "rationale": "Read-only rollout while maintainers replace the workflow."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    exit_code = main(["validate-allowlist", str(policy), "--max-expiry-days", "30"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.out == ""
+    assert "allowlist error:" in captured.err
+    assert "beyond the allowed 30 day window" in captured.err
+
+
 def test_rules_cli_emits_markdown_catalog(capsys) -> None:
     exit_code = main(["rules"])
 

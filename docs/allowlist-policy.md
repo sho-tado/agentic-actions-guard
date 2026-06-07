@@ -31,6 +31,12 @@ Validate a policy file before adding it to CI:
 agentic-actions-guard validate-allowlist agentic-actions-guard.allowlist.json
 ```
 
+For stricter review cadence checks, reject accepted risks whose expiry is too far in the future:
+
+```powershell
+agentic-actions-guard validate-allowlist agentic-actions-guard.allowlist.json --max-expiry-days 30
+```
+
 ## Matching
 
 Each allowlist entry must include a non-empty `reason`, `owner`, `expires`, and `rationale`, plus at least one matcher:
@@ -47,7 +53,7 @@ All provided match fields must match. Omitted match fields match any value, so a
 
 ## Output
 
-Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts, matched rules, locations, evidence, reasons, owners, expiry dates, and rationales so accepted risks stay visible. Markdown reports, maintainer review reports, and GitHub Actions step summaries also include an accepted-risk review queue sorted by expiry date. JSON output keeps `suppressed_findings` for compatibility and also includes `suppressions` with the matched allowlist entry. SARIF output keeps suppressed findings out of active `results`, but records accepted-risk metadata in `runs[0].properties.suppressions` for downstream audit trails. Policies with a missing or blank required field, an invalid or expired `expires` date, or no `rule`, `path`, or `evidence` matcher, are rejected. `validate-allowlist` uses the same validation path as `scan --allowlist` and returns exit code `2` for invalid policy files.
+Suppressed findings are excluded from active findings and CI failure decisions. Reports include suppressed counts, matched rules, locations, evidence, reasons, owners, expiry dates, and rationales so accepted risks stay visible. Markdown reports, maintainer review reports, and GitHub Actions step summaries also include an accepted-risk review queue sorted by expiry date. JSON output keeps `suppressed_findings` for compatibility and also includes `suppressions` with the matched allowlist entry. SARIF output keeps suppressed findings out of active `results`, but records accepted-risk metadata in `runs[0].properties.suppressions` for downstream audit trails. Policies with a missing or blank required field, an invalid or expired `expires` date, an expiry beyond `validate-allowlist --max-expiry-days`, or no `rule`, `path`, or `evidence` matcher, are rejected. `validate-allowlist` uses the same validation path as `scan --allowlist` and returns exit code `2` for invalid policy files.
 
 Review allowlists periodically. Prefer fixing findings over suppressing them permanently.
 

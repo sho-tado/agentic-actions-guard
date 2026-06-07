@@ -663,9 +663,11 @@ def _summary_next_actions(summary: dict[str, int]) -> list[str]:
     ]
 
 
-def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
+def load_allowlist(path: Path | None, max_expiry_days: int | None = None) -> list[AllowlistEntry]:
     if path is None:
         return []
+    if max_expiry_days is not None and max_expiry_days < 0:
+        raise ValueError("max_expiry_days must be non-negative")
     policy = json.loads(path.read_text(encoding="utf-8"))
     entries = policy.get("allowlist", [])
     if not isinstance(entries, list):
@@ -683,7 +685,7 @@ def load_allowlist(path: Path | None) -> list[AllowlistEntry]:
                 evidence=_optional_string(entry, "evidence"),
                 reason=_required_reason(entry, index),
                 owner=_required_non_empty_string(entry, "owner", index),
-                expires=_required_expires(entry, index),
+                expires=_required_expires(entry, index, max_expiry_days=max_expiry_days),
                 rationale=_required_non_empty_string(entry, "rationale", index),
             )
         )
@@ -706,7 +708,7 @@ def _required_non_empty_string(entry: dict[str, object], key: str, index: int) -
     return value
 
 
-def _required_expires(entry: dict[str, object], index: int) -> str:
+def _required_expires(entry: dict[str, object], index: int, max_expiry_days: int | None = None) -> str:
     expires = _required_non_empty_string(entry, "expires", index)
     try:
         expires_date = date.fromisoformat(expires)
@@ -714,6 +716,10 @@ def _required_expires(entry: dict[str, object], index: int) -> str:
         raise ValueError(f"allowlist entry {index} must include 'expires' as YYYY-MM-DD") from exc
     if expires_date < date.today():
         raise ValueError(f"allowlist entry {index} expired on {expires}")
+    if max_expiry_days is not None and (expires_date - date.today()).days > max_expiry_days:
+        raise ValueError(
+            f"allowlist entry {index} expires on {expires}, beyond the allowed {max_expiry_days} day window"
+        )
     return expires
 
 
