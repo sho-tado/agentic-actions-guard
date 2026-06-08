@@ -1,9 +1,17 @@
 from pathlib import Path
+import tomllib
 
+import agentic_actions_guard
 from agentic_actions_guard.scanner import RULE_METADATA
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_package_version_matches_project_metadata() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert agentic_actions_guard.__version__ == pyproject["project"]["version"]
 
 
 def test_rule_reference_documents_all_rule_ids() -> None:
@@ -72,7 +80,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.10.14" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.10.15" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -121,6 +129,35 @@ def test_review_response_flow_is_linked_from_entrypoints() -> None:
     assert "docs/review-response-flow.md" in readme
     assert "review-response-flow.md" in request_docs
     assert "review-response-flow.md" in playbook
+
+
+def test_finding_lifecycle_contract_is_linked_from_entrypoints() -> None:
+    lifecycle = (ROOT / "docs" / "finding-lifecycle.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    playbook = (ROOT / "docs" / "maintainer-review-playbook.md").read_text(encoding="utf-8")
+    request_docs = (ROOT / "docs" / "request-workflow-review.md").read_text(encoding="utf-8")
+    response = (ROOT / "docs" / "review-response-flow.md").read_text(encoding="utf-8")
+    code_scanning = (ROOT / "docs" / "github-code-scanning.md").read_text(encoding="utf-8")
+
+    assert "Finding Lifecycle And Output Contract" in lifecycle
+    assert "Finding Lifecycle" in lifecycle
+    assert "Output Contract" in lifecycle
+    assert "Severity Contract" in lifecycle
+    assert "Accepted Risk Contract" in lifecycle
+    assert "Public Review Contract" in lifecycle
+    assert "Non-Goals" in lifecycle
+    assert "accepted risk" in lifecycle
+    assert "proof of exploitability" in lifecycle
+    assert "runs[0].properties.suppressions" in lifecycle
+    assert "owner" in lifecycle
+    assert "expires" in lifecycle
+    assert "rationale" in lifecycle
+    assert "removal_condition" in lifecycle
+    assert "docs/finding-lifecycle.md" in readme
+    assert "finding-lifecycle.md" in playbook
+    assert "finding-lifecycle.md" in request_docs
+    assert "finding-lifecycle.md" in response
+    assert "finding-lifecycle.md" in code_scanning
 
 
 def test_accepted_risk_cadence_is_linked_from_entrypoints() -> None:
@@ -270,7 +307,7 @@ def test_step_summary_example_is_linked_from_entrypoints() -> None:
 
     assert "GitHub Actions Step Summary Example" in step_summary
     assert "Agentic Actions Guard Summary" in step_summary
-    assert "sho-tado/agentic-actions-guard@v1.10.14" in step_summary
+    assert "sho-tado/agentic-actions-guard@v1.10.15" in step_summary
     assert "docs/step-summary-example.md" in readme
     assert "step-summary-example.md" in recipes
 

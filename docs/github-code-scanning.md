@@ -2,7 +2,7 @@
 
 Use this workflow to publish SARIF findings in GitHub code scanning.
 
-For non-SARIF rollout options, see [Adoption Recipes](adoption-recipes.md). For drop-in files, see [Workflow Templates](workflow-templates.md).
+For non-SARIF rollout options, see [Adoption Recipes](adoption-recipes.md). For drop-in files, see [Workflow Templates](workflow-templates.md). For SARIF suppression semantics and output guarantees, see [Finding Lifecycle And Output Contract](finding-lifecycle.md).
 
 ```yaml
 name: agentic-actions-guard
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.14
+      - uses: sho-tado/agentic-actions-guard@v1.10.15
         with:
           path: .
           format: sarif
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.14
+      - uses: sho-tado/agentic-actions-guard@v1.10.15
         with:
           path: .
           format: annotations

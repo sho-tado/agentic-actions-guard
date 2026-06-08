@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.14
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.15
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.14
+- uses: sho-tado/agentic-actions-guard@v1.10.15
   with:
     path: .
     format: sarif
@@ -46,6 +46,7 @@ See [Rule Reference](docs/rule-reference.md) for stable rule IDs, severities, an
 See [Risk Matrix](docs/risk-matrix.md) for the maintainer boundary each rule reviews.
 See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short workflow review process.
 See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for how public review reports are shared after maintainer consent.
+See [Finding Lifecycle And Output Contract](docs/finding-lifecycle.md) for how findings, accepted risks, CI gates, and output formats are handled.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) for separating read-only AI analysis from maintainer-approved writes.
 See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) for responding to privileged `workflow_run` handoff findings.
 See [AI Patch Handoff Recipe](docs/ai-patch-handoff.md) for keeping AI-generated fixes review-only before commit or push.
@@ -179,6 +180,7 @@ See [AI GitHub Actions Safety Checklist](docs/ai-github-actions-safety-checklist
 
 See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a 15 minute review flow.
 See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for consent-first public review handling.
+See [Finding Lifecycle And Output Contract](docs/finding-lifecycle.md) before sharing reports or deciding how accepted risks should appear in CI output.
 See [Risk Matrix](docs/risk-matrix.md) when deciding which findings should block release.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) when designing AI triage, PR review, release-note, or auto-fix workflows.
 See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) when a privileged follow-up consumes AI workflow artifacts or outputs.

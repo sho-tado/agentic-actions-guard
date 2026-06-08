@@ -51,6 +51,7 @@
 - v1.10.12: max expiry window for allowlist validation
 - v1.10.13: optional removal condition validation for allowlists
 - v1.10.14: stricter allowlist rule matching and Windows path matcher normalization
+- v1.10.15: finding lifecycle and output contract docs for maintainer reports
 
 ## Next
 

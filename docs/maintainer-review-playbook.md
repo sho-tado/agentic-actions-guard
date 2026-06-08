@@ -26,6 +26,7 @@ agentic-actions-guard scan . --format review --review-target owner/repo --fail-o
 - info: review action-specific guidance for known AI maintainer actions
 
 For a rule-by-rule boundary map, see [Risk Matrix](risk-matrix.md).
+For how findings, accepted risks, output formats, and CI gates are handled, see [Finding Lifecycle And Output Contract](finding-lifecycle.md).
 
 4. Decide the rollout gate:
 
@@ -96,3 +97,4 @@ If you request or receive a public review:
 - re-run the scanner when workflow automation changes
 
 For the opt-in response process, see [Maintainer Opt-In Review Response Flow](review-response-flow.md).
+For the output and accepted-risk contract behind review reports, see [Finding Lifecycle And Output Contract](finding-lifecycle.md).
