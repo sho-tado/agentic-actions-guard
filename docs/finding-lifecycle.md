@@ -26,6 +26,8 @@ This document describes how `agentic-actions-guard` turns workflow files into fi
 
 Suppressed accepted risks are excluded from active findings and CI failure decisions. They stay visible through review queues and suppression metadata so accepted risk does not become invisible risk.
 
+For machine-readable field details, see [Output Schema Contract](output-schema.md).
+
 ## Severity Contract
 
 Severity is review priority, not proof of exploitation.

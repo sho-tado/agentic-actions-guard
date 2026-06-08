@@ -58,6 +58,8 @@ Rules appear consistently in:
 - GitHub Actions annotations
 - allowlist entries
 
+For stable JSON and SARIF fields, see [Output Schema Contract](output-schema.md).
+
 ## Scope Limits
 
 The scanner does not execute workflows, call model providers, inspect secrets, or prove exploitability. It flags risky combinations in workflow text so maintainers can review AI automation boundaries before enabling privileged behavior.
