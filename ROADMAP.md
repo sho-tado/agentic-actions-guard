@@ -55,10 +55,11 @@
 - v1.10.16: JSON and SARIF output schema contract docs with CLI contract tests
 - v1.10.17: branch name and push commit array message untrusted-input detection
 - v1.10.18: scan-time accepted-risk strictness flags for allowlists
+- v1.10.19: top-level `inputs.*` untrusted-input detection for reusable and manual workflows
 
 ## Next
 
-- maintainer feedback loop for which scan/action allowlist guardrails help adoption fastest
+- maintainer feedback loop for which reusable workflow input guardrails help adoption fastest
 - broader real-world fixture coverage after maintainer opt-in feedback
 
 ## Research Backlog

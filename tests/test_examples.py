@@ -103,3 +103,11 @@ def test_scheduled_batch_triage_fixture_pair_exercises_batch_boundary() -> None:
     assert "AI_GENERATED_CHANGES_PUSHED" in risky_rules
     assert not (safer_severities & {"high", "critical"})
     assert "AGENT_WITH_WRITE_TOKEN" not in safer_rules
+
+
+def test_reusable_workflow_input_fixture_exercises_inputs_boundary() -> None:
+    report = scan_repository(EXAMPLES / "risky-reusable-workflow-input.yml")
+
+    rules = {finding.rule for finding in report.findings}
+    assert "UNTRUSTED_INPUT_TO_AGENT" in rules
+    assert "AGENT_WITH_WRITE_TOKEN" in rules

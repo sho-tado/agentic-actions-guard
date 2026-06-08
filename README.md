@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.18
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.19
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.18
+- uses: sho-tado/agentic-actions-guard@v1.10.19
   with:
     path: .
     format: sarif
@@ -65,7 +65,7 @@ See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable ac
 
 - flags AI/agent-related actions and scripts
 - recognizes curated profiles for common AI maintainer actions
-- detects untrusted GitHub event context, branch refs, dispatch inputs, and client payloads used in prompts or shell commands
+- detects untrusted GitHub event context, branch refs, dispatch or reusable workflow inputs, and client payloads used in prompts or shell commands
 - warns on broad or implicit `GITHUB_TOKEN` permissions, scoped to AI jobs when possible
 - highlights risky `pull_request_target` checkout patterns
 - warns when AI jobs use checkout without `persist-credentials: false`

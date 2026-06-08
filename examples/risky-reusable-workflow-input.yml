@@ -1,0 +1,19 @@
+name: risky reusable workflow input
+
+on:
+  workflow_call:
+    inputs:
+      prompt:
+        type: string
+        required: true
+
+permissions:
+  issues: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ inputs.prompt }}

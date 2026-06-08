@@ -12,6 +12,7 @@ The `examples/` directory contains public-safe workflow fixtures used by the tes
 | `risky-comment-triggered-review.yml` | Comment-triggered AI review workflow that sends public comment text to AI automation near secrets, write permissions, and shell comment output. |
 | `risky-pr-review.yml` | PR review workflow pattern for untrusted pull request text and AI review automation. |
 | `risky-release-notes.yml` | Release-note automation pattern where commit or event text can reach AI automation. |
+| `risky-reusable-workflow-input.yml` | Reusable workflow pattern where caller-supplied `inputs.*` values reach AI automation. |
 | `risky-scheduled-batch-triage.yml` | Scheduled or manually scoped batch triage workflow that can combine AI analysis, secrets, write permissions, and issue comments. |
 | `risky-workflow-run-handoff.yml` | `workflow_run` handoff pattern where an upstream AI plan is consumed by a privileged follow-up job. |
 

@@ -19,6 +19,7 @@ Treat these values as attacker-controlled in public repositories:
 - `github.event.commits[0].message`
 - `github.ref_name`
 - `github.event.inputs.*`
+- `inputs.*`
 - `github.event.client_payload.*`
 - `github.head_ref`
 - `github.event.pull_request.head.label`
