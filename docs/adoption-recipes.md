@@ -9,7 +9,7 @@ For drop-in workflow files, see [Workflow Templates](workflow-templates.md).
 Use this before opening a workflow hardening issue or pull request.
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.17
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.18
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.17
+      - uses: sho-tado/agentic-actions-guard@v1.10.18
         with:
           path: .
           format: annotations
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.17
+      - uses: sho-tado/agentic-actions-guard@v1.10.18
         with:
           path: .
           format: sarif
@@ -106,6 +106,12 @@ Use an allowlist only when a finding is reviewed, documented, scoped, and time-b
 
 ```powershell
 agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --fail-on high
+```
+
+For stricter accepted-risk hygiene in CI:
+
+```powershell
+agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --allowlist-max-expiry-days 30 --allowlist-require-removal-condition --fail-on high
 ```
 
 Good for:

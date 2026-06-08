@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.17
+      - uses: sho-tado/agentic-actions-guard@v1.10.18
         with:
           path: .
           format: sarif
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: sho-tado/agentic-actions-guard@v1.10.17
+      - uses: sho-tado/agentic-actions-guard@v1.10.18
         with:
           path: .
           format: annotations
@@ -90,4 +90,10 @@ To suppress reviewed findings while still failing on new findings:
 
 ```powershell
 agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --fail-on high
+```
+
+For stricter accepted-risk gates during SARIF generation or annotation runs:
+
+```powershell
+agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --allowlist-max-expiry-days 30 --allowlist-require-removal-condition --fail-on high
 ```

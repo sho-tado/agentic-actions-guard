@@ -7,7 +7,7 @@ This document describes how `agentic-actions-guard` turns workflow files into fi
 1. **Input collection**: the scanner reads workflow YAML files and public workflow text from the target path. It does not execute workflows, call models, call external APIs, or inspect repository secrets.
 2. **Rule evaluation**: rules look for risky workflow boundaries such as untrusted GitHub event text, AI or agent steps, secrets, broad tokens, `pull_request_target`, checkout credentials, mutable AI action refs, AI output to shell, privileged `workflow_run` handoffs, and AI-generated repository mutation.
 3. **Finding normalization**: each finding receives a stable rule ID, severity, workflow path, line number when available, public evidence, and remediation guidance.
-4. **Accepted-risk policy application**: allowlist entries suppress only matching findings after policy validation. Entries need a reason, owner, expires date, rationale, and at least one matcher. `removal_condition` is optional by default and required when `validate-allowlist --require-removal-condition` is used.
+4. **Accepted-risk policy application**: allowlist entries suppress only matching findings after policy validation. Entries need a reason, owner, expires date, rationale, and at least one matcher. `removal_condition` is optional by default and required when `scan --allowlist-require-removal-condition` or `validate-allowlist --require-removal-condition` is used.
 5. **Output rendering**: active findings and accepted risks are rendered for the requested surface: Markdown, maintainer review, summary, annotations, JSON, or SARIF.
 6. **CI gate decision**: `--fail-on` evaluates only active findings at or above the selected severity. Suppressed accepted risks remain visible in reports but do not fail the gate.
 7. **Maintainer decision**: maintainers fix the workflow boundary, accept a narrow time-bound risk, lower the gate while fixes are planned, or decline a finding. A declined finding should not be reposted unchanged.
@@ -54,8 +54,8 @@ Allowlist entries must include:
 When stricter review discipline is needed, require:
 
 - `removal_condition`: the workflow state that lets maintainers remove the accepted risk
-- `validate-allowlist --max-expiry-days N`: maximum review window
-- `validate-allowlist --require-removal-condition`: every entry documents the exit condition
+- `scan --allowlist-max-expiry-days N` or `validate-allowlist --max-expiry-days N`: maximum review window
+- `scan --allowlist-require-removal-condition` or `validate-allowlist --require-removal-condition`: every entry documents the exit condition
 
 Matcher behavior is intentionally conservative: unknown `rule` IDs are rejected, `rule` matching is exact, and Windows `\` path separators are normalized to `/` before path matching. See [Allowlist Policy](allowlist-policy.md) and [Accepted Risk Review Cadence](accepted-risk-cadence.md).
 

@@ -14,19 +14,21 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.17
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.18
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.17
+- uses: sho-tado/agentic-actions-guard@v1.10.18
   with:
     path: .
     format: sarif
     fail-on: critical
     output: agentic-actions-guard.sarif
+    allowlist-max-expiry-days: "30"
+    allowlist-require-removal-condition: "true"
     step-summary: "true"
 ```
 
@@ -143,6 +145,12 @@ Suppress reviewed findings with a JSON allowlist policy:
 
 ```powershell
 python -m agentic_actions_guard scan path\to\repo --allowlist agentic-actions-guard.allowlist.json --fail-on high
+```
+
+Apply stricter accepted-risk checks during the scan itself:
+
+```powershell
+python -m agentic_actions_guard scan path\to\repo --allowlist agentic-actions-guard.allowlist.json --allowlist-max-expiry-days 30 --allowlist-require-removal-condition --fail-on high
 ```
 
 Validate an allowlist policy before using it in CI:

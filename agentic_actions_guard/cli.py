@@ -57,6 +57,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional JSON policy file with accepted findings to suppress.",
     )
+    scan.add_argument(
+        "--allowlist-max-expiry-days",
+        type=int,
+        default=None,
+        help="Reject allowlist entries whose expires date is more than this many days in the future.",
+    )
+    scan.add_argument(
+        "--allowlist-require-removal-condition",
+        action="store_true",
+        help="Reject allowlist entries that do not document the condition for removing the accepted risk.",
+    )
 
     validate_allowlist = subcommands.add_parser(
         "validate-allowlist",
@@ -137,7 +148,12 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("unknown command")
 
     try:
-        report = scan_repository(args.path, allowlist_path=args.allowlist)
+        report = scan_repository(
+            args.path,
+            allowlist_path=args.allowlist,
+            allowlist_max_expiry_days=args.allowlist_max_expiry_days,
+            require_allowlist_removal_condition=args.allowlist_require_removal_condition,
+        )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"scan error: {exc}", file=sys.stderr)
         return 2

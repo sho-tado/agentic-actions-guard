@@ -17,7 +17,7 @@ For each accepted risk, record:
 - rationale for accepting the risk temporarily instead of fixing it now
 - removal condition
 
-The allowlist policy supports `rule`, `path`, `evidence`, `reason`, `owner`, `expires`, `rationale`, and `removal_condition`. Expired entries are rejected so accepted risks cannot suppress findings indefinitely. Use `validate-allowlist --require-removal-condition` when CI should require the removal condition inside the policy file.
+The allowlist policy supports `rule`, `path`, `evidence`, `reason`, `owner`, `expires`, `rationale`, and `removal_condition`. Expired entries are rejected so accepted risks cannot suppress findings indefinitely. Use `scan --allowlist-require-removal-condition` or `validate-allowlist --require-removal-condition` when CI should require the removal condition inside the policy file.
 
 For concrete high and medium examples, see [Allowlist Policy](allowlist-policy.md#reviewed-examples).
 
@@ -64,6 +64,12 @@ Run allowlisted scans with an explicit policy file:
 
 ```powershell
 agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --fail-on high
+```
+
+For stricter CI gates, enforce the review window and removal condition during the scan:
+
+```powershell
+agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --allowlist-max-expiry-days 30 --allowlist-require-removal-condition --fail-on high
 ```
 
 Suppressed findings stay out of CI failure decisions, but reports include suppressed counts, owners, expiry dates, rationales, reasons, and removal conditions so accepted risks remain visible.

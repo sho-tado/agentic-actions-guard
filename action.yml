@@ -23,6 +23,14 @@ inputs:
     description: Optional JSON allowlist policy path.
     required: false
     default: ""
+  allowlist-max-expiry-days:
+    description: Optional maximum allowed number of days before an allowlist entry expires.
+    required: false
+    default: ""
+  allowlist-require-removal-condition:
+    description: Require allowlist entries to document how the accepted risk will be removed.
+    required: false
+    default: "false"
   step-summary:
     description: Write a short Markdown summary to the GitHub Actions step summary.
     required: false
@@ -46,6 +54,12 @@ runs:
         if [ -n "${{ inputs.allowlist }}" ]; then
           args+=(--allowlist "${{ inputs.allowlist }}")
         fi
+        if [ -n "${{ inputs.allowlist-max-expiry-days }}" ]; then
+          args+=(--allowlist-max-expiry-days "${{ inputs.allowlist-max-expiry-days }}")
+        fi
+        if [ "${{ inputs.allowlist-require-removal-condition }}" = "true" ]; then
+          args+=(--allowlist-require-removal-condition)
+        fi
         agentic-actions-guard "${args[@]}" > "${{ inputs.output }}"
         status=$?
         cat "${{ inputs.output }}"
@@ -53,6 +67,12 @@ runs:
           summary_args=(scan "${{ inputs.path }}" --format summary --fail-on critical)
           if [ -n "${{ inputs.allowlist }}" ]; then
             summary_args+=(--allowlist "${{ inputs.allowlist }}")
+          fi
+          if [ -n "${{ inputs.allowlist-max-expiry-days }}" ]; then
+            summary_args+=(--allowlist-max-expiry-days "${{ inputs.allowlist-max-expiry-days }}")
+          fi
+          if [ "${{ inputs.allowlist-require-removal-condition }}" = "true" ]; then
+            summary_args+=(--allowlist-require-removal-condition)
           fi
           agentic-actions-guard "${summary_args[@]}" >> "$GITHUB_STEP_SUMMARY" || true
         fi

@@ -299,3 +299,110 @@ jobs:
     assert set(run["properties"]["summary"]) == {"info", "low", "medium", "high", "critical"}
     assert set(run["properties"]["suppressedSummary"]) == {"info", "low", "medium", "high", "critical"}
     assert captured.err == ""
+
+
+def test_scan_allowlist_rejects_expiry_beyond_max_window(tmp_path: Path, capsys) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github/workflows/triage.yml",
+      "reason": "Accepted for a short rollout window.",
+      "owner": "maintainer-team",
+      "expires": "2099-12-31",
+      "rationale": "Synthetic fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "scan",
+            str(tmp_path),
+            "--allowlist",
+            str(policy),
+            "--allowlist-max-expiry-days",
+            "30",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.out == ""
+    assert "scan error:" in captured.err
+    assert "beyond the allowed 30 day window" in captured.err
+
+
+def test_scan_allowlist_requires_removal_condition_when_requested(tmp_path: Path, capsys) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "triage.yml").write_text(
+        """name: ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text(
+        """{
+  "allowlist": [
+    {
+      "rule": "UNTRUSTED_INPUT_TO_AGENT",
+      "path": ".github/workflows/triage.yml",
+      "reason": "Accepted for a short rollout window.",
+      "owner": "maintainer-team",
+      "expires": "2099-12-31",
+      "rationale": "Synthetic fixture."
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "scan",
+            str(tmp_path),
+            "--allowlist",
+            str(policy),
+            "--allowlist-require-removal-condition",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.out == ""
+    assert "scan error:" in captured.err
+    assert "non-empty 'removal_condition'" in captured.err

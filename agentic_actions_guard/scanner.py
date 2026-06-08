@@ -868,9 +868,19 @@ def _escape_command_message(value: str) -> str:
     return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
 
 
-def scan_repository(path: Path, allowlist_path: Path | None = None) -> ScanReport:
+def scan_repository(
+    path: Path,
+    allowlist_path: Path | None = None,
+    *,
+    allowlist_max_expiry_days: int | None = None,
+    require_allowlist_removal_condition: bool = False,
+) -> ScanReport:
     root = path.resolve()
-    allowlist_entries = load_allowlist(allowlist_path)
+    allowlist_entries = load_allowlist(
+        allowlist_path,
+        max_expiry_days=allowlist_max_expiry_days,
+        require_removal_condition=require_allowlist_removal_condition,
+    )
     workflows = list(_iter_workflows(root))
     findings: list[Finding] = []
     for workflow in workflows:

@@ -73,7 +73,7 @@ The `allowlist_entry` object includes the accepted-risk metadata provided by pol
 - `rationale`
 - `removal_condition`
 
-Fields omitted from the policy are omitted from `allowlist_entry`. Validation requires `reason`, `owner`, `expires`, `rationale`, and at least one matcher. `removal_condition` is required when `validate-allowlist --require-removal-condition` is used.
+Fields omitted from the policy are omitted from `allowlist_entry`. Validation requires `reason`, `owner`, `expires`, `rationale`, and at least one matcher. `removal_condition` is required when `scan --allowlist-require-removal-condition` or `validate-allowlist --require-removal-condition` is used.
 
 ## SARIF Output
 
