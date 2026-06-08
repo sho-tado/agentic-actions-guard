@@ -1,5 +1,4 @@
 from pathlib import Path
-import tomllib
 
 import agentic_actions_guard
 from agentic_actions_guard.scanner import RULE_METADATA
@@ -9,9 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_package_version_matches_project_metadata() -> None:
-    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert agentic_actions_guard.__version__ == pyproject["project"]["version"]
+    assert f'version = "{agentic_actions_guard.__version__}"' in pyproject
 
 
 def test_rule_reference_documents_all_rule_ids() -> None:
