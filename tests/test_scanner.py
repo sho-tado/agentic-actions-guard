@@ -266,6 +266,33 @@ jobs:
     assert finding.evidence == "prompt: ${{ github.head_ref }}"
 
 
+def test_github_ref_name_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "branch-name-review.yml").write_text(
+        """name: branch name ai review
+on:
+  push:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.ref_name }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.ref_name }}"
+
+
 def test_pull_request_head_label_to_agent_is_untrusted(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)
@@ -291,6 +318,33 @@ jobs:
     finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
     assert finding.severity == "high"
     assert finding.evidence == "prompt: ${{ github.event.pull_request.head.label }}"
+
+
+def test_push_commit_array_message_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "commit-message-review.yml").write_text(
+        """name: commit message ai review
+on:
+  push:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.commits[0].message }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.commits[0].message }}"
 
 
 def test_review_output_is_maintainer_facing(tmp_path: Path) -> None:

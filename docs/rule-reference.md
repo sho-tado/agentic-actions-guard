@@ -18,7 +18,7 @@ agentic-actions-guard rules --format json
 | Rule ID | Default severity | Meaning | Typical fix |
 |---|---:|---|---|
 | `UNTRUSTED_INPUT_WITH_SECRETS` | critical | An AI workflow appears to combine untrusted GitHub event text with secrets or privileged tokens such as `${{ github.token }}`. | Keep secrets and privileged token contexts out of jobs that process issue, PR, comment, review, or commit text. Split privileged operations into a separate trusted job. |
-| `UNTRUSTED_INPUT_TO_AGENT` | high | Untrusted GitHub event text is passed into AI or agent automation. | Treat event text as hostile input. Sanitize, summarize, or isolate it before agent use. |
+| `UNTRUSTED_INPUT_TO_AGENT` | high | Untrusted GitHub event text such as issue text, PR text, comments, branch names, or commit messages is passed into AI or agent automation. | Treat event text as hostile input. Sanitize, summarize, or isolate it before agent use. |
 | `AGENT_WITH_WRITE_TOKEN` | high | An AI-related workflow has write permissions. | Use least-privilege permissions and split read-only analysis from write operations. |
 | `PULL_REQUEST_TARGET_AGENT` | high or critical | An AI-related workflow runs on `pull_request_target`. It becomes critical when it appears to check out fork-controlled content. | Prefer `pull_request` for read-only analysis. Use privileged follow-up jobs only after explicit maintainer approval. |
 | `WORKFLOW_RUN_AGENT_HANDOFF` | high | An AI-related `workflow_run` follow-up appears to run with secrets or write permissions. | Treat upstream artifacts and outputs as a trust boundary. Validate handoff data and keep privileged writes in a maintainer-approved job. |

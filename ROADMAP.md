@@ -53,6 +53,7 @@
 - v1.10.14: stricter allowlist rule matching and Windows path matcher normalization
 - v1.10.15: finding lifecycle and output contract docs for maintainer reports
 - v1.10.16: JSON and SARIF output schema contract docs with CLI contract tests
+- v1.10.17: branch name and push commit array message untrusted-input detection
 
 ## Next
 

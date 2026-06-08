@@ -84,8 +84,10 @@ AI_HINTS = re.compile(
 UNTRUSTED_CONTEXT = re.compile(
     r"(?:"
     r"github\.head_ref"
+    r"|github\.ref_name"
     r"|github\.event\.(?:"
     r"(?:issue|comment|review|review_comment|head_commit)\.(?:title|body|body_text|message|ref)"
+    r"|commits(?:\[[^\]]+\])?\.(?:message|id)"
     r"|pull_request\.(?:title|body|body_text|ref|head\.(?:ref|label))"
     r"|(?:inputs|client_payload)\.[A-Za-z0-9_.-]+"
     r")"
