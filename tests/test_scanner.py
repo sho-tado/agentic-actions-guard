@@ -146,6 +146,34 @@ jobs:
     assert report.findings == []
 
 
+def test_workflow_level_ai_name_does_not_make_normal_job_agentic(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "release-notes.yml").write_text(
+        """name: safer ai release notes
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        required: true
+permissions:
+  contents: write
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          git log --oneline -n 25 > release-context.txt
+          echo "${{ inputs.release_ref }}" >> release-context.txt
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert report.findings == []
+
+
 def test_sarif_output_maps_high_severity_finding_to_workflow_line(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

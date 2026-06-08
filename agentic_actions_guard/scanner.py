@@ -915,21 +915,22 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     job_blocks = _job_blocks(text)
     ai_job_blocks = [block for block in job_blocks if AI_HINTS.search(block.text)]
     ai_matches = list(AI_HINTS.finditer(text))
-    untrusted_match = _first_scoped_match(UNTRUSTED_CONTEXT, text, ai_job_blocks)
-    has_ai = bool(ai_matches)
+    has_ai = bool(ai_job_blocks) or (not job_blocks and bool(ai_matches))
+    risk_scope_blocks = ai_job_blocks if ai_job_blocks else []
+    untrusted_match = _first_scoped_match(UNTRUSTED_CONTEXT, text, risk_scope_blocks) if has_ai else None
     has_untrusted = untrusted_match is not None
-    secret_match = _ai_secret_match(text, ai_job_blocks)
+    secret_match = _ai_secret_match(text, risk_scope_blocks) if has_ai else None
     has_secret = secret_match is not None
-    write_permission = _ai_write_permission(text, ai_job_blocks)
-    has_permissions_block = _has_ai_permissions_block(text, ai_job_blocks)
+    write_permission = _ai_write_permission(text, risk_scope_blocks) if has_ai else None
+    has_permissions_block = _has_ai_permissions_block(text, risk_scope_blocks) if has_ai else False
     has_pull_request_target = bool(PULL_REQUEST_TARGET.search(text))
     has_workflow_run = bool(WORKFLOW_RUN.search(text))
     has_checkout_head_ref = bool(CHECKOUT_HEAD_REF.search(text))
-    shell_match = _first_scoped_match(RUNS_SHELL, text, ai_job_blocks)
+    shell_match = _first_scoped_match(RUNS_SHELL, text, risk_scope_blocks) if has_ai else None
     has_shell = shell_match is not None
-    checkout_credentials_match = _checkout_credentials_match(ai_job_blocks)
-    ai_output_shell_match = _ai_output_to_shell_match(ai_job_blocks)
-    repository_mutation_match = _ai_repository_mutation_match(ai_job_blocks)
+    checkout_credentials_match = _checkout_credentials_match(risk_scope_blocks) if has_ai else None
+    ai_output_shell_match = _ai_output_to_shell_match(risk_scope_blocks) if has_ai else None
+    repository_mutation_match = _ai_repository_mutation_match(risk_scope_blocks) if has_ai else None
 
     for match in USES_ACTION.finditer(text):
         action = match.group(1)
@@ -1033,16 +1034,18 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
         )
 
     if has_ai and not has_permissions_block:
-        match = ai_matches[0]
+        match_offset = _first_ai_match_offset(text, risk_scope_blocks)
+        if match_offset is None:
+            match_offset = ai_matches[0].start()
         findings.append(
             _finding(
                 "medium",
                 "MISSING_EXPLICIT_PERMISSIONS",
                 path,
                 text,
-                match.start(),
+                match_offset,
                 "AI-agent workflow does not declare an explicit permissions block.",
-                _line_at(text, match.start()),
+                _line_at(text, match_offset),
                 "Declare top-level or job-level permissions explicitly, preferably `contents: read` for analysis jobs.",
             )
         )
@@ -1153,6 +1156,21 @@ def _curated_action_profile(action: str) -> CuratedActionProfile | None:
 
 def _is_pinned_action_ref(action: str) -> bool:
     return bool(FULL_COMMIT_SHA_REF.search(action.strip()))
+
+
+def _first_ai_match_offset(text: str, ai_job_blocks: list[TextBlock]) -> int | None:
+    if not ai_job_blocks:
+        match = AI_HINTS.search(text)
+        return match.start() if match is not None else None
+    first_offset: int | None = None
+    for block in ai_job_blocks:
+        match = AI_HINTS.search(block.text)
+        if match is None:
+            continue
+        absolute_offset = block.start_offset + match.start()
+        if first_offset is None or absolute_offset < first_offset:
+            first_offset = absolute_offset
+    return first_offset
 
 
 def _job_blocks(text: str) -> list[TextBlock]:

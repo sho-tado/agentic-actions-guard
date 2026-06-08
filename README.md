@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.19
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.20
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.19
+- uses: sho-tado/agentic-actions-guard@v1.10.20
   with:
     path: .
     format: sarif
@@ -50,6 +50,7 @@ See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short
 See [Maintainer Opt-In Review Response Flow](docs/review-response-flow.md) for how public review reports are shared after maintainer consent.
 See [Finding Lifecycle And Output Contract](docs/finding-lifecycle.md) for how findings, accepted risks, CI gates, and output formats are handled.
 See [Output Schema Contract](docs/output-schema.md) for stable JSON and SARIF fields used by downstream automation.
+See [Scanner Precision Notes](docs/scanner-precision.md) for how AI job scope is used to reduce workflow-level false positives.
 See [Two-Stage AI Workflow Pattern](docs/two-stage-ai-workflows.md) for separating read-only AI analysis from maintainer-approved writes.
 See [Workflow Run Handoff Hardening](docs/workflow-run-handoff.md) for responding to privileged `workflow_run` handoff findings.
 See [AI Patch Handoff Recipe](docs/ai-patch-handoff.md) for keeping AI-generated fixes review-only before commit or push.
@@ -67,6 +68,7 @@ See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable ac
 - recognizes curated profiles for common AI maintainer actions
 - detects untrusted GitHub event context, branch refs, dispatch or reusable workflow inputs, and client payloads used in prompts or shell commands
 - warns on broad or implicit `GITHUB_TOKEN` permissions, scoped to AI jobs when possible
+- scopes risk rules to AI-like jobs when jobs can be parsed, so workflow titles or comments alone do not create agent findings
 - highlights risky `pull_request_target` checkout patterns
 - warns when AI jobs use checkout without `persist-credentials: false`
 - warns when AI maintainer actions use mutable refs instead of full commit SHA pins
