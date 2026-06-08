@@ -33,7 +33,7 @@ RULE_METADATA = {
     },
     "UNTRUSTED_INPUT_TO_AGENT": {
         "name": "Untrusted input to agent",
-        "help": "Treat issue, pull request, comment, review, commit text, and caller-supplied workflow inputs as hostile input to AI agents.",
+        "help": "Treat issue, pull request, comment, discussion, review, commit text, and caller-supplied workflow inputs as hostile input to AI agents.",
     },
     "AGENT_WITH_WRITE_TOKEN": {
         "name": "Agent with write token",
@@ -87,7 +87,8 @@ UNTRUSTED_CONTEXT = re.compile(
     r"|github\.ref_name"
     r"|inputs\.(?:prompt|instruction|instructions|query|body|text|message|review|comment|title|request|task|content|description)"
     r"|github\.event\.(?:"
-    r"(?:issue|comment|review|review_comment|head_commit)\.(?:title|body|body_text|message|ref)"
+    r"(?:issue|comment|review|review_comment|discussion|discussion_comment|head_commit)\."
+    r"(?:title|body|body_text|message|ref)"
     r"|commits(?:\[[^\]]+\])?\.(?:message|id)"
     r"|pull_request\.(?:title|body|body_text|ref|head\.(?:ref|label))"
     r"|(?:inputs|client_payload)\.[A-Za-z0-9_.-]+"
@@ -1000,7 +1001,7 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
                 match_offset,
                 "AI-agent workflow appears to combine untrusted GitHub event text with secrets or privileged tokens.",
                 match_text,
-                "Separate untrusted text analysis from privileged actions; avoid secrets in jobs that consume issue, PR, or comment content.",
+                "Separate untrusted text analysis from privileged actions; avoid secrets in jobs that consume issue, PR, discussion, or comment content.",
             )
         )
     elif has_ai and has_untrusted:

@@ -19,7 +19,7 @@ Sources:
 | Main purpose | Broad open source security health checks. | Focused review of AI/agent GitHub Actions trust boundaries. |
 | Repository hygiene | Reviews many project-level practices such as maintenance, branch protection, dependency pinning, security policy, and SAST. | Does not score general repository hygiene. |
 | GitHub Actions token scope | Includes token-permission and dangerous-workflow style checks. | Reviews AI-related jobs for write tokens, implicit permissions, checkout credential persistence, and mutation paths. |
-| Untrusted issue/PR/comment text | Not positioned as an AI prompt-boundary review tool. | Treats issue, PR, comment, review, commit, branch, and dispatch text as untrusted AI input. |
+| Untrusted issue/PR/comment/discussion text | Not positioned as an AI prompt-boundary review tool. | Treats issue, PR, comment, discussion, review, commit, branch, and dispatch text as untrusted AI input. |
 | AI/agent workflow detection | Not focused on AI maintainer actions or model prompt boundaries. | Detects AI/agent-like actions and curated AI maintainer action profiles. |
 | Privileged events | Reviews dangerous workflow patterns broadly. | Adds AI-specific checks for `pull_request_target` and privileged `workflow_run` handoffs near agent automation. |
 | AI output to shell | Not positioned as a model-output-to-command review tool. | Flags AI step outputs interpolated into shell commands. |
@@ -57,4 +57,4 @@ The key question for `agentic-actions-guard` is:
 
 > Can public GitHub event text influence an AI-related job that has secrets, write permissions, privileged event context, shell execution, or a path to commit/push/comment/release?
 
-That question is intentionally narrower than a general repository health score. It is meant to help maintainers adopt AI workflow automation without silently expanding the trust boundary of public issues, pull requests, comments, branches, reviews, or dispatch payloads.
+That question is intentionally narrower than a general repository health score. It is meant to help maintainers adopt AI workflow automation without silently expanding the trust boundary of public issues, pull requests, comments, discussions, branches, reviews, or dispatch payloads.

@@ -2,7 +2,7 @@
 
 Use this playbook when a repository already has, or is about to add, AI issue triage, PR review, release-note generation, labeling, auto-fix, or other agentic maintainer automation.
 
-The goal is not to prove exploitability. The goal is to identify whether untrusted GitHub event text can reach AI automation with secrets, write permissions, privileged events, checkout credentials, or shell execution.
+The goal is not to prove exploitability. The goal is to identify whether untrusted GitHub event text, including Discussions text, can reach AI automation with secrets, write permissions, privileged events, checkout credentials, or shell execution.
 
 ## 15 Minute Review
 

@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.20
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.21
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.20
+- uses: sho-tado/agentic-actions-guard@v1.10.21
   with:
     path: .
     format: sarif
@@ -41,7 +41,7 @@ Request a public workflow safety review:
 
 ## Why this exists
 
-AI-assisted GitHub workflows are useful, but issue bodies, pull request descriptions, comments, and commit messages are attacker-controlled input. When those values are sent to an agent with write permissions, shell access, or repository secrets, the workflow becomes a new supply-chain risk.
+AI-assisted GitHub workflows are useful, but issue bodies, pull request descriptions, comments, discussions, and commit messages are attacker-controlled input. When those values are sent to an agent with write permissions, shell access, or repository secrets, the workflow becomes a new supply-chain risk.
 
 See [AI GitHub Actions Threat Model](docs/ai-actions-threat-model.md) for the risk model behind the scanner rules.
 See [Rule Reference](docs/rule-reference.md) for stable rule IDs, severities, and remediation guidance.
@@ -66,7 +66,7 @@ See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable ac
 
 - flags AI/agent-related actions and scripts
 - recognizes curated profiles for common AI maintainer actions
-- detects untrusted GitHub event context, branch refs, dispatch or reusable workflow inputs, and client payloads used in prompts or shell commands
+- detects untrusted GitHub event context, Discussions text, branch refs, dispatch or reusable workflow inputs, and client payloads used in prompts or shell commands
 - warns on broad or implicit `GITHUB_TOKEN` permissions, scoped to AI jobs when possible
 - scopes risk rules to AI-like jobs when jobs can be parsed, so workflow titles or comments alone do not create agent findings
 - highlights risky `pull_request_target` checkout patterns

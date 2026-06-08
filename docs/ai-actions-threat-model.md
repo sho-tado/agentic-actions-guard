@@ -15,6 +15,9 @@ Treat these values as attacker-controlled in public repositories:
 - `github.event.comment.body`
 - `github.event.review.body`
 - `github.event.review_comment.body`
+- `github.event.discussion.title`
+- `github.event.discussion.body`
+- `github.event.discussion_comment.body`
 - `github.event.head_commit.message`
 - `github.event.commits[0].message`
 - `github.ref_name`
@@ -34,7 +37,7 @@ These inputs are safe to inspect in read-only jobs. They become risky when the s
 
 Risk: prompt injection can influence a job that has model provider keys, cloud credentials, package tokens, release secrets, or an explicit `${{ github.token }}` passed into AI tooling.
 
-Safer shape: keep the AI analysis job read-only and keep secrets out of jobs that process issue, pull request, comment, review, or commit text.
+Safer shape: keep the AI analysis job read-only and keep secrets out of jobs that process issue, pull request, comment, discussion, review, or commit text.
 
 Workflow top-level `env` is also in scope: a secret placed there is available to every job unless the workflow is restructured.
 
