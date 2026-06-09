@@ -66,6 +66,7 @@
 - v1.10.27: reusable AI workflow job scope detection
 - v1.10.28: reusable workflow `secrets: inherit` detection for AI jobs
 - v1.10.29: commented scalar security settings for `secrets: inherit` and `permissions: write-all`
+- v1.10.30: commented named write permissions such as `contents: write # ...`
 
 ## Next
 

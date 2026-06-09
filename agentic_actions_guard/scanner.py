@@ -105,7 +105,7 @@ SECRET_CONTEXT = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 WRITE_PERMISSION = re.compile(
-    r"^\s*(contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses):\s*write\s*$",
+    r"^\s*(contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses):\s*write\s*(?:#.*)?$",
     re.IGNORECASE | re.MULTILINE,
 )
 WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*write-all\s*(?:#.*)?$", re.IGNORECASE | re.MULTILINE)
