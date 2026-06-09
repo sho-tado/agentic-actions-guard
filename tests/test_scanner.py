@@ -95,6 +95,90 @@ jobs:
     assert critical.evidence == "reference: ${{ github.event.issue.body }}"
 
 
+def test_whole_issue_event_object_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "issue-object-review.yml").write_text(
+        """name: issue object ai triage
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ toJson(github.event.issue) }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ toJson(github.event.issue) }}"
+
+
+def test_whole_pull_request_event_object_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "pull-request-object-review.yml").write_text(
+        """name: pull request object ai review
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ toJSON(github.event.pull_request) }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ toJSON(github.event.pull_request) }}"
+
+
+def test_whole_comment_event_object_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "comment-object-review.yml").write_text(
+        """name: comment object ai triage
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  contents: read
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.comment }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.comment }}"
+
+
 def test_clean_non_ai_workflow_has_no_findings(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

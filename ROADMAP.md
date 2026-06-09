@@ -59,6 +59,7 @@
 - v1.10.20: AI job-scope precision hardening for workflow-level false positive reduction
 - v1.10.21: GitHub Discussions text detection as untrusted AI input
 - v1.10.22: GitHub Discussions payload-shape coverage for comments and accepted answers
+- v1.10.23: whole event object detection when serialized into AI prompts
 
 ## Next
 

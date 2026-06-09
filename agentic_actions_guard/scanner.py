@@ -89,8 +89,10 @@ UNTRUSTED_CONTEXT = re.compile(
     r"|github\.event\.(?:"
     r"(?:issue|comment|review|review_comment|discussion|discussion_comment|answer|head_commit)\."
     r"(?:title|body|body_text|message|ref)"
+    r"|(?:issue|comment|review|review_comment|discussion|answer|head_commit)(?!\.)"
     r"|commits(?:\[[^\]]+\])?\.(?:message|id)"
     r"|pull_request\.(?:title|body|body_text|ref|head\.(?:ref|label))"
+    r"|pull_request(?!\.)"
     r"|(?:inputs|client_payload)\.[A-Za-z0-9_.-]+"
     r")"
     r")",

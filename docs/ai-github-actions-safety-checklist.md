@@ -15,6 +15,7 @@ Treat these as untrusted:
 - discussion titles, bodies, comments, and accepted answers
 - commit messages
 - branch names from forks
+- serialized event objects such as `toJson(github.event.issue)` or `toJson(github.event.pull_request)`
 - files from forked pull requests
 
 Use them only in read-only analysis jobs unless a maintainer explicitly approves the next action.
