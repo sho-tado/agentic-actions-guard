@@ -70,6 +70,7 @@
 - v1.10.31: inline permissions map write scopes such as `permissions: { contents: write }`
 - v1.10.32: quoted permission write scopes such as `"contents": "write"` and `permissions: "write-all"`
 - v1.10.33: bracket-notation GitHub event input paths such as `github.event['issue']['body']`
+- v1.10.34: bracket-notation workflow inputs such as `inputs['prompt']`
 
 ## Next
 
