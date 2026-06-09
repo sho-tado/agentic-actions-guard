@@ -918,7 +918,7 @@ def _iter_workflows(root: Path) -> list[Path]:
 def _scan_workflow(path: str, text: str) -> list[Finding]:
     findings: list[Finding] = []
     job_blocks = _job_blocks(text)
-    ai_job_blocks = [block for block in job_blocks if AI_HINTS.search(block.text)]
+    ai_job_blocks = [block for block in job_blocks if _is_ai_job_block(block)]
     ai_matches = list(AI_HINTS.finditer(text))
     has_ai = bool(ai_job_blocks) or (not job_blocks and bool(ai_matches))
     risk_scope_blocks = ai_job_blocks if ai_job_blocks else []
@@ -1161,6 +1161,21 @@ def _curated_action_profile(action: str) -> CuratedActionProfile | None:
 
 def _is_pinned_action_ref(action: str) -> bool:
     return bool(FULL_COMMIT_SHA_REF.search(action.strip()))
+
+
+def _is_ai_job_block(block: TextBlock) -> bool:
+    if AI_HINTS.search(block.name):
+        return True
+
+    for line in block.text.splitlines():
+        if re.match(r"^\s*name:\s*", line, re.IGNORECASE) and AI_HINTS.search(line):
+            return True
+
+    for match in STEP_START.finditer(block.text):
+        if AI_HINTS.search(_step_text_at(block.text, match.start())):
+            return True
+
+    return False
 
 
 def _first_ai_match_offset(text: str, ai_job_blocks: list[TextBlock]) -> int | None:

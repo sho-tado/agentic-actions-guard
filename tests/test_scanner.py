@@ -315,6 +315,46 @@ jobs:
     assert report.findings == []
 
 
+def test_needs_ai_named_dependency_does_not_make_job_agentic(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "deploy.yml").write_text(
+        """name: deploy after ai build
+on:
+  push:
+permissions:
+  contents: write
+jobs:
+  build:
+    name: AI build context
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: summarize release notes
+  deploy:
+    needs: ai-build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "ordinary deploy"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    write_findings = [finding for finding in report.findings if finding.rule == "AGENT_WITH_WRITE_TOKEN"]
+    shell_findings = [finding for finding in report.findings if finding.rule == "AGENT_JOB_RUNS_SHELL"]
+    assert len(write_findings) == 1
+    assert write_findings[0].evidence == "contents: write"
+    assert write_findings[0].line == 5
+    assert shell_findings == []
+
+
 def test_sarif_output_maps_high_severity_finding_to_workflow_line(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

@@ -1,3 +1,3 @@
 """Agentic Actions Guard."""
 
-__version__ = "1.10.25"
+__version__ = "1.10.26"
