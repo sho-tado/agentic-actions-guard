@@ -22,6 +22,8 @@ GitHub Actions scalar settings keep their security meaning when a line has a tra
 
 Inline permission maps keep the same meaning as block-style permissions. The scanner treats `permissions: { contents: write }` and AI job-level `permissions: { issues: write }` as write tokens, and inline maps count as explicit permissions declarations.
 
+Quoted permission keys and values keep the same meaning as unquoted YAML. The scanner treats `"contents": "write"`, `permissions: { "issues": "write" }`, and `permissions: "write-all"` as write tokens.
+
 ## False Positive Discipline
 
 The scanner prefers scoped findings:

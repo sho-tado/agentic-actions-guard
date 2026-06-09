@@ -105,20 +105,20 @@ SECRET_CONTEXT = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 WRITE_PERMISSION = re.compile(
-    r"^\s*(contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses):\s*write\s*(?:#.*)?$",
+    r"^\s*['\"]?(contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses)['\"]?:\s*['\"]?write['\"]?\s*(?:#.*)?$",
     re.IGNORECASE | re.MULTILINE,
 )
-WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*write-all\s*(?:#.*)?$", re.IGNORECASE | re.MULTILINE)
+WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*['\"]?write-all['\"]?\s*(?:#.*)?$", re.IGNORECASE | re.MULTILINE)
 INLINE_WRITE_PERMISSION = re.compile(
-    r"^\s*permissions:\s*\{[^}\n]*\b(?:contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses)\s*:\s*write\b[^}\n]*\}\s*(?:#.*)?$",
+    r"^\s*permissions:\s*\{[^}\n]*['\"]?(?:contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses)['\"]?\s*:\s*['\"]?write['\"]?(?=[\s,}])[^}\n]*\}\s*(?:#.*)?$",
     re.IGNORECASE | re.MULTILINE,
 )
 TOP_LEVEL_INLINE_WRITE_PERMISSION = re.compile(
-    r"^permissions:\s*\{[^}\n]*\b(?:contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses)\s*:\s*write\b[^}\n]*\}\s*(?:#.*)?$",
+    r"^permissions:\s*\{[^}\n]*['\"]?(?:contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses)['\"]?\s*:\s*['\"]?write['\"]?(?=[\s,}])[^}\n]*\}\s*(?:#.*)?$",
     re.IGNORECASE | re.MULTILINE,
 )
 PERMISSIONS_BLOCK = re.compile(
-    r"^\s*permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$|\{[^}\n]*\}\s*(?:#.*)?$)",
+    r"^\s*permissions:\s*(\n|$|['\"]?(?:read-all|write-all)['\"]?\s*(?:#.*)?$|\{[^}\n]*\}\s*(?:#.*)?$)",
     re.IGNORECASE | re.MULTILINE,
 )
 PULL_REQUEST_TARGET = re.compile(r"pull_request_target\s*:", re.IGNORECASE)
@@ -1362,7 +1362,7 @@ def _step_text_at(text: str, offset: int) -> str:
 def _has_top_level_permissions(text: str) -> bool:
     return bool(
         re.search(
-            r"^permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$|\{[^}\n]*\}\s*(?:#.*)?$)",
+            r"^permissions:\s*(\n|$|['\"]?(?:read-all|write-all)['\"]?\s*(?:#.*)?$|\{[^}\n]*\}\s*(?:#.*)?$)",
             text,
             re.IGNORECASE | re.MULTILINE,
         )
@@ -1386,7 +1386,7 @@ def _top_level_block(text: str, key: str) -> TextBlock | None:
     lines = text.splitlines(keepends=True)
     offset = 0
     for index, line in enumerate(lines):
-        if re.match(rf"^{re.escape(key)}:\s*(read-all|write-all)?\s*(#.*)?$", line, re.IGNORECASE):
+        if re.match(rf"^{re.escape(key)}:\s*['\"]?(read-all|write-all)?['\"]?\s*(#.*)?$", line, re.IGNORECASE):
             start_offset = offset
             end_index = len(lines)
             for next_index in range(index + 1, len(lines)):
