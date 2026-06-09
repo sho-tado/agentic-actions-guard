@@ -1181,6 +1181,41 @@ jobs:
     assert "UNTRUSTED_INPUT_TO_AGENT" in rules
 
 
+def test_quoted_ai_job_name_does_not_scope_non_ai_write_job(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "quoted-job.yml").write_text(
+        """name: quoted ai triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  "ai-review":
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+  publish:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "maintainer-approved write job"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    rules = {finding.rule for finding in report.findings}
+    assert "AGENT_WITH_WRITE_TOKEN" not in rules
+    assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
+    assert "UNTRUSTED_INPUT_TO_AGENT" in rules
+
+
 def test_ai_job_level_write_permission_is_flagged(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

@@ -1212,9 +1212,9 @@ def _job_blocks(text: str) -> list[TextBlock]:
             child_indent = indent
         if indent != child_indent:
             continue
-        match = re.match(r"^\s*([A-Za-z0-9_.-]+):\s*(#.*)?$", line)
+        match = re.match(r"^\s*(?:([A-Za-z0-9_.-]+)|['\"]([A-Za-z0-9_.-]+)['\"]):\s*(#.*)?$", line)
         if match:
-            job_starts.append((match.group(1), index))
+            job_starts.append((match.group(1) or match.group(2), index))
 
     blocks: list[TextBlock] = []
     for position, (name, start_index) in enumerate(job_starts):

@@ -61,6 +61,7 @@
 - v1.10.22: GitHub Discussions payload-shape coverage for comments and accepted answers
 - v1.10.23: whole event object detection when serialized into AI prompts
 - v1.10.24: event payload file detection for AI prompt handoff
+- v1.10.25: quoted GitHub Actions job ID parsing for scanner scope precision
 
 ## Next
 
