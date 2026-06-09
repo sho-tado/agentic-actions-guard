@@ -109,8 +109,16 @@ WRITE_PERMISSION = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*write-all\s*(?:#.*)?$", re.IGNORECASE | re.MULTILINE)
+INLINE_WRITE_PERMISSION = re.compile(
+    r"^\s*permissions:\s*\{[^}\n]*\b(?:contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses)\s*:\s*write\b[^}\n]*\}\s*(?:#.*)?$",
+    re.IGNORECASE | re.MULTILINE,
+)
+TOP_LEVEL_INLINE_WRITE_PERMISSION = re.compile(
+    r"^permissions:\s*\{[^}\n]*\b(?:contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses)\s*:\s*write\b[^}\n]*\}\s*(?:#.*)?$",
+    re.IGNORECASE | re.MULTILINE,
+)
 PERMISSIONS_BLOCK = re.compile(
-    r"^\s*permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$)",
+    r"^\s*permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$|\{[^}\n]*\}\s*(?:#.*)?$)",
     re.IGNORECASE | re.MULTILINE,
 )
 PULL_REQUEST_TARGET = re.compile(r"pull_request_target\s*:", re.IGNORECASE)
@@ -1354,7 +1362,7 @@ def _step_text_at(text: str, offset: int) -> str:
 def _has_top_level_permissions(text: str) -> bool:
     return bool(
         re.search(
-            r"^permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$)",
+            r"^permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$|\{[^}\n]*\}\s*(?:#.*)?$)",
             text,
             re.IGNORECASE | re.MULTILINE,
         )
@@ -1362,6 +1370,9 @@ def _has_top_level_permissions(text: str) -> bool:
 
 
 def _top_level_write_permission(text: str) -> tuple[str, int] | None:
+    inline_match = TOP_LEVEL_INLINE_WRITE_PERMISSION.search(text)
+    if inline_match is not None:
+        return _line_at(text, inline_match.start()), inline_match.start()
     block = _top_level_block(text, "permissions")
     if block is None:
         return None
@@ -1393,11 +1404,11 @@ def _ai_write_permission(text: str, ai_job_blocks: list[TextBlock]) -> tuple[str
     if top_level is not None:
         return top_level
     for block in ai_job_blocks:
-        match = WRITE_ALL_PERMISSION.search(block.text) or WRITE_PERMISSION.search(block.text)
+        match = WRITE_ALL_PERMISSION.search(block.text) or INLINE_WRITE_PERMISSION.search(block.text) or WRITE_PERMISSION.search(block.text)
         if match is not None:
             return _line_at(block.text, match.start()), block.start_offset + match.start()
     if not ai_job_blocks:
-        match = WRITE_ALL_PERMISSION.search(text) or WRITE_PERMISSION.search(text)
+        match = WRITE_ALL_PERMISSION.search(text) or INLINE_WRITE_PERMISSION.search(text) or WRITE_PERMISSION.search(text)
         if match is not None:
             return _line_at(text, match.start()), match.start()
     return None

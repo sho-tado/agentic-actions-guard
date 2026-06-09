@@ -1423,6 +1423,35 @@ jobs:
     assert write_finding.evidence == "contents: write # required for release upload"
 
 
+def test_top_level_inline_named_write_permission_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "release-review.yml").write_text(
+        """name: ai release review
+on:
+  issues:
+    types: [opened]
+permissions: { contents: write, issues: read }
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    write_finding = next(finding for finding in report.findings if finding.rule == "AGENT_WITH_WRITE_TOKEN")
+    rules = {finding.rule for finding in report.findings}
+    assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
+    assert write_finding.line == 5
+    assert write_finding.evidence == "permissions: { contents: write, issues: read }"
+
+
 def test_commented_write_all_permission_is_flagged_and_counts_as_explicit(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)
@@ -1480,6 +1509,68 @@ jobs:
     assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
     assert write_finding.line == 8
     assert write_finding.evidence == "issues: write # temporary label rollout"
+
+
+def test_job_level_inline_named_write_permission_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "label-review.yml").write_text(
+        """name: ai label review
+on:
+  issues:
+    types: [opened]
+jobs:
+  review:
+    permissions: { issues: write, contents: read }
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    write_finding = next(finding for finding in report.findings if finding.rule == "AGENT_WITH_WRITE_TOKEN")
+    rules = {finding.rule for finding in report.findings}
+    assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
+    assert write_finding.line == 7
+    assert write_finding.evidence == "permissions: { issues: write, contents: read }"
+
+
+def test_non_ai_job_inline_write_permission_does_not_scope_ai_job(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "split-review.yml").write_text(
+        """name: split ai review
+on:
+  issues:
+    types: [opened]
+jobs:
+  analyze:
+    permissions: { contents: read }
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+  label:
+    permissions: { issues: write }
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "maintainer-approved label"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    rules = {finding.rule for finding in report.findings}
+    assert "AGENT_WITH_WRITE_TOKEN" not in rules
+    assert "MISSING_EXPLICIT_PERMISSIONS" not in rules
+    assert "UNTRUSTED_INPUT_TO_AGENT" in rules
 
 
 def test_non_ai_shell_before_ai_job_does_not_move_shell_finding_line(tmp_path: Path) -> None:

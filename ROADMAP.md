@@ -67,6 +67,7 @@
 - v1.10.28: reusable workflow `secrets: inherit` detection for AI jobs
 - v1.10.29: commented scalar security settings for `secrets: inherit` and `permissions: write-all`
 - v1.10.30: commented named write permissions such as `contents: write # ...`
+- v1.10.31: inline permissions map write scopes such as `permissions: { contents: write }`
 
 ## Next
 

@@ -20,6 +20,8 @@ If a workflow file cannot be split into job blocks, the scanner keeps a broad fa
 
 GitHub Actions scalar settings keep their security meaning when a line has a trailing comment. The scanner treats `secrets: inherit # ...` as reusable workflow secret exposure and `permissions: write-all # ...` as a write token. Named write permissions such as `contents: write # ...` and `issues: write # ...` are also treated as write tokens. Commented `permissions: read-all # ...` and `permissions: write-all # ...` count as explicit permissions declarations.
 
+Inline permission maps keep the same meaning as block-style permissions. The scanner treats `permissions: { contents: write }` and AI job-level `permissions: { issues: write }` as write tokens, and inline maps count as explicit permissions declarations.
+
 ## False Positive Discipline
 
 The scanner prefers scoped findings:
