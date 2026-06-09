@@ -58,6 +58,7 @@
 - v1.10.19: top-level `inputs.*` untrusted-input detection for reusable and manual workflows
 - v1.10.20: AI job-scope precision hardening for workflow-level false positive reduction
 - v1.10.21: GitHub Discussions text detection as untrusted AI input
+- v1.10.22: GitHub Discussions payload-shape coverage for comments and accepted answers
 
 ## Next
 

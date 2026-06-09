@@ -87,7 +87,7 @@ UNTRUSTED_CONTEXT = re.compile(
     r"|github\.ref_name"
     r"|inputs\.(?:prompt|instruction|instructions|query|body|text|message|review|comment|title|request|task|content|description)"
     r"|github\.event\.(?:"
-    r"(?:issue|comment|review|review_comment|discussion|discussion_comment|head_commit)\."
+    r"(?:issue|comment|review|review_comment|discussion|discussion_comment|answer|head_commit)\."
     r"(?:title|body|body_text|message|ref)"
     r"|commits(?:\[[^\]]+\])?\.(?:message|id)"
     r"|pull_request\.(?:title|body|body_text|ref|head\.(?:ref|label))"

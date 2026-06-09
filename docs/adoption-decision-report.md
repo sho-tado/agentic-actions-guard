@@ -52,7 +52,7 @@ agentic-actions-guard scan . --format review --review-target example-org/example
 Then add the annotation template in report-only rollout mode:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.21
+- uses: sho-tado/agentic-actions-guard@v1.10.22
   with:
     path: .
     format: annotations

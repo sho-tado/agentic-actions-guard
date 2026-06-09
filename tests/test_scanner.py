@@ -356,6 +356,34 @@ jobs:
     assert finding.evidence == "prompt: ${{ github.event.discussion.body }}"
 
 
+def test_discussion_title_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "discussion-title-review.yml").write_text(
+        """name: discussion title ai triage
+on:
+  discussion:
+    types: [created]
+permissions:
+  contents: read
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.discussion.title }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.discussion.title }}"
+
+
 def test_discussion_comment_body_to_agent_is_untrusted(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)
@@ -382,6 +410,62 @@ jobs:
     finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
     assert finding.severity == "high"
     assert finding.evidence == "prompt: ${{ github.event.discussion_comment.body }}"
+
+
+def test_discussion_comment_event_comment_body_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "discussion-comment-review.yml").write_text(
+        """name: discussion comment ai triage
+on:
+  discussion_comment:
+    types: [created]
+permissions:
+  contents: read
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.comment.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.comment.body }}"
+
+
+def test_discussion_answer_body_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "discussion-answer-review.yml").write_text(
+        """name: discussion answer ai triage
+on:
+  discussion:
+    types: [answered]
+permissions:
+  contents: read
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.answer.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.answer.body }}"
 
 
 def test_github_head_ref_to_agent_is_untrusted(tmp_path: Path) -> None:

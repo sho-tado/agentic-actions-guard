@@ -17,7 +17,9 @@ Treat these values as attacker-controlled in public repositories:
 - `github.event.review_comment.body`
 - `github.event.discussion.title`
 - `github.event.discussion.body`
+- `github.event.comment.body` on `discussion_comment` workflows
 - `github.event.discussion_comment.body`
+- `github.event.answer.body`
 - `github.event.head_commit.message`
 - `github.event.commits[0].message`
 - `github.ref_name`

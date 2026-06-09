@@ -12,7 +12,7 @@ Treat these as untrusted:
 - pull request titles and bodies
 - PR review comments
 - issue comments
-- discussion titles, bodies, and comments
+- discussion titles, bodies, comments, and accepted answers
 - commit messages
 - branch names from forks
 - files from forked pull requests
