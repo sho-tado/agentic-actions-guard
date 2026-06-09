@@ -39,11 +39,13 @@ These inputs are safe to inspect in read-only jobs. They become risky when the s
 
 ### Untrusted event text plus secrets
 
-Risk: prompt injection can influence a job that has model provider keys, cloud credentials, package tokens, release secrets, or an explicit `${{ github.token }}` passed into AI tooling.
+Risk: prompt injection can influence a job that has model provider keys, cloud credentials, package tokens, release secrets, inherited reusable-workflow secrets through `secrets: inherit`, or an explicit `${{ github.token }}` passed into AI tooling.
 
 Safer shape: keep the AI analysis job read-only and keep secrets out of jobs that process issue, pull request, comment, discussion, review, or commit text.
 
 Workflow top-level `env` is also in scope: a secret placed there is available to every job unless the workflow is restructured.
+
+Reusable workflow jobs are also in scope: `secrets: inherit` passes caller secrets into the called workflow and should be separated from untrusted issue, pull request, comment, discussion, review, or commit text.
 
 ### AI workflow plus write token
 

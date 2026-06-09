@@ -64,6 +64,7 @@
 - v1.10.25: quoted GitHub Actions job ID parsing for scanner scope precision
 - v1.10.26: metadata-only job hint false-positive reduction
 - v1.10.27: reusable AI workflow job scope detection
+- v1.10.28: reusable workflow `secrets: inherit` detection for AI jobs
 
 ## Next
 

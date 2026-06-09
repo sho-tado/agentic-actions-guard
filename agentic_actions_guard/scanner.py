@@ -101,8 +101,8 @@ UNTRUSTED_CONTEXT = re.compile(
     re.IGNORECASE,
 )
 SECRET_CONTEXT = re.compile(
-    r"(\$\{\{\s*(?:secrets\.|github\.token\s*\}\})|OPENAI_API_KEY|ANTHROPIC_API_KEY|GITHUB_TOKEN)",
-    re.IGNORECASE,
+    r"(\$\{\{\s*(?:secrets\.|github\.token\s*\}\})|^\s*secrets:\s*inherit\s*$|OPENAI_API_KEY|ANTHROPIC_API_KEY|GITHUB_TOKEN)",
+    re.IGNORECASE | re.MULTILINE,
 )
 WRITE_PERMISSION = re.compile(
     r"^\s*(contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses):\s*write\s*$",

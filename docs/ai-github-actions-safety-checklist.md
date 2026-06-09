@@ -55,6 +55,8 @@ Do not expose model provider keys, package tokens, cloud credentials, or release
 
 If an AI job needs an API key, keep it read-only and prevent it from checking out or executing untrusted code.
 
+For reusable workflow jobs, avoid `secrets: inherit` when caller-controlled issue, pull request, comment, discussion, review, branch, or commit text is passed through `with:`.
+
 ## 5. Avoid `pull_request_target` for Agents
 
 `pull_request_target` runs with privileges from the base repository. Avoid combining it with:
