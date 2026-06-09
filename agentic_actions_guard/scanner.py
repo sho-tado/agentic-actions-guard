@@ -101,15 +101,18 @@ UNTRUSTED_CONTEXT = re.compile(
     re.IGNORECASE,
 )
 SECRET_CONTEXT = re.compile(
-    r"(\$\{\{\s*(?:secrets\.|github\.token\s*\}\})|^\s*secrets:\s*inherit\s*$|OPENAI_API_KEY|ANTHROPIC_API_KEY|GITHUB_TOKEN)",
+    r"(\$\{\{\s*(?:secrets\.|github\.token\s*\}\})|^\s*secrets:\s*inherit\s*(?:#.*)?$|OPENAI_API_KEY|ANTHROPIC_API_KEY|GITHUB_TOKEN)",
     re.IGNORECASE | re.MULTILINE,
 )
 WRITE_PERMISSION = re.compile(
     r"^\s*(contents|issues|pull-requests|actions|checks|deployments|id-token|packages|statuses):\s*write\s*$",
     re.IGNORECASE | re.MULTILINE,
 )
-WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*write-all\s*$", re.IGNORECASE | re.MULTILINE)
-PERMISSIONS_BLOCK = re.compile(r"^\s*permissions:\s*(\n|$|read-all\s*$|write-all\s*$)", re.IGNORECASE | re.MULTILINE)
+WRITE_ALL_PERMISSION = re.compile(r"^\s*permissions:\s*write-all\s*(?:#.*)?$", re.IGNORECASE | re.MULTILINE)
+PERMISSIONS_BLOCK = re.compile(
+    r"^\s*permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$)",
+    re.IGNORECASE | re.MULTILINE,
+)
 PULL_REQUEST_TARGET = re.compile(r"pull_request_target\s*:", re.IGNORECASE)
 WORKFLOW_RUN = re.compile(r"workflow_run\s*:", re.IGNORECASE)
 CHECKOUT_HEAD_REF = re.compile(
@@ -1349,7 +1352,13 @@ def _step_text_at(text: str, offset: int) -> str:
 
 
 def _has_top_level_permissions(text: str) -> bool:
-    return bool(re.search(r"^permissions:\s*(\n|$|read-all\s*$|write-all\s*$)", text, re.IGNORECASE | re.MULTILINE))
+    return bool(
+        re.search(
+            r"^permissions:\s*(\n|$|(?:read-all|write-all)\s*(?:#.*)?$)",
+            text,
+            re.IGNORECASE | re.MULTILINE,
+        )
+    )
 
 
 def _top_level_write_permission(text: str) -> tuple[str, int] | None:

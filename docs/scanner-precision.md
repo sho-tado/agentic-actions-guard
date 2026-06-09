@@ -16,6 +16,10 @@ Workflow-level prose, such as `name: safer ai release notes`, is not enough by i
 
 If a workflow file cannot be split into job blocks, the scanner keeps a broad fallback and scans the full text. That fallback is useful for partial, generated, or malformed workflow snippets where the safer job-level boundary is unavailable.
 
+## Commented Scalars
+
+GitHub Actions scalar settings keep their security meaning when a line has a trailing comment. The scanner treats `secrets: inherit # ...` as reusable workflow secret exposure and `permissions: write-all # ...` as a write token. Commented `permissions: read-all # ...` and `permissions: write-all # ...` also count as explicit permissions declarations.
+
 ## False Positive Discipline
 
 The scanner prefers scoped findings:

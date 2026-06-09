@@ -65,6 +65,7 @@
 - v1.10.26: metadata-only job hint false-positive reduction
 - v1.10.27: reusable AI workflow job scope detection
 - v1.10.28: reusable workflow `secrets: inherit` detection for AI jobs
+- v1.10.29: commented scalar security settings for `secrets: inherit` and `permissions: write-all`
 
 ## Next
 
