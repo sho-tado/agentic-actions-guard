@@ -355,6 +355,32 @@ jobs:
     assert shell_findings == []
 
 
+def test_reusable_ai_workflow_job_without_steps_is_scoped_as_agentic(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "reusable-ai-review.yml").write_text(
+        """name: reusable ai review
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  review:
+    uses: owner/ai-review/.github/workflows/review.yml@v1
+    with:
+      prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ github.event.issue.body }}"
+
+
 def test_sarif_output_maps_high_severity_finding_to_workflow_line(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

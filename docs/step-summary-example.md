@@ -5,7 +5,7 @@
 The composite action enables this by default:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.26
+- uses: sho-tado/agentic-actions-guard@v1.10.27
   with:
     path: .
     format: sarif

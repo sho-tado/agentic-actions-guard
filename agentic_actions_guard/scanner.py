@@ -123,6 +123,10 @@ USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.M
 FULL_COMMIT_SHA_REF = re.compile(r"@[0-9a-f]{40}$", re.IGNORECASE)
 STEP_START = re.compile(r"^\s*-\s+", re.MULTILINE)
 STEP_ID = re.compile(r"^\s*(?:-\s*)?id:\s*([A-Za-z0-9_-]+)\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
+JOB_LEVEL_PROMPT_INPUT = re.compile(
+    r"^\s*(?:prompt|instruction|instructions|system-prompt|query|model):\s*",
+    re.IGNORECASE,
+)
 REPOSITORY_MUTATION_COMMAND = re.compile(
     r"^\s*(?:-\s*run:\s*)?"
     r"(?:"
@@ -1169,6 +1173,10 @@ def _is_ai_job_block(block: TextBlock) -> bool:
 
     for line in block.text.splitlines():
         if re.match(r"^\s*name:\s*", line, re.IGNORECASE) and AI_HINTS.search(line):
+            return True
+        if re.match(r"^\s*uses:\s*", line, re.IGNORECASE) and AI_HINTS.search(line):
+            return True
+        if JOB_LEVEL_PROMPT_INPUT.search(line):
             return True
 
     for match in STEP_START.finditer(block.text):
