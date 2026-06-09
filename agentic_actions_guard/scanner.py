@@ -1326,15 +1326,18 @@ def _ai_output_to_shell_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int]
         ai_step_ids = _ai_step_ids(block.text)
         if not ai_step_ids:
             continue
-        output_patterns = [
-            re.compile(rf"steps\.{re.escape(step_id)}\.outputs\.[A-Za-z0-9_.-]+", re.IGNORECASE)
-            for step_id in ai_step_ids
-        ]
+        output_patterns = [_step_output_pattern(step_id) for step_id in ai_step_ids]
         for match in RUNS_SHELL.finditer(block.text):
             step_text = _step_text_at(block.text, match.start())
             if any(pattern.search(step_text) for pattern in output_patterns):
                 return _line_at(block.text, match.start()), block.start_offset + match.start()
     return None
+
+
+def _step_output_pattern(step_id: str) -> re.Pattern[str]:
+    step_ref = rf"(?:steps\.{re.escape(step_id)}|steps\[['\"]{re.escape(step_id)}['\"]\])"
+    output_ref = r"(?:outputs\.[A-Za-z0-9_.-]+|outputs\[['\"][A-Za-z0-9_.-]+['\"]\])"
+    return re.compile(rf"{step_ref}\.{output_ref}", re.IGNORECASE)
 
 
 def _ai_repository_mutation_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:

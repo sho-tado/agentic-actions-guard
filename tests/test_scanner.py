@@ -2015,6 +2015,102 @@ jobs:
     assert finding.evidence == '- run: gh issue comment "$NUMBER" --body "${{ steps.ai_review.outputs.summary }}"'
 
 
+def test_ai_step_bracket_output_name_to_shell_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai output shell
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - id: ai_review
+        uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+      - run: gh issue comment "$NUMBER" --body "${{ steps.ai_review.outputs['summary'] }}"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "AI_OUTPUT_TO_SHELL")
+    assert finding.severity == "high"
+    assert finding.line == 15
+    assert finding.evidence == '- run: gh issue comment "$NUMBER" --body "${{ steps.ai_review.outputs[\'summary\'] }}"'
+
+
+def test_ai_step_bracket_step_id_output_to_shell_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai output shell
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - id: ai-review
+        uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+      - run: gh issue comment "$NUMBER" --body "${{ steps['ai-review'].outputs.summary }}"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "AI_OUTPUT_TO_SHELL")
+    assert finding.severity == "high"
+    assert finding.line == 15
+    assert finding.evidence == '- run: gh issue comment "$NUMBER" --body "${{ steps[\'ai-review\'].outputs.summary }}"'
+
+
+def test_ai_step_bracket_step_id_and_output_name_to_shell_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai output shell
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - id: ai-review
+        uses: openai/agent-action@v1
+        with:
+          prompt: ${{ github.event.issue.body }}
+      - run: gh issue comment "$NUMBER" --body "${{ steps['ai-review'].outputs['summary'] }}"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "AI_OUTPUT_TO_SHELL")
+    assert finding.severity == "high"
+    assert finding.line == 15
+    assert (
+        finding.evidence
+        == '- run: gh issue comment "$NUMBER" --body "${{ steps[\'ai-review\'].outputs[\'summary\'] }}"'
+    )
+
+
 def test_non_ai_step_output_to_shell_is_not_flagged_as_ai_output(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

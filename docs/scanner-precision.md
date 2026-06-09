@@ -28,6 +28,8 @@ GitHub expression bracket notation keeps the same trust boundary as dotted notat
 
 Top-level workflow input bracket notation keeps the same trust boundary as dotted notation for prompt-like fields. The scanner treats `inputs['prompt']` and `inputs["instructions"]` as untrusted AI inputs when they are passed to an AI job. Separator-style prompt-like input names are also in scope: `inputs.issue_body`, `inputs['review_prompt']`, and `inputs['comment-body']` are untrusted AI inputs, while operational names such as `inputs.release_ref` stay out of scope by name alone.
 
+AI step output references keep the same shell boundary whether they use dotted or bracket notation. The scanner treats `${{ steps.ai_review.outputs.summary }}`, `${{ steps.ai_review.outputs['summary'] }}`, `${{ steps['ai-review'].outputs.summary }}`, and `${{ steps['ai-review'].outputs['summary'] }}` as AI output-to-shell when they appear in a `run:` step and the referenced step is AI-related.
+
 ## False Positive Discipline
 
 The scanner prefers scoped findings:
