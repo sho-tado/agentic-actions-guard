@@ -83,7 +83,10 @@ AI_HINTS = re.compile(
 )
 EVENT_TEXT_OBJECTS = r"(?:issue|comment|review|review_comment|discussion|discussion_comment|answer|head_commit)"
 EVENT_TEXT_FIELDS = r"(?:title|body|body_text|message|ref)"
-PROMPT_LIKE_INPUT_FIELDS = r"(?:prompt|instruction|instructions|query|body|text|message|review|comment|title|request|task|content|description)"
+PROMPT_LIKE_INPUT_TOKEN = (
+    r"(?:prompt|instruction|instructions|query|body|text|message|review|comment|title|request|task|content|description)"
+)
+PROMPT_LIKE_INPUT_FIELDS = rf"(?:[A-Za-z0-9]+[_-])*{PROMPT_LIKE_INPUT_TOKEN}(?:[_-][A-Za-z0-9]+)*"
 GITHUB_EVENT_ROOT = r"github(?:\.event|\[['\"]event['\"]\])"
 EVENT_TEXT_OBJECT_ACCESS = rf"(?:\.(?:{EVENT_TEXT_OBJECTS})|\[['\"]{EVENT_TEXT_OBJECTS}['\"]\])"
 EVENT_TEXT_FIELD_ACCESS = rf"(?:\.(?:{EVENT_TEXT_FIELDS})|\[['\"]{EVENT_TEXT_FIELDS}['\"]\])"

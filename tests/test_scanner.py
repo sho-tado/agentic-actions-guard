@@ -652,6 +652,94 @@ jobs:
     assert finding.evidence == 'prompt: ${{ inputs["instructions"] }}'
 
 
+def test_separator_style_workflow_input_name_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "manual-review.yml").write_text(
+        """name: manual separator ai review
+on:
+  workflow_dispatch:
+    inputs:
+      issue_body:
+        required: true
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ inputs.issue_body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ inputs.issue_body }}"
+
+
+def test_bracket_separator_style_workflow_input_name_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "manual-review.yml").write_text(
+        """name: manual bracket separator ai review
+on:
+  workflow_dispatch:
+    inputs:
+      review_prompt:
+        required: true
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ inputs['review_prompt'] }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt: ${{ inputs['review_prompt'] }}"
+
+
+def test_non_prompt_workflow_input_name_to_agent_is_not_untrusted_by_name(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "manual-release.yml").write_text(
+        """name: manual ai release summary
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        required: true
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+        with:
+          prompt: ${{ inputs.release_ref }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "UNTRUSTED_INPUT_TO_AGENT" not in {finding.rule for finding in report.findings}
+
+
 def test_repository_dispatch_payload_to_agent_is_untrusted(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

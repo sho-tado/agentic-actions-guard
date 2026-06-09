@@ -71,6 +71,7 @@
 - v1.10.32: quoted permission write scopes such as `"contents": "write"` and `permissions: "write-all"`
 - v1.10.33: bracket-notation GitHub event input paths such as `github.event['issue']['body']`
 - v1.10.34: bracket-notation workflow inputs such as `inputs['prompt']`
+- v1.10.35: separator-style workflow input names such as `inputs.issue_body` and `inputs['review_prompt']`
 
 ## Next
 

@@ -26,7 +26,7 @@ Quoted permission keys and values keep the same meaning as unquoted YAML. The sc
 
 GitHub expression bracket notation keeps the same trust boundary as dotted notation for selected event payload text. The scanner treats `github.event['issue']['body']`, `github['event']['pull_request']['body']`, `github.event.commits[0]['message']`, and `github.event['client_payload']['prompt']` as untrusted AI inputs.
 
-Top-level workflow input bracket notation keeps the same trust boundary as dotted notation for prompt-like fields. The scanner treats `inputs['prompt']` and `inputs["instructions"]` as untrusted AI inputs when they are passed to an AI job.
+Top-level workflow input bracket notation keeps the same trust boundary as dotted notation for prompt-like fields. The scanner treats `inputs['prompt']` and `inputs["instructions"]` as untrusted AI inputs when they are passed to an AI job. Separator-style prompt-like input names are also in scope: `inputs.issue_body`, `inputs['review_prompt']`, and `inputs['comment-body']` are untrusted AI inputs, while operational names such as `inputs.release_ref` stay out of scope by name alone.
 
 ## False Positive Discipline
 

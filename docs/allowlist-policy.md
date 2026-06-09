@@ -35,7 +35,7 @@ agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --
 The composite GitHub Action exposes the same controls:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.34
+- uses: sho-tado/agentic-actions-guard@v1.10.35
   with:
     allowlist: agentic-actions-guard.allowlist.json
     allowlist-max-expiry-days: "30"
