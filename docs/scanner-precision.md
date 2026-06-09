@@ -24,6 +24,8 @@ Inline permission maps keep the same meaning as block-style permissions. The sca
 
 Quoted permission keys and values keep the same meaning as unquoted YAML. The scanner treats `"contents": "write"`, `permissions: { "issues": "write" }`, and `permissions: "write-all"` as write tokens.
 
+GitHub expression bracket notation keeps the same trust boundary as dotted notation for selected event payload text. The scanner treats `github.event['issue']['body']`, `github['event']['pull_request']['body']`, `github.event.commits[0]['message']`, and `github.event['client_payload']['prompt']` as untrusted AI inputs.
+
 ## False Positive Discipline
 
 The scanner prefers scoped findings:

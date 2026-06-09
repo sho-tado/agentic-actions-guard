@@ -81,23 +81,45 @@ AI_HINTS = re.compile(
     r"(?![A-Za-z0-9])",
     re.IGNORECASE,
 )
+EVENT_TEXT_OBJECTS = r"(?:issue|comment|review|review_comment|discussion|discussion_comment|answer|head_commit)"
+EVENT_TEXT_FIELDS = r"(?:title|body|body_text|message|ref)"
+GITHUB_EVENT_ROOT = r"github(?:\.event|\[['\"]event['\"]\])"
+EVENT_TEXT_OBJECT_ACCESS = rf"(?:\.(?:{EVENT_TEXT_OBJECTS})|\[['\"]{EVENT_TEXT_OBJECTS}['\"]\])"
+EVENT_TEXT_FIELD_ACCESS = rf"(?:\.(?:{EVENT_TEXT_FIELDS})|\[['\"]{EVENT_TEXT_FIELDS}['\"]\])"
+PULL_REQUEST_ACCESS = r"(?:\.pull_request|\[['\"]pull_request['\"]\])"
+PULL_REQUEST_TEXT_FIELD_ACCESS = r"(?:\.(?:title|body|body_text|ref)|\[['\"](?:title|body|body_text|ref)['\"]\])"
+PULL_REQUEST_HEAD_FIELD_ACCESS = (
+    r"(?:\.head|\[['\"]head['\"]\])(?:\.(?:ref|label)|\[['\"](?:ref|label)['\"]\])"
+)
+COMMITS_ACCESS = r"(?:\.commits|\[['\"]commits['\"]\])(?:\[[^\]]+\])?"
+COMMIT_FIELD_ACCESS = r"(?:\.(?:message|id)|\[['\"](?:message|id)['\"]\])"
+CALLER_INPUT_ACCESS = (
+    r"(?:\.(?:inputs|client_payload)|\[['\"](?:inputs|client_payload)['\"]\])"
+    r"(?:\.[A-Za-z0-9_.-]+|\[['\"][A-Za-z0-9_.-]+['\"]\])"
+)
 UNTRUSTED_CONTEXT = re.compile(
-    r"(?:"
-    r"github\.head_ref"
-    r"|github\.ref_name"
-    r"|github\.event_path"
-    r"|GITHUB_EVENT_PATH"
-    r"|inputs\.(?:prompt|instruction|instructions|query|body|text|message|review|comment|title|request|task|content|description)"
-    r"|github\.event\.(?:"
-    r"(?:issue|comment|review|review_comment|discussion|discussion_comment|answer|head_commit)\."
-    r"(?:title|body|body_text|message|ref)"
-    r"|(?:issue|comment|review|review_comment|discussion|answer|head_commit)(?!\.)"
-    r"|commits(?:\[[^\]]+\])?\.(?:message|id)"
-    r"|pull_request\.(?:title|body|body_text|ref|head\.(?:ref|label))"
-    r"|pull_request(?!\.)"
-    r"|(?:inputs|client_payload)\.[A-Za-z0-9_.-]+"
-    r")"
-    r")",
+    rf"(?:"
+    rf"github\.head_ref"
+    rf"|github\.ref_name"
+    rf"|github\.event_path"
+    rf"|GITHUB_EVENT_PATH"
+    rf"|inputs\.(?:prompt|instruction|instructions|query|body|text|message|review|comment|title|request|task|content|description)"
+    rf"|github\.event\.(?:"
+    rf"(?:issue|comment|review|review_comment|discussion|discussion_comment|answer|head_commit)\."
+    rf"(?:title|body|body_text|message|ref)"
+    rf"|(?:issue|comment|review|review_comment|discussion|answer|head_commit)(?!\.)"
+    rf"|commits(?:\[[^\]]+\])?\.(?:message|id)"
+    rf"|pull_request\.(?:title|body|body_text|ref|head\.(?:ref|label))"
+    rf"|pull_request(?!\.)"
+    rf"|(?:inputs|client_payload)\.[A-Za-z0-9_.-]+"
+    rf")"
+    rf"|{GITHUB_EVENT_ROOT}{EVENT_TEXT_OBJECT_ACCESS}{EVENT_TEXT_FIELD_ACCESS}"
+    rf"|{GITHUB_EVENT_ROOT}{EVENT_TEXT_OBJECT_ACCESS}(?![\w.])"
+    rf"|{GITHUB_EVENT_ROOT}{PULL_REQUEST_ACCESS}(?:{PULL_REQUEST_TEXT_FIELD_ACCESS}|{PULL_REQUEST_HEAD_FIELD_ACCESS})"
+    rf"|{GITHUB_EVENT_ROOT}{PULL_REQUEST_ACCESS}(?![\w.])"
+    rf"|{GITHUB_EVENT_ROOT}{COMMITS_ACCESS}{COMMIT_FIELD_ACCESS}"
+    rf"|{GITHUB_EVENT_ROOT}{CALLER_INPUT_ACCESS}"
+    rf")",
     re.IGNORECASE,
 )
 SECRET_CONTEXT = re.compile(
