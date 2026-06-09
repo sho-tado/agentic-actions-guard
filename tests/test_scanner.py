@@ -179,6 +179,63 @@ jobs:
     assert finding.evidence == "prompt: ${{ github.event.comment }}"
 
 
+def test_github_event_path_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "event-path-review.yml").write_text(
+        """name: event path ai triage
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt-file: ${{ github.event_path }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "prompt-file: ${{ github.event_path }}"
+
+
+def test_github_event_path_shell_handoff_in_ai_job_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "event-path-shell-review.yml").write_text(
+        """name: event path shell ai triage
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cat "$GITHUB_EVENT_PATH" > prompt.json
+      - uses: openai/agent-action@v1
+        with:
+          prompt-file: prompt.json
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == '- run: cat "$GITHUB_EVENT_PATH" > prompt.json'
+
+
 def test_clean_non_ai_workflow_has_no_findings(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

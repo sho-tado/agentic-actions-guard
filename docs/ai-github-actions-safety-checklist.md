@@ -16,6 +16,7 @@ Treat these as untrusted:
 - commit messages
 - branch names from forks
 - serialized event objects such as `toJson(github.event.issue)` or `toJson(github.event.pull_request)`
+- event payload files such as `github.event_path` or `$GITHUB_EVENT_PATH`
 - files from forked pull requests
 
 Use them only in read-only analysis jobs unless a maintainer explicitly approves the next action.

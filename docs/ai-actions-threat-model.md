@@ -29,6 +29,7 @@ Treat these values as attacker-controlled in public repositories:
 - `github.head_ref`
 - `github.event.pull_request.head.label`
 - serialized event objects such as `toJson(github.event.issue)`, `toJson(github.event.pull_request)`, or `github.event.comment`
+- event payload files referenced through `github.event_path` or `$GITHUB_EVENT_PATH`
 - fork branch names and refs
 - files checked out from forked pull requests
 

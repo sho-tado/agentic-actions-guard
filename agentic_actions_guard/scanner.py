@@ -85,6 +85,8 @@ UNTRUSTED_CONTEXT = re.compile(
     r"(?:"
     r"github\.head_ref"
     r"|github\.ref_name"
+    r"|github\.event_path"
+    r"|GITHUB_EVENT_PATH"
     r"|inputs\.(?:prompt|instruction|instructions|query|body|text|message|review|comment|title|request|task|content|description)"
     r"|github\.event\.(?:"
     r"(?:issue|comment|review|review_comment|discussion|discussion_comment|answer|head_commit)\."
