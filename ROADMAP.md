@@ -73,6 +73,7 @@
 - v1.10.34: bracket-notation workflow inputs such as `inputs['prompt']`
 - v1.10.35: separator-style workflow input names such as `inputs.issue_body` and `inputs['review_prompt']`
 - v1.10.36: bracket-notation AI step output references in shell commands
+- v1.10.37: top-level `env` indirection for untrusted event text consumed by AI jobs
 
 ## Next
 

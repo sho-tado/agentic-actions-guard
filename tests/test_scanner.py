@@ -559,6 +559,92 @@ jobs:
     assert finding.evidence == "prompt: ${{ inputs.prompt }}"
 
 
+def test_top_level_env_untrusted_input_to_agent_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai env indirection
+on:
+  issues:
+    types: [opened]
+env:
+  ISSUE_BODY: ${{ github.event.issue.body }}
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@v1
+        with:
+          prompt: ${{ env.ISSUE_BODY }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "ISSUE_BODY: ${{ github.event.issue.body }}"
+
+
+def test_top_level_env_untrusted_input_to_ai_shell_is_untrusted(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai env shell indirection
+on:
+  issues:
+    types: [opened]
+env:
+  ISSUE_BODY: ${{ github.event.issue.body }}
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - run: openai api responses.create --input "$ISSUE_BODY"
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    finding = next(finding for finding in report.findings if finding.rule == "UNTRUSTED_INPUT_TO_AGENT")
+    assert finding.severity == "high"
+    assert finding.evidence == "ISSUE_BODY: ${{ github.event.issue.body }}"
+
+
+def test_top_level_env_untrusted_input_is_not_flagged_without_ai_reference(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "review.yml").write_text(
+        """name: ai env precision
+on:
+  issues:
+    types: [opened]
+env:
+  ISSUE_BODY: ${{ github.event.issue.body }}
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+        with:
+          prompt: summarize release notes
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "UNTRUSTED_INPUT_TO_AGENT" not in {finding.rule for finding in report.findings}
+
+
 def test_bracket_notation_workflow_dispatch_input_to_agent_is_untrusted(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

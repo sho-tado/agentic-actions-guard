@@ -161,6 +161,10 @@ USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.M
 FULL_COMMIT_SHA_REF = re.compile(r"@[0-9a-f]{40}$", re.IGNORECASE)
 STEP_START = re.compile(r"^\s*-\s+", re.MULTILINE)
 STEP_ID = re.compile(r"^\s*(?:-\s*)?id:\s*([A-Za-z0-9_-]+)\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
+ENV_ASSIGNMENT = re.compile(
+    r"^[^\S\r\n]*['\"]?([A-Za-z_][A-Za-z0-9_]*)['\"]?[^\S\r\n]*:[^\S\r\n]*[^\r\n]+$",
+    re.IGNORECASE | re.MULTILINE,
+)
 JOB_LEVEL_PROMPT_INPUT = re.compile(
     r"^\s*(?:prompt|instruction|instructions|system-prompt|query|model):\s*",
     re.IGNORECASE,
@@ -964,7 +968,7 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     ai_matches = list(AI_HINTS.finditer(text))
     has_ai = bool(ai_job_blocks) or (not job_blocks and bool(ai_matches))
     risk_scope_blocks = ai_job_blocks if ai_job_blocks else []
-    untrusted_match = _first_scoped_match(UNTRUSTED_CONTEXT, text, risk_scope_blocks) if has_ai else None
+    untrusted_match = _ai_untrusted_match(text, risk_scope_blocks) if has_ai else None
     has_untrusted = untrusted_match is not None
     secret_match = _ai_secret_match(text, risk_scope_blocks) if has_ai else None
     has_secret = secret_match is not None
@@ -1295,6 +1299,38 @@ def _first_scoped_match(pattern: re.Pattern[str], text: str, scoped_blocks: list
     if match is None:
         return None
     return _line_at(text, match.start()), match.start()
+
+
+def _ai_untrusted_match(text: str, ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
+    scoped_match = _first_scoped_match(UNTRUSTED_CONTEXT, text, ai_job_blocks)
+    if scoped_match is not None:
+        return scoped_match
+
+    top_level_env = _top_level_block(text, "env")
+    if top_level_env is None:
+        return None
+
+    for match in ENV_ASSIGNMENT.finditer(top_level_env.text):
+        line = _line_at(top_level_env.text, match.start())
+        if not UNTRUSTED_CONTEXT.search(line):
+            continue
+        env_name = match.group(1)
+        if _ai_job_references_env_var(ai_job_blocks, env_name):
+            return line, top_level_env.start_offset + match.start()
+    return None
+
+
+def _ai_job_references_env_var(ai_job_blocks: list[TextBlock], env_name: str) -> bool:
+    pattern = _env_var_reference_pattern(env_name)
+    return any(pattern.search(block.text) for block in ai_job_blocks)
+
+
+def _env_var_reference_pattern(env_name: str) -> re.Pattern[str]:
+    escaped = re.escape(env_name)
+    return re.compile(
+        rf"(?:env\.{escaped}\b|env\[['\"]{escaped}['\"]\]|\${escaped}\b|\$\{{{escaped}\}})",
+        re.IGNORECASE,
+    )
 
 
 def _ai_secret_match(text: str, ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:

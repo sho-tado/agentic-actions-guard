@@ -30,6 +30,8 @@ Top-level workflow input bracket notation keeps the same trust boundary as dotte
 
 AI step output references keep the same shell boundary whether they use dotted or bracket notation. The scanner treats `${{ steps.ai_review.outputs.summary }}`, `${{ steps.ai_review.outputs['summary'] }}`, `${{ steps['ai-review'].outputs.summary }}`, and `${{ steps['ai-review'].outputs['summary'] }}` as AI output-to-shell when they appear in a `run:` step and the referenced step is AI-related.
 
+Top-level `env` indirection keeps the original trust boundary when an AI job references the variable. The scanner treats a top-level `ISSUE_BODY: ${{ github.event.issue.body }}` env entry as untrusted AI input when an AI action uses `${{ env.ISSUE_BODY }}` or an AI-related shell step reads `$ISSUE_BODY`.
+
 ## False Positive Discipline
 
 The scanner prefers scoped findings:
