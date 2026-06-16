@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.37
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.38
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.37
+- uses: sho-tado/agentic-actions-guard@v1.10.38
   with:
     path: .
     format: sarif
@@ -44,6 +44,7 @@ Request a public workflow safety review:
 AI-assisted GitHub workflows are useful, but issue bodies, pull request descriptions, comments, discussions, and commit messages are attacker-controlled input. When those values are sent to an agent with write permissions, shell access, or repository secrets, the workflow becomes a new supply-chain risk.
 
 See [AI GitHub Actions Threat Model](docs/ai-actions-threat-model.md) for the risk model behind the scanner rules.
+See [AI Workflow Risk Gallery](docs/ai-workflow-risk-gallery.md) for quick public-safe examples that show how normal-looking AI workflow patterns cross trust boundaries.
 See [Rule Reference](docs/rule-reference.md) for stable rule IDs, severities, and remediation guidance.
 See [Risk Matrix](docs/risk-matrix.md) for the maintainer boundary each rule reviews.
 See [Maintainer Review Playbook](docs/maintainer-review-playbook.md) for a short workflow review process.
@@ -61,6 +62,7 @@ See [Workflow Templates](docs/workflow-templates.md) for copy-paste GitHub Actio
 See [GitHub Actions Step Summary Example](docs/step-summary-example.md) for the compact first-run summary shown in Actions.
 See [Accepted Risk Review Cadence](docs/accepted-risk-cadence.md) for keeping allowlisted findings owned and time-bound.
 See [AI Action Pinning Guide](docs/action-pinning.md) for guidance on mutable action refs in AI maintainer workflows.
+See [AI Workflow Risk Gallery](docs/ai-workflow-risk-gallery.md) for short examples you can compare against your own workflows.
 
 `agentic-actions-guard` gives maintainers a fast local check that is easy to run in CI:
 

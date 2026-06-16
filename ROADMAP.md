@@ -74,11 +74,12 @@
 - v1.10.35: separator-style workflow input names such as `inputs.issue_body` and `inputs['review_prompt']`
 - v1.10.36: bracket-notation AI step output references in shell commands
 - v1.10.37: top-level `env` indirection for untrusted event text consumed by AI jobs
+- v1.10.38: public-safe AI workflow risk gallery for shareable maintainer education
 
 ## Next
 
 - maintainer feedback loop for which event-context guardrails help adoption fastest
-- broader real-world fixture coverage after maintainer opt-in feedback
+- shareable visual/demo assets based on synthetic workflows, plus broader real-world fixture coverage after maintainer opt-in feedback
 
 ## Research Backlog
 
