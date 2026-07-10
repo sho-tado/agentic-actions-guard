@@ -14,14 +14,14 @@ The project targets maintainers who are starting to add AI triage, PR review, re
 Run a local review:
 
 ```powershell
-python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.38
+python -m pip install git+https://github.com/sho-tado/agentic-actions-guard.git@v1.10.39
 agentic-actions-guard scan . --format review --review-target owner/repo --fail-on critical
 ```
 
 Use it in GitHub Actions:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.38
+- uses: sho-tado/agentic-actions-guard@v1.10.39
   with:
     path: .
     format: sarif
@@ -32,7 +32,7 @@ Use it in GitHub Actions:
     step-summary: "true"
 ```
 
-This repository dogfoods the action in [`.github/workflows/agentic-actions-guard.yml`](.github/workflows/agentic-actions-guard.yml), including SARIF upload on `main`.
+This repository dogfoods the action in [`.github/workflows/agentic-actions-guard.yml`](.github/workflows/agentic-actions-guard.yml), including SARIF upload on `main`. The composite action passes configured inputs through step-scoped environment variables so input values are not inserted directly into generated Bash source.
 
 Request a public workflow safety review:
 
@@ -181,7 +181,7 @@ Exit codes:
 
 - `0`: no finding at or above the fail threshold
 - `1`: at least one finding at or above the fail threshold
-- `2`: CLI usage or scan error
+- `2`: CLI usage or scan error, including a missing scan path or invalid allowlist policy
 
 ## Current Scope
 

@@ -54,6 +54,19 @@ def test_validate_allowlist_cli_rejects_invalid_policy(tmp_path: Path, capsys) -
     assert "at least one matcher" in captured.err
 
 
+def test_validate_allowlist_cli_rejects_non_object_policy(tmp_path: Path, capsys) -> None:
+    policy = tmp_path / "agentic-actions-guard.allowlist.json"
+    policy.write_text("[]\n", encoding="utf-8")
+
+    exit_code = main(["validate-allowlist", str(policy)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.out == ""
+    assert "allowlist error:" in captured.err
+    assert "must be a JSON object" in captured.err
+
+
 def test_validate_allowlist_cli_rejects_unknown_rule(tmp_path: Path, capsys) -> None:
     policy = tmp_path / "agentic-actions-guard.allowlist.json"
     policy.write_text(
@@ -230,6 +243,18 @@ jobs:
     assert set(payload["summary"]) == {"info", "low", "medium", "high", "critical"}
     assert set(payload["suppressed_summary"]) == {"info", "low", "medium", "high", "critical"}
     assert captured.err == ""
+
+
+def test_scan_missing_path_returns_scan_error(tmp_path: Path, capsys) -> None:
+    missing = tmp_path / "does-not-exist"
+
+    exit_code = main(["scan", str(missing), "--format", "json"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.out == ""
+    assert "scan error:" in captured.err
+    assert "scan path does not exist" in captured.err
 
 
 def test_scan_sarif_output_keeps_suppression_contract(tmp_path: Path, capsys) -> None:

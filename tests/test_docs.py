@@ -13,6 +13,26 @@ def test_package_version_matches_project_metadata() -> None:
     assert f'version = "{agentic_actions_guard.__version__}"' in pyproject
 
 
+def test_composite_action_passes_inputs_through_environment() -> None:
+    action = (ROOT / "action.yml").read_text(encoding="utf-8")
+    run_script = action.split("      run: |", maxsplit=1)[1]
+
+    assert "${{ inputs." not in run_script
+    input_variables = {
+        "INPUT_PATH": "path",
+        "INPUT_FORMAT": "format",
+        "INPUT_FAIL_ON": "fail-on",
+        "INPUT_OUTPUT": "output",
+        "INPUT_ALLOWLIST": "allowlist",
+        "INPUT_ALLOWLIST_MAX_EXPIRY_DAYS": "allowlist-max-expiry-days",
+        "INPUT_ALLOWLIST_REQUIRE_REMOVAL_CONDITION": "allowlist-require-removal-condition",
+        "INPUT_STEP_SUMMARY": "step-summary",
+    }
+    for variable, input_name in input_variables.items():
+        assert f"        {variable}: ${{{{ inputs.{input_name} }}}}" in action
+        assert f'"${variable}"' in run_script
+
+
 def test_rule_reference_documents_all_rule_ids() -> None:
     reference = (ROOT / "docs" / "rule-reference.md").read_text(encoding="utf-8")
 
@@ -79,7 +99,7 @@ def test_adoption_recipes_are_linked_from_entrypoints() -> None:
 
     assert "Recipe 1: Local Maintainer Review" in recipes
     assert "Recipe 3: Code Scanning SARIF" in recipes
-    assert "sho-tado/agentic-actions-guard@v1.10.38" in recipes
+    assert "sho-tado/agentic-actions-guard@v1.10.39" in recipes
     assert "docs/adoption-recipes.md" in readme
     assert "adoption-recipes.md" in code_scanning
     assert "adoption-recipes.md" in request_docs
@@ -242,10 +262,10 @@ def test_allowlist_policy_documents_reviewed_examples() -> None:
     assert "`AGENT_WITH_WRITE_TOKEN`" in allowlist or '"rule": "AGENT_WITH_WRITE_TOKEN"' in allowlist
     assert '"rule": "CHECKOUT_CREDENTIALS_IN_AGENT_JOB"' in allowlist
     assert "Owner: maintainer-team" in allowlist
-    assert "Expires: 2026-06-14" in allowlist
-    assert "Expires: 2026-07-07" in allowlist
+    assert "Expires: YYYY-MM-DD" in allowlist
     assert '"owner": "maintainer-team"' in allowlist
-    assert '"expires": "2026-06-14"' in allowlist
+    assert '"expires": "YYYY-MM-DD"' in allowlist
+    assert "placeholder is intentionally rejected" in allowlist
     assert '"rationale":' in allowlist
     assert "Removal condition" in allowlist
     assert "Avoid broad entries" in allowlist
@@ -364,7 +384,7 @@ def test_step_summary_example_is_linked_from_entrypoints() -> None:
 
     assert "GitHub Actions Step Summary Example" in step_summary
     assert "Agentic Actions Guard Summary" in step_summary
-    assert "sho-tado/agentic-actions-guard@v1.10.38" in step_summary
+    assert "sho-tado/agentic-actions-guard@v1.10.39" in step_summary
     assert "docs/step-summary-example.md" in readme
     assert "step-summary-example.md" in recipes
 

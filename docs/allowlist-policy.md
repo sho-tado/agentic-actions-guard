@@ -12,13 +12,15 @@ Policies are JSON files with an `allowlist` array.
       "path": ".github/workflows/ai-review.yml",
       "reason": "Shell step uses fixed commands and does not consume model output.",
       "owner": "maintainer-team",
-      "expires": "2026-07-01",
+      "expires": "YYYY-MM-DD",
       "rationale": "Temporary while the team replaces the shell step with a report artifact upload.",
       "removal_condition": "The workflow uploads a report artifact instead of running a shell step."
     }
   ]
 }
 ```
+
+Replace `YYYY-MM-DD` with a real review deadline before running the validator or scanner.
 
 Run with:
 
@@ -35,7 +37,7 @@ agentic-actions-guard scan . --allowlist agentic-actions-guard.allowlist.json --
 The composite GitHub Action exposes the same controls:
 
 ```yaml
-- uses: sho-tado/agentic-actions-guard@v1.10.38
+- uses: sho-tado/agentic-actions-guard@v1.10.39
   with:
     allowlist: agentic-actions-guard.allowlist.json
     allowlist-max-expiry-days: "30"
@@ -85,7 +87,7 @@ For a practical owner and review-date process, see [Accepted Risk Review Cadence
 
 ## Reviewed Examples
 
-Use narrow matches. These examples are synthetic and show how to suppress a reviewed finding while keeping the acceptance reason explicit.
+Use narrow matches. These examples are synthetic and show how to suppress a reviewed finding while keeping the acceptance reason explicit. Replace every `YYYY-MM-DD` placeholder with a real review deadline that matches the cadence below; the placeholder is intentionally rejected by the validator.
 
 High finding example:
 
@@ -98,7 +100,7 @@ High finding example:
       "evidence": "pull-requests: write",
       "reason": "Temporarily accepted while the team moves PR comments into a maintainer-approved follow-up workflow.",
       "owner": "maintainer-team",
-      "expires": "2026-06-14",
+      "expires": "YYYY-MM-DD",
       "rationale": "The existing workflow is needed for launch triage, but writes are limited to PR comments while the two-stage design is implemented.",
       "removal_condition": "Comments move to a separate workflow that runs after maintainer approval."
     }
@@ -115,7 +117,7 @@ Accepted risk:
 - Path: .github/workflows/ai-review.yml
 - Evidence: pull-requests: write
 - Owner: maintainer-team
-- Expires: 2026-06-14
+- Expires: YYYY-MM-DD
 - Rationale: The existing workflow is needed for launch triage, but writes are limited to PR comments while the two-stage design is implemented.
 - Removal condition: comments move to a separate workflow that runs after maintainer approval
 ```
@@ -131,7 +133,7 @@ Medium finding example:
       "evidence": "actions/checkout",
       "reason": "Temporarily accepted for a read-only summary job while persist-credentials is changed to false.",
       "owner": "maintainer-team",
-      "expires": "2026-07-07",
+      "expires": "YYYY-MM-DD",
       "rationale": "The job only writes a summary, but checkout credentials should still be removed during the next maintenance window.",
       "removal_condition": "The checkout step sets persist-credentials: false."
     }
@@ -148,9 +150,9 @@ Accepted risk:
 - Path: .github/workflows/ai-summary.yml
 - Evidence: actions/checkout
 - Owner: maintainer-team
-- Expires: 2026-07-07
+- Expires: YYYY-MM-DD
 - Rationale: The job only writes a summary, but checkout credentials should still be removed during the next maintenance window.
 - Removal condition: checkout step sets persist-credentials: false
 ```
 
-Avoid broad entries such as `{ "rule": "AGENT_WITH_WRITE_TOKEN", "reason": "accepted temporarily", "owner": "team", "expires": "2026-06-14", "rationale": "temporary launch exception", "removal_condition": "later" }` because they suppress every matching finding across every workflow. Scope accepted risks by workflow path and evidence whenever possible.
+Avoid broad entries such as `{ "rule": "AGENT_WITH_WRITE_TOKEN", "reason": "accepted temporarily", "owner": "team", "expires": "YYYY-MM-DD", "rationale": "temporary launch exception", "removal_condition": "later" }` because they suppress every matching finding across every workflow. Scope accepted risks by workflow path and evidence whenever possible.

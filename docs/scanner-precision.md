@@ -20,6 +20,12 @@ If a workflow file cannot be split into job blocks, the scanner keeps a broad fa
 
 GitHub Actions scalar settings keep their security meaning when a line has a trailing comment. The scanner treats `secrets: inherit # ...` as reusable workflow secret exposure and `permissions: write-all # ...` as a write token. Named write permissions such as `contents: write # ...` and `issues: write # ...` are also treated as write tokens. Commented `permissions: read-all # ...` and `permissions: write-all # ...` count as explicit permissions declarations.
 
+YAML comment text is excluded from AI hints and risk-pattern matching while source offsets are preserved for findings. A commented-out `pull_request_target`, `workflow_run`, prompt expression, AI note, or model-output reference does not create a finding. Active scalar values before a trailing comment keep their security meaning. Content inside literal or folded block scalars remains in scope because `#` is data there rather than a YAML comment.
+
+Quoted action references keep the same meaning as unquoted references. For example, `uses: "anthropics/claude-code-action@<full-sha>"` is recognized as the curated Claude action and its full SHA is accepted as an immutable pin. Quoted `actions/checkout` steps are also included in checkout credential and pull-request-head checkout checks.
+
+Privileged event checks read event names from the top-level `on` declaration. Action inputs or nested keys that happen to be named `pull_request_target` or `workflow_run` do not trigger event findings. A `pull_request_target` finding is promoted to critical for fork-head checkout only when that checkout appears in the AI-scoped job.
+
 Inline permission maps keep the same meaning as block-style permissions. The scanner treats `permissions: { contents: write }` and AI job-level `permissions: { issues: write }` as write tokens, and inline maps count as explicit permissions declarations.
 
 Quoted permission keys and values keep the same meaning as unquoted YAML. The scanner treats `"contents": "write"`, `permissions: { "issues": "write" }`, and `permissions: "write-all"` as write tokens.

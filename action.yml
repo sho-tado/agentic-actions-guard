@@ -48,30 +48,39 @@ runs:
       run: python -m pip install "$GITHUB_ACTION_PATH"
     - name: Scan workflows
       shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_FORMAT: ${{ inputs.format }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_OUTPUT: ${{ inputs.output }}
+        INPUT_ALLOWLIST: ${{ inputs.allowlist }}
+        INPUT_ALLOWLIST_MAX_EXPIRY_DAYS: ${{ inputs.allowlist-max-expiry-days }}
+        INPUT_ALLOWLIST_REQUIRE_REMOVAL_CONDITION: ${{ inputs.allowlist-require-removal-condition }}
+        INPUT_STEP_SUMMARY: ${{ inputs.step-summary }}
       run: |
         set +e
-        args=(scan "${{ inputs.path }}" --format "${{ inputs.format }}" --fail-on "${{ inputs.fail-on }}")
-        if [ -n "${{ inputs.allowlist }}" ]; then
-          args+=(--allowlist "${{ inputs.allowlist }}")
+        args=(scan "$INPUT_PATH" --format "$INPUT_FORMAT" --fail-on "$INPUT_FAIL_ON")
+        if [ -n "$INPUT_ALLOWLIST" ]; then
+          args+=(--allowlist "$INPUT_ALLOWLIST")
         fi
-        if [ -n "${{ inputs.allowlist-max-expiry-days }}" ]; then
-          args+=(--allowlist-max-expiry-days "${{ inputs.allowlist-max-expiry-days }}")
+        if [ -n "$INPUT_ALLOWLIST_MAX_EXPIRY_DAYS" ]; then
+          args+=(--allowlist-max-expiry-days "$INPUT_ALLOWLIST_MAX_EXPIRY_DAYS")
         fi
-        if [ "${{ inputs.allowlist-require-removal-condition }}" = "true" ]; then
+        if [ "$INPUT_ALLOWLIST_REQUIRE_REMOVAL_CONDITION" = "true" ]; then
           args+=(--allowlist-require-removal-condition)
         fi
-        agentic-actions-guard "${args[@]}" > "${{ inputs.output }}"
+        agentic-actions-guard "${args[@]}" > "$INPUT_OUTPUT"
         status=$?
-        cat "${{ inputs.output }}"
-        if [ "${{ inputs.step-summary }}" = "true" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
-          summary_args=(scan "${{ inputs.path }}" --format summary --fail-on critical)
-          if [ -n "${{ inputs.allowlist }}" ]; then
-            summary_args+=(--allowlist "${{ inputs.allowlist }}")
+        cat -- "$INPUT_OUTPUT"
+        if [ "$INPUT_STEP_SUMMARY" = "true" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+          summary_args=(scan "$INPUT_PATH" --format summary --fail-on critical)
+          if [ -n "$INPUT_ALLOWLIST" ]; then
+            summary_args+=(--allowlist "$INPUT_ALLOWLIST")
           fi
-          if [ -n "${{ inputs.allowlist-max-expiry-days }}" ]; then
-            summary_args+=(--allowlist-max-expiry-days "${{ inputs.allowlist-max-expiry-days }}")
+          if [ -n "$INPUT_ALLOWLIST_MAX_EXPIRY_DAYS" ]; then
+            summary_args+=(--allowlist-max-expiry-days "$INPUT_ALLOWLIST_MAX_EXPIRY_DAYS")
           fi
-          if [ "${{ inputs.allowlist-require-removal-condition }}" = "true" ]; then
+          if [ "$INPUT_ALLOWLIST_REQUIRE_REMOVAL_CONDITION" = "true" ]; then
             summary_args+=(--allowlist-require-removal-condition)
           fi
           agentic-actions-guard "${summary_args[@]}" >> "$GITHUB_STEP_SUMMARY" || true

@@ -148,16 +148,20 @@ PERMISSIONS_BLOCK = re.compile(
     r"^\s*permissions:\s*(\n|$|['\"]?(?:read-all|write-all)['\"]?\s*(?:#.*)?$|\{[^}\n]*\}\s*(?:#.*)?$)",
     re.IGNORECASE | re.MULTILINE,
 )
-PULL_REQUEST_TARGET = re.compile(r"pull_request_target\s*:", re.IGNORECASE)
-WORKFLOW_RUN = re.compile(r"workflow_run\s*:", re.IGNORECASE)
 CHECKOUT_HEAD_REF = re.compile(
-    r"actions/checkout@[\w.\-]+[\s\S]{0,500}(github\.event\.pull_request\.head\.(sha|ref)|ref:\s*\$\{\{)",
-    re.IGNORECASE,
+    r"^[^\S\r\n]*['\"]?ref['\"]?[^\S\r\n]*:[^\S\r\n]*\$\{\{\s*"
+    + GITHUB_EVENT_ROOT
+    + PULL_REQUEST_ACCESS
+    + r"(?:\.head|\[['\"]head['\"]\])(?:\.(?:sha|ref)|\[['\"](?:sha|ref)['\"]\])\s*\}\}[^\S\r\n]*(?:#.*)?$",
+    re.IGNORECASE | re.MULTILINE,
 )
-CHECKOUT_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*actions/checkout@[\w.\-]+", re.IGNORECASE | re.MULTILINE)
+CHECKOUT_ACTION_REF = re.compile(r"^actions/checkout@[\w.\-]+$", re.IGNORECASE)
 CHECKOUT_PERSIST_CREDENTIALS_FALSE = re.compile(r"persist-credentials:\s*false\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
 RUNS_SHELL = re.compile(r"^\s*(?:-\s*)?run:\s*(\||>|[^\n]+)", re.IGNORECASE | re.MULTILINE)
-USES_ACTION = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)", re.IGNORECASE | re.MULTILINE)
+USES_ACTION = re.compile(
+    r"^\s*(?:-\s*)?uses:\s*(?P<quote>['\"]?)(?P<action>[^\s#'\"]+)(?P=quote)\s*(?:#.*)?$",
+    re.IGNORECASE | re.MULTILINE,
+)
 FULL_COMMIT_SHA_REF = re.compile(r"@[0-9a-f]{40}$", re.IGNORECASE)
 STEP_START = re.compile(r"^\s*-\s+", re.MULTILINE)
 STEP_ID = re.compile(r"^\s*(?:-\s*)?id:\s*([A-Za-z0-9_-]+)\s*(#.*)?$", re.IGNORECASE | re.MULTILINE)
@@ -731,6 +735,8 @@ def load_allowlist(
     if max_expiry_days is not None and max_expiry_days < 0:
         raise ValueError("max_expiry_days must be non-negative")
     policy = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(policy, dict):
+        raise ValueError("allowlist policy must be a JSON object")
     entries = policy.get("allowlist", [])
     if not isinstance(entries, list):
         raise ValueError("allowlist policy must contain an 'allowlist' array")
@@ -928,6 +934,12 @@ def scan_repository(
     require_allowlist_removal_condition: bool = False,
 ) -> ScanReport:
     root = path.resolve()
+    if not root.exists():
+        raise ValueError(f"scan path does not exist: {path}")
+    if root.is_file() and root.suffix.lower() not in WORKFLOW_EXTENSIONS:
+        raise ValueError("scan path must be a repository root, workflow directory, or .yml/.yaml workflow file")
+    if not root.is_file() and not root.is_dir():
+        raise ValueError(f"scan path is not a file or directory: {path}")
     allowlist_entries = load_allowlist(
         allowlist_path,
         max_expiry_days=allowlist_max_expiry_days,
@@ -963,9 +975,10 @@ def _iter_workflows(root: Path) -> list[Path]:
 
 def _scan_workflow(path: str, text: str) -> list[Finding]:
     findings: list[Finding] = []
+    active_text = _without_yaml_comments(text)
     job_blocks = _job_blocks(text)
     ai_job_blocks = [block for block in job_blocks if _is_ai_job_block(block)]
-    ai_matches = list(AI_HINTS.finditer(text))
+    ai_matches = list(AI_HINTS.finditer(_without_hash_comments(active_text)))
     has_ai = bool(ai_job_blocks) or (not job_blocks and bool(ai_matches))
     risk_scope_blocks = ai_job_blocks if ai_job_blocks else []
     untrusted_match = _ai_untrusted_match(text, risk_scope_blocks) if has_ai else None
@@ -974,17 +987,23 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
     has_secret = secret_match is not None
     write_permission = _ai_write_permission(text, risk_scope_blocks) if has_ai else None
     has_permissions_block = _has_ai_permissions_block(text, risk_scope_blocks) if has_ai else False
-    has_pull_request_target = bool(PULL_REQUEST_TARGET.search(text))
-    has_workflow_run = bool(WORKFLOW_RUN.search(text))
-    has_checkout_head_ref = bool(CHECKOUT_HEAD_REF.search(text))
+    pull_request_target_match = _event_trigger_match(text, "pull_request_target")
+    workflow_run_match = _event_trigger_match(text, "workflow_run")
+    has_pull_request_target = pull_request_target_match is not None
+    has_workflow_run = workflow_run_match is not None
+    has_checkout_head_ref = (
+        any(_has_checkout_head_ref(block.text) for block in risk_scope_blocks)
+        if risk_scope_blocks
+        else _has_checkout_head_ref(text)
+    )
     shell_match = _first_scoped_match(RUNS_SHELL, text, risk_scope_blocks) if has_ai else None
     has_shell = shell_match is not None
     checkout_credentials_match = _checkout_credentials_match(risk_scope_blocks) if has_ai else None
     ai_output_shell_match = _ai_output_to_shell_match(risk_scope_blocks) if has_ai else None
     repository_mutation_match = _ai_repository_mutation_match(risk_scope_blocks) if has_ai else None
 
-    for match in USES_ACTION.finditer(text):
-        action = match.group(1)
+    for match in USES_ACTION.finditer(active_text):
+        action = match.group("action")
         if AI_HINTS.search(action):
             profile = _curated_action_profile(action)
             if profile is not None:
@@ -1102,8 +1121,8 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
         )
 
     if has_ai and has_pull_request_target:
-        match = PULL_REQUEST_TARGET.search(text)
-        assert match is not None
+        assert pull_request_target_match is not None
+        match_text, match_offset = pull_request_target_match
         severity = "critical" if has_checkout_head_ref else "high"
         findings.append(
             _finding(
@@ -1111,25 +1130,25 @@ def _scan_workflow(path: str, text: str) -> list[Finding]:
                 "PULL_REQUEST_TARGET_AGENT",
                 path,
                 text,
-                match.start(),
+                match_offset,
                 "AI-agent workflow runs on pull_request_target.",
-                _line_at(text, match.start()),
+                match_text,
                 "Avoid running agent code on pull_request_target; never check out untrusted fork code with privileged tokens.",
             )
         )
 
     if has_ai and has_workflow_run and (write_permission is not None or has_secret):
-        match = WORKFLOW_RUN.search(text)
-        assert match is not None
+        assert workflow_run_match is not None
+        match_text, match_offset = workflow_run_match
         findings.append(
             _finding(
                 "high",
                 "WORKFLOW_RUN_AGENT_HANDOFF",
                 path,
                 text,
-                match.start(),
+                match_offset,
                 "AI-agent workflow runs on workflow_run with privileged follow-up context.",
-                _line_at(text, match.start()),
+                match_text,
                 "Treat workflow_run artifacts and upstream outputs as a trust boundary; validate handoff data and keep privileged writes in a maintainer-approved job.",
             )
         )
@@ -1214,15 +1233,17 @@ def _is_ai_job_block(block: TextBlock) -> bool:
         return True
 
     for line in block.text.splitlines():
-        if re.match(r"^\s*name:\s*", line, re.IGNORECASE) and AI_HINTS.search(line):
+        active_line = _without_yaml_comments(line)
+        if re.match(r"^\s*name:\s*", active_line, re.IGNORECASE) and AI_HINTS.search(active_line):
             return True
-        if re.match(r"^\s*uses:\s*", line, re.IGNORECASE) and AI_HINTS.search(line):
+        if re.match(r"^\s*uses:\s*", active_line, re.IGNORECASE) and AI_HINTS.search(active_line):
             return True
-        if JOB_LEVEL_PROMPT_INPUT.search(line):
+        if JOB_LEVEL_PROMPT_INPUT.search(active_line):
             return True
 
     for match in STEP_START.finditer(block.text):
-        if AI_HINTS.search(_step_text_at(block.text, match.start())):
+        step_text = _step_text_at(block.text, match.start())
+        if AI_HINTS.search(_without_hash_comments(_without_yaml_comments(step_text))):
             return True
 
     return False
@@ -1230,17 +1251,71 @@ def _is_ai_job_block(block: TextBlock) -> bool:
 
 def _first_ai_match_offset(text: str, ai_job_blocks: list[TextBlock]) -> int | None:
     if not ai_job_blocks:
-        match = AI_HINTS.search(text)
+        match = AI_HINTS.search(_without_hash_comments(_without_yaml_comments(text)))
         return match.start() if match is not None else None
     first_offset: int | None = None
     for block in ai_job_blocks:
-        match = AI_HINTS.search(block.text)
+        match = AI_HINTS.search(_without_hash_comments(_without_yaml_comments(block.text)))
         if match is None:
             continue
         absolute_offset = block.start_offset + match.start()
         if first_offset is None or absolute_offset < first_offset:
             first_offset = absolute_offset
     return first_offset
+
+
+def _event_trigger_match(text: str, event: str) -> tuple[str, int] | None:
+    active_text = _without_yaml_comments(text)
+    lines = active_text.splitlines(keepends=True)
+    offsets: list[int] = []
+    offset = 0
+    for line in lines:
+        offsets.append(offset)
+        offset += len(line)
+
+    on_pattern = re.compile(
+        r"^(?P<quote>['\"]?)on(?P=quote)[^\S\r\n]*:[^\S\r\n]*(?P<value>[^\r\n]*)(?:\r?\n)?$",
+        re.IGNORECASE,
+    )
+    event_token = re.compile(
+        rf"(?<![A-Za-z0-9_-])(?P<quote>['\"]?){re.escape(event)}(?P=quote)(?![A-Za-z0-9_-])",
+        re.IGNORECASE,
+    )
+    event_key = re.compile(
+        rf"^\s*(?:-\s*)?(?P<quote>['\"]?){re.escape(event)}(?P=quote)\s*(?::|$)",
+        re.IGNORECASE,
+    )
+
+    for on_index, line in enumerate(lines):
+        on_match = on_pattern.match(line)
+        if on_match is None:
+            continue
+        inline_value = on_match.group("value")
+        if inline_value.strip():
+            inline_match = event_token.search(inline_value)
+            if inline_match is None:
+                return None
+            match_offset = offsets[on_index] + on_match.start("value") + inline_match.start()
+            return _line_at(text, match_offset), match_offset
+
+        child_indent: int | None = None
+        for child_index in range(on_index + 1, len(lines)):
+            child_line = lines[child_index]
+            if not child_line.strip():
+                continue
+            indent = len(child_line) - len(child_line.lstrip(" "))
+            if indent == 0:
+                return None
+            if child_indent is None:
+                child_indent = indent
+            if indent != child_indent:
+                continue
+            child_match = event_key.match(child_line)
+            if child_match is not None:
+                match_offset = offsets[child_index] + child_match.start()
+                return _line_at(text, match_offset), match_offset
+        return None
+    return None
 
 
 def _job_blocks(text: str) -> list[TextBlock]:
@@ -1291,11 +1366,11 @@ def _job_blocks(text: str) -> list[TextBlock]:
 def _first_scoped_match(pattern: re.Pattern[str], text: str, scoped_blocks: list[TextBlock]) -> tuple[str, int] | None:
     if scoped_blocks:
         for block in scoped_blocks:
-            match = pattern.search(block.text)
+            match = pattern.search(_without_yaml_comments(block.text))
             if match is not None:
                 return _line_at(block.text, match.start()), block.start_offset + match.start()
         return None
-    match = pattern.search(text)
+    match = pattern.search(_without_yaml_comments(text))
     if match is None:
         return None
     return _line_at(text, match.start()), match.start()
@@ -1312,7 +1387,7 @@ def _ai_untrusted_match(text: str, ai_job_blocks: list[TextBlock]) -> tuple[str,
 
     for match in ENV_ASSIGNMENT.finditer(top_level_env.text):
         line = _line_at(top_level_env.text, match.start())
-        if not UNTRUSTED_CONTEXT.search(line):
+        if not UNTRUSTED_CONTEXT.search(_without_yaml_comments(line)):
             continue
         env_name = match.group(1)
         if _ai_job_references_env_var(ai_job_blocks, env_name):
@@ -1341,17 +1416,31 @@ def _ai_secret_match(text: str, ai_job_blocks: list[TextBlock]) -> tuple[str, in
     top_level_env = _top_level_block(text, "env")
     if top_level_env is None:
         return None
-    match = SECRET_CONTEXT.search(top_level_env.text)
+    match = SECRET_CONTEXT.search(_without_yaml_comments(top_level_env.text))
     if match is None:
         return None
     return _line_at(top_level_env.text, match.start()), top_level_env.start_offset + match.start()
 
 
+def _has_checkout_head_ref(text: str) -> bool:
+    active_text = _without_yaml_comments(text)
+    for match in USES_ACTION.finditer(active_text):
+        if not CHECKOUT_ACTION_REF.fullmatch(match.group("action")):
+            continue
+        step_text = _step_text_at(text, match.start())
+        if CHECKOUT_HEAD_REF.search(_without_yaml_comments(step_text)):
+            return True
+    return False
+
+
 def _checkout_credentials_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
     for block in ai_job_blocks:
-        for match in CHECKOUT_ACTION.finditer(block.text):
+        active_block = _without_yaml_comments(block.text)
+        for match in USES_ACTION.finditer(active_block):
+            if not CHECKOUT_ACTION_REF.fullmatch(match.group("action")):
+                continue
             step_text = _step_text_at(block.text, match.start())
-            if CHECKOUT_PERSIST_CREDENTIALS_FALSE.search(step_text):
+            if CHECKOUT_PERSIST_CREDENTIALS_FALSE.search(_without_yaml_comments(step_text)):
                 continue
             return _line_at(block.text, match.start()), block.start_offset + match.start()
     return None
@@ -1363,9 +1452,10 @@ def _ai_output_to_shell_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int]
         if not ai_step_ids:
             continue
         output_patterns = [_step_output_pattern(step_id) for step_id in ai_step_ids]
-        for match in RUNS_SHELL.finditer(block.text):
+        for match in RUNS_SHELL.finditer(_without_yaml_comments(block.text)):
             step_text = _step_text_at(block.text, match.start())
-            if any(pattern.search(step_text) for pattern in output_patterns):
+            active_step = _without_yaml_comments(step_text)
+            if any(pattern.search(active_step) for pattern in output_patterns):
                 return _line_at(block.text, match.start()), block.start_offset + match.start()
     return None
 
@@ -1378,9 +1468,10 @@ def _step_output_pattern(step_id: str) -> re.Pattern[str]:
 
 def _ai_repository_mutation_match(ai_job_blocks: list[TextBlock]) -> tuple[str, int] | None:
     for block in ai_job_blocks:
-        for match in RUNS_SHELL.finditer(block.text):
+        for match in RUNS_SHELL.finditer(_without_yaml_comments(block.text)):
             step_text = _step_text_at(block.text, match.start())
-            mutation_match = REPOSITORY_MUTATION_COMMAND.search(step_text)
+            active_step = _without_yaml_comments(step_text)
+            mutation_match = REPOSITORY_MUTATION_COMMAND.search(active_step)
             if mutation_match is not None:
                 return _line_at(step_text, mutation_match.start()), block.start_offset + match.start() + mutation_match.start()
     return None
@@ -1390,7 +1481,7 @@ def _ai_step_ids(text: str) -> set[str]:
     step_ids: set[str] = set()
     for match in STEP_START.finditer(text):
         step_text = _step_text_at(text, match.start())
-        if not AI_HINTS.search(step_text):
+        if not AI_HINTS.search(_without_hash_comments(_without_yaml_comments(step_text))):
             continue
         id_match = STEP_ID.search(step_text)
         if id_match is not None:
@@ -1519,3 +1610,69 @@ def _line_at(text: str, offset: int) -> str:
     if end == -1:
         end = len(text)
     return text[start:end].strip()
+
+
+def _without_yaml_comments(text: str) -> str:
+    sanitized: list[str] = []
+    block_scalar_indent: int | None = None
+    for line in text.splitlines(keepends=True):
+        body = line.rstrip("\r\n")
+        newline = line[len(body) :]
+        if block_scalar_indent is not None:
+            if not body.strip() or len(body) - len(body.lstrip(" ")) > block_scalar_indent:
+                sanitized.append(line)
+                continue
+            block_scalar_indent = None
+
+        comment_index = _yaml_comment_index(body)
+        if comment_index is None:
+            active_body = body
+            sanitized.append(line)
+        else:
+            active_body = body[:comment_index]
+            sanitized.append(active_body + (" " * (len(body) - comment_index)) + newline)
+
+        if re.search(r":\s*[|>][1-9+-]{0,2}\s*$", active_body):
+            block_scalar_indent = len(body) - len(body.lstrip(" "))
+    return "".join(sanitized)
+
+
+def _yaml_comment_index(line: str) -> int | None:
+    in_single_quote = False
+    in_double_quote = False
+    index = 0
+    while index < len(line):
+        char = line[index]
+        if in_single_quote:
+            if char == "'":
+                if index + 1 < len(line) and line[index + 1] == "'":
+                    index += 2
+                    continue
+                in_single_quote = False
+        elif in_double_quote:
+            if char == "\\":
+                index += 2
+                continue
+            if char == '"':
+                in_double_quote = False
+        elif char == "'":
+            in_single_quote = True
+        elif char == '"':
+            in_double_quote = True
+        elif char == "#" and (index == 0 or line[index - 1].isspace()):
+            return index
+        index += 1
+    return None
+
+
+def _without_hash_comments(text: str) -> str:
+    sanitized: list[str] = []
+    for line in text.splitlines(keepends=True):
+        body = line.rstrip("\r\n")
+        newline = line[len(body) :]
+        comment_index = _yaml_comment_index(body)
+        if comment_index is None:
+            sanitized.append(line)
+        else:
+            sanitized.append(body[:comment_index] + (" " * (len(body) - comment_index)) + newline)
+    return "".join(sanitized)

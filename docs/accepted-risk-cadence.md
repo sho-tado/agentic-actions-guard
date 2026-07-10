@@ -53,7 +53,7 @@ Accepted risk:
 - Evidence: run: ./scripts/fixed-review.sh
 - Reason: Shell step uses fixed commands and does not consume model output.
 - Owner: maintainer-team
-- Expires: 2026-07-01
+- Expires: YYYY-MM-DD
 - Rationale: The shell step is fixed and reviewed, but the team plans to replace it with a report artifact upload.
 - Removal condition: replace shell step with report artifact upload
 ```

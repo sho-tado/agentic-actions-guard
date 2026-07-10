@@ -49,12 +49,14 @@ If you accept that risk, add a scoped allowlist entry with a reason, owner, expi
       "evidence": "owner/ai-maintainer-action@v1",
       "reason": "Temporary while the maintainer team reviews the upstream v1.2.3 commit SHA.",
       "owner": "maintainer-team",
-      "expires": "2026-07-01",
+      "expires": "YYYY-MM-DD",
       "rationale": "The workflow is read-only during the review window, and the next dependency update will replace the tag with a full commit SHA.",
       "removal_condition": "The action reference is replaced with a reviewed full-length commit SHA."
     }
   ]
 }
 ```
+
+Replace `YYYY-MM-DD` with the short review deadline selected for this exception; the placeholder is not a valid allowlist expiry date.
 
 Use allowlists for reviewed exceptions, not as a default rollout strategy.

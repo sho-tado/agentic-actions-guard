@@ -2584,3 +2584,333 @@ jobs:
     report = scan_repository(tmp_path)
 
     assert "AI_GENERATED_CHANGES_PUSHED" not in {finding.rule for finding in report.findings}
+
+
+def test_quoted_full_sha_ai_action_is_curated_and_pinned(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "quoted-action.yml").write_text(
+        """name: quoted ai action
+on:
+  issues:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "anthropics/claude-code-action@1234567890abcdef1234567890abcdef12345678" # reviewed pin
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    rules = {finding.rule for finding in report.findings}
+    curated = next(finding for finding in report.findings if finding.rule == "CURATED_AI_ACTION_DETECTED")
+
+    assert "UNPINNED_AI_ACTION_REF" not in rules
+    assert curated.evidence == "anthropics/claude-code-action@1234567890abcdef1234567890abcdef12345678"
+
+
+def test_quoted_checkout_without_disabled_credentials_is_flagged(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "quoted-checkout.yml").write_text(
+        """name: quoted checkout in ai job
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 'actions/checkout@v4'
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    checkout = next(finding for finding in report.findings if finding.rule == "CHECKOUT_CREDENTIALS_IN_AGENT_JOB")
+
+    assert checkout.evidence == "- uses: 'actions/checkout@v4'"
+
+
+def test_yaml_comments_do_not_create_untrusted_input_findings(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "commented-input.yml").write_text(
+        """name: ai review
+on:
+  issues:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+      # prompt: ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "UNTRUSTED_INPUT_TO_AGENT" not in {finding.rule for finding in report.findings}
+
+
+def test_block_scalar_content_is_not_treated_as_yaml_comment(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "block-scalar-input.yml").write_text(
+        """name: ai review
+on:
+  issues:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+        with:
+          prompt: |
+            # ${{ github.event.issue.body }}
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "UNTRUSTED_INPUT_TO_AGENT" in {finding.rule for finding in report.findings}
+
+
+def test_block_scalar_hash_comment_does_not_make_a_normal_job_agentic(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "commented-script.yml").write_text(
+        """name: lint
+on:
+  push:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          # AI migration note
+          echo safe
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert report.findings == []
+
+
+def test_yaml_comments_do_not_make_a_normal_job_agentic(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "commented-ai.yml").write_text(
+        """name: lint
+on:
+  push:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo safe # AI migration note
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert report.findings == []
+
+
+def test_commented_privileged_events_do_not_trigger_findings(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "commented-events.yml").write_text(
+        """name: ai review
+on:
+  issues:
+  # pull_request_target:
+  # workflow_run:
+permissions:
+  contents: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    rules = {finding.rule for finding in report.findings}
+
+    assert "PULL_REQUEST_TARGET_AGENT" not in rules
+    assert "WORKFLOW_RUN_AGENT_HANDOFF" not in rules
+
+
+def test_quoted_pull_request_target_event_is_detected(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "quoted-event.yml").write_text(
+        """name: ai review
+on:
+  'pull_request_target':
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    finding = next(finding for finding in report.findings if finding.rule == "PULL_REQUEST_TARGET_AGENT")
+
+    assert finding.severity == "high"
+
+
+def test_pull_request_target_checkout_of_trusted_ref_stays_high(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "trusted-ref.yml").write_text(
+        """name: ai review
+on:
+  pull_request_target:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    finding = next(finding for finding in report.findings if finding.rule == "PULL_REQUEST_TARGET_AGENT")
+
+    assert finding.severity == "high"
+
+
+def test_pull_request_target_quoted_checkout_of_head_ref_is_critical(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "head-ref.yml").write_text(
+        """name: ai review
+on:
+  pull_request_target:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    finding = next(finding for finding in report.findings if finding.rule == "PULL_REQUEST_TARGET_AGENT")
+
+    assert finding.severity == "critical"
+
+
+def test_event_named_action_inputs_do_not_trigger_privileged_event_findings(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "event-inputs.yml").write_text(
+        """name: ai review
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+        with:
+          pull_request_target: disabled
+          workflow_run: disabled
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    rules = {finding.rule for finding in report.findings}
+
+    assert "PULL_REQUEST_TARGET_AGENT" not in rules
+    assert "WORKFLOW_RUN_AGENT_HANDOFF" not in rules
+
+
+def test_inline_pull_request_target_event_is_detected(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "inline-event.yml").write_text(
+        """name: ai review
+on: [push, pull_request_target]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+
+    assert "PULL_REQUEST_TARGET_AGENT" in {finding.rule for finding in report.findings}
+
+
+def test_pull_request_target_head_checkout_in_non_ai_job_stays_high(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "separate-checkout.yml").write_text(
+        """name: ai review
+on:
+  pull_request_target:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: openai/agent-action@1234567890abcdef1234567890abcdef12345678
+""",
+        encoding="utf-8",
+    )
+
+    report = scan_repository(tmp_path)
+    finding = next(finding for finding in report.findings if finding.rule == "PULL_REQUEST_TARGET_AGENT")
+
+    assert finding.severity == "high"

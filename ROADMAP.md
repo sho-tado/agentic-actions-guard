@@ -75,6 +75,7 @@
 - v1.10.36: bracket-notation AI step output references in shell commands
 - v1.10.37: top-level `env` indirection for untrusted event text consumed by AI jobs
 - v1.10.38: public-safe AI workflow risk gallery for shareable maintainer education
+- v1.10.39: composite-action input hardening, controlled scan errors, and scanner precision fixes for quoted refs, comments, privileged events, and AI-scoped fork checkout
 
 ## Next
 
